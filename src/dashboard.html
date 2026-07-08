@@ -1120,11 +1120,11 @@ function buildModalHTML(d,id){
     <div class="qr-section">
       <div class="qr-img-wrap"><div id="qr-box"></div></div>
       <div class="qr-right">
-        <input readonly class="qr-url" value="${rurl}">
+        <input readonly class="qr-url" value="/src/receiver?id=${id}}">
         <div style="display:flex;gap:8px;margin-top:4px;">
           <button class="act-btn" onclick="copyLink('${id}')">📋 คัดลอกลิงก์</button>
          <a href="/src/receiver?id=${id}" target="_blank" class="act-btn" style="padding:6px 11px;text-decoration:none">📦เปิดหน้ารับ ↗</a>
-          <button class="act-btn edit" onclick="printQR('${rurl}','${escA(d.sender||'')}','${escA(d.invoice||'')}','${escA(d.recipient||'')}')">🖨️ พิมพ์ QR</button>
+          <button class="act-btn edit" onclick="printQR('/src/receiver?id=${id}}','${escA(d.sender||'')}','${escA(d.invoice||'')}','${escA(d.recipient||'')}')">🖨️ พิมพ์ QR</button>
         </div>
         <div class="qr-hint">สแกนเพื่อเปิดหน้าต่างเซ็นรับสินค้าบนมือถือ</div>
       </div>
