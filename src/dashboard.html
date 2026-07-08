@@ -1122,7 +1122,7 @@ function buildModalHTML(d,id){
       <div class="qr-right">
         <input readonly class="qr-url" value="/src/receiver?id=${id}}">
         <div style="display:flex;gap:8px;margin-top:4px;">
-          <button class="act-btn" onclick="copyLink('${id}')">📋 คัดลอกลิงก์</button>
+          <button class="act-btn" onclick="copyLink('/src/receiver?id=${id}')">📋 คัดลอกลิงก์</button>
          <a href="/src/receiver?id=${id}" target="_blank" class="act-btn" style="padding:6px 11px;text-decoration:none">📦เปิดหน้ารับ ↗</a>
           <button class="act-btn edit" onclick="printQR('/src/receiver?id=${id}}','${escA(d.sender||'')}','${escA(d.invoice||'')}','${escA(d.recipient||'')}')">🖨️ พิมพ์ QR</button>
         </div>
