@@ -312,7 +312,22 @@ ul.tree ul{margin-top:0;}
   <p class="footer-note">© 2026 บริษัทตัวอย่าง จำกัด (มหาชน) — ข้อมูลตัวอย่างเพื่อสาธิตการใช้งานเท่านั้น</p>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAkPFzgT7hLAxPVI129F-vRzA65MIx2VIs",
+  authDomain: "gunkul-my-task-system.firebaseapp.com",
+  projectId: "gunkul-my-task-system",
+  storageBucket: "gunkul-my-task-system.firebasestorage.app",
+  messagingSenderId: "877006770872",
+  appId: "1:877006770872:web:ec56ec0089512899811a4d"
+};
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+const orgDocRef = doc(db, 'orgchart', 'main');
+
 (function(){
   var STORAGE_KEY = 'org-chart-tree-v1';
   var uid = function(){ return 'n'+Math.random().toString(36).slice(2,10); };
@@ -377,26 +392,39 @@ ul.tree ul{margin-top:0;}
     dot.classList.toggle('saving', on);
   }
 
+  var suppressNextSnapshot = false;
+
   function persist(){
     setSaving(true);
     clearTimeout(saveTimer);
     saveTimer = setTimeout(async function(){
       try{
-        if(window.storage){ await window.storage.set(STORAGE_KEY, JSON.stringify(data), false); }
+        suppressNextSnapshot = true;
+        await setDoc(orgDocRef, { tree: JSON.stringify(data), updatedAt: Date.now() });
       }catch(e){ console.warn('save failed', e); }
       setSaving(false);
     }, 400);
   }
 
-  async function load(){
-    try{
-      if(window.storage){
-        var res = await window.storage.get(STORAGE_KEY, false);
-        if(res && res.value){ data = JSON.parse(res.value); render(); return; }
+  function startRealtimeSync(){
+    onSnapshot(orgDocRef, function(snap){
+      // Our own write just landed back — we already have this state rendered, skip.
+      if(suppressNextSnapshot){ suppressNextSnapshot = false; return; }
+      if(snap.exists() && snap.data() && snap.data().tree){
+        try{
+          data = JSON.parse(snap.data().tree);
+          render();
+        }catch(e){ console.warn('parse failed', e); }
+      } else if(!data){
+        // No document yet in Firestore — seed it with sample data.
+        data = sampleData();
+        render();
+        persist();
       }
-    }catch(e){}
-    data = sampleData();
-    render();
+    }, function(err){
+      console.warn('realtime sync failed', err);
+      if(!data){ data = sampleData(); render(); }
+    });
   }
 
   function findNode(node, id){
@@ -684,7 +712,8 @@ ul.tree ul{margin-top:0;}
   document.getElementById('zoomOut').addEventListener('click', function(){ setZoom(zoom-0.1); });
   document.getElementById('zoomReset').addEventListener('click', function(){ setZoom(0.85); });
 
-  load().then(function(){ setZoom(0.85); });
+  setZoom(0.85);
+  startRealtimeSync();
 })();
 </script>
 </body>
