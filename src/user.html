@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Checker.Noppawong - ระบบรายการรอรับสินค้า</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root, [data-theme="dark"] {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2333;
+    --border: #2a3048;
+    --accent: #4f8ef7;
+    --accent2: #7c5cfc;
+    --text: #e8eaf0;
+    --muted: #6b7299;
+    --success: #2dd4a0;
+    --danger: #f75f5f;
+    --warn: #f7a94f;
+    --radius: 10px;
+    --theme-btn-bg: #1e2333;
+    --theme-btn-border: #2a3048;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-top: env(safe-area-inset-top, 0px);
+  }
+  [data-theme="light"] {
+    --bg: #f0f2f8;
+    --surface: #ffffff;
+    --surface2: #f5f7fc;
+    --border: #dde1ee;
+    --accent: #3b7ef0;
+    --accent2: #6b44f0;
+    --text: #1a1d2e;
+    --muted: #7a82a8;
+    --success: #16a87a;
+    --danger: #e03e3e;
+    --warn: #d97b1a;
+    --radius: 10px;
+    --theme-btn-bg: #eef0f8;
+    --theme-btn-border: #dde1ee;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overscroll-behavior: none;
+  }
+
+  /* ---- Topbar ---- */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: calc(14px + var(--safe-top)) 24px 14px;
+    display: flex; align-items: center; gap: 12px;
+    position: sticky; top: 0; z-index: 100;
+    transition: background 0.25s, border-color 0.25s;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  .topbar-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--warn), #f76f4f);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .topbar h1 { font-size: 16px; font-weight: 600; }
+  .topbar-sub { font-size: 12px; color: var(--muted); }
+  .topbar-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+  /* ---- Offline Banner ---- */
+  .offline-banner {
+    display: none;
+    background: rgba(247,95,95,0.12);
+    border-bottom: 1px solid rgba(247,95,95,0.3);
+    padding: 8px 24px;
+    font-size: 13px;
+    color: var(--danger);
+    text-align: center;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+  }
+  .offline-banner.show { display: flex; }
+
+  /* ---- Theme Toggle ---- */
+  .theme-toggle {
+    width: 36px; height: 36px;
+    background: var(--theme-btn-bg);
+    border: 1px solid var(--theme-btn-border);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    transition: border-color 0.2s;
+    flex-shrink: 0;
+  }
+  .theme-toggle:active { opacity: 0.7; }
+
+  /* ---- Stat Banner ---- */
+  .stat-banner {
+    max-width: 900px;
+    margin: 20px auto 0;
+    padding: 0 24px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .stat-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 38px;
+    font-weight: 600;
+    color: var(--warn);
+    line-height: 1;
+  }
+  .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .stat-divider { width: 1px; height: 40px; background: var(--border); }
+
+  /* ---- Search ---- */
+  .search-bar {
+    max-width: 900px;
+    margin: 16px auto 0;
+    padding: 0 24px;
+  }
+  .search-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 16px;
+    padding: 10px 16px;
+    outline: none;
+    transition: border-color 0.2s, background 0.25s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--muted); font-size: 14px; }
+
+  /* ---- Load More ---- */
+  .load-more-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 8px;
+    display: none;
+  }
+  .load-more-wrap.show { display: block; }
+  .load-more-btn {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--accent);
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s;
+  }
+  .load-more-btn:hover { background: var(--surface2); border-color: var(--accent); }
+  .load-more-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ---- Cards Grid ---- */
+  .cards-wrap {
+    max-width: 900px;
+    margin: 16px auto;
+    padding: 0 24px calc(80px + var(--safe-bottom));
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 14px;
+  }
+
+  /* ---- Skeleton Loading ---- */
+  .skeleton-wrap {
+    max-width: 900px;
+    margin: 16px auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 14px;
+  }
+  .skeleton-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    overflow: hidden;
+  }
+  .skeleton-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--border);
+    border-radius: 2px 0 0 2px;
+  }
+  .skel {
+    background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+  }
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  .skel-row1 { height: 16px; width: 55%; margin-bottom: 8px; }
+  .skel-row2 { height: 12px; width: 35%; margin-bottom: 16px; }
+  .skel-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .skel-cell { height: 52px; border-radius: 8px; }
+  .skel-row3 { height: 11px; width: 40%; }
+
+  /* ---- Entry Card ---- */
+  .entry-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+    position: relative;
+    overflow: hidden;
+    animation: slideIn 0.3s ease both;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .entry-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--warn), #f76f4f);
+    border-radius: 2px 0 0 2px;
+  }
+  .entry-card:hover {
+    border-color: rgba(247,169,79,0.4);
+    background: var(--surface2);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  }
+  .entry-card:active {
+    background: var(--surface2);
+    border-color: rgba(247,169,79,0.4);
+  }
+
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  .card-sender { font-size: 15px; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .card-invoice { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; flex-shrink: 0; }
+  .badge-pending { background: rgba(247,169,79,0.12); color: var(--warn); border: 1px solid rgba(247,169,79,0.25); }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .badge-pending .badge-dot { background: var(--warn); animation: pulse 1.8s ease-in-out infinite; }
+
+  .card-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .meta-cell { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; transition: background 0.25s; }
+  .meta-cell label { font-size: 10px; color: var(--muted); display: block; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .meta-cell span { font-size: 13px; font-weight: 500; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .card-items { display: flex; gap: 5px; flex-wrap: wrap; }
+  .item-chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; font-size: 11px; color: var(--muted); padding: 3px 8px; white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
+  .item-chip-more { color: var(--accent); border-color: rgba(79,142,247,0.3); background: rgba(79,142,247,0.07); flex-shrink: 0; }
+
+  .card-footer { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-date { font-size: 11px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+  .card-arrow { color: var(--accent); font-size: 12px; font-weight: 500; }
+
+  /* ---- Empty ---- */
+  .state-wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-icon { font-size: 48px; margin-bottom: 14px; }
+  .empty-title { font-size: 16px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
+  .empty-sub { font-size: 13px; }
+
+  /* ---- Modal ---- */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 200;
+    display: none; align-items: center; justify-content: center;
+    padding: 16px;
+    overscroll-behavior: contain;
+  }
+  .overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    width: 100%; max-width: 680px;
+    height: 88vh;
+    max-height: 820px;
+    overflow: hidden;
+    animation: fadeUp 0.22s ease;
+    display: flex; flex-direction: column;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+  .modal-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 10px;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .modal-header-icon {
+    width: 30px; height: 30px;
+    background: linear-gradient(135deg, var(--warn), #f76f4f);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .modal-header-info { flex: 1; min-width: 0; }
+  .modal-header-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .modal-header-sub { font-size: 11px; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .modal-header-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+  .btn-icon {
+    width: 32px; height: 32px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: var(--muted);
+    transition: color 0.18s, border-color 0.18s;
+    text-decoration: none;
+  }
+  .btn-icon:active { color: var(--text); border-color: var(--accent); }
+  .btn-close-x { font-size: 16px; }
+
+  .iframe-wrap {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  .iframe-loader {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px;
+    background: var(--surface);
+    z-index: 5;
+    transition: opacity 0.3s;
+  }
+  .iframe-loader.hidden { opacity: 0; pointer-events: none; }
+  .iframe-loader .spinner { margin: 0; }
+  .iframe-loader-text { font-size: 13px; color: var(--muted); }
+
+  .spinner {
+    width: 28px; height: 28px;
+    border: 2.5px solid var(--border);
+    border-top-color: var(--warn);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 60px auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .receiver-iframe {
+    width: 100%; height: 100%;
+    border: none;
+    display: block;
+    background: var(--bg);
+  }
+
+  /* ---- New item flash ---- */
+  @keyframes newFlash {
+    0% { background: rgba(247,169,79,0.18); border-color: rgba(247,169,79,0.5); }
+    100% { background: var(--surface); border-color: var(--border); }
+  }
+  .entry-card.new-flash { animation: slideIn 0.3s ease both, newFlash 2s ease 0.3s forwards; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(0.75); }
+  }
+
+  /* ---- Toast ---- */
+  #_toast {
+    position: fixed;
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 13px;
+    color: var(--text);
+    z-index: 9999;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    white-space: nowrap;
+    display: none;
+    pointer-events: none;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 640px) {
+    .cards-wrap { grid-template-columns: 1fr; padding: 0 12px calc(60px + var(--safe-bottom)); }
+    .skeleton-wrap { grid-template-columns: 1fr; padding: 0 12px; }
+    .stat-banner { padding: 0 12px; }
+    .search-bar { padding: 0 12px; }
+    .load-more-wrap { padding: 0 12px 8px; }
+    .topbar { padding: calc(12px + var(--safe-top)) 16px 12px; }
+    .overlay {
+      padding: 0;
+      align-items: flex-end;
+    }
+    .modal {
+      height: 92vh;
+      max-height: none;
+      border-radius: 16px 16px 0 0;
+      padding-bottom: var(--safe-bottom);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skel { animation: none; background: var(--surface2); }
+    .badge-pending .badge-dot { animation: none; }
+    .entry-card { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ---- Offline Banner ---- -->
+<div class="offline-banner" id="offline-banner">
+  ⚠️ ไม่มีการเชื่อมต่ออินเทอร์เน็ต — ข้อมูลที่แสดงอาจไม่ใหม่ล่าสุด
+</div>
+
+<!-- ---- Topbar ---- -->
+<div class="topbar">
+  <div class="topbar-icon">⏳</div>
+  <div>
+    <h1>รายการรอดำเนินการ</h1>
+    <div class="topbar-sub">รายการรอรับสินค้า</div>
+  </div>
+  <div class="topbar-actions">
+    <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="เปลี่ยนธีม">🌙</button>
+  </div>
+</div>
+
+<div class="stat-banner">
+  <div>
+    <div class="stat-num" id="stat-pending">—</div>
+    <div class="stat-label">รายการรอรับสินค้า</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div style="font-size:13px;color:var(--muted);line-height:1.7;">
+    รายการจะ<strong style="color:var(--text)">หายไปอัตโนมัติ</strong><br>เมื่อสแกนหรือเซ็นรับสินค้าแล้ว
+  </div>
+</div>
+
+<div class="search-bar">
+  <input
+    type="search"
+    inputmode="search"
+    class="search-input"
+    id="search-input"
+    placeholder="🔍  ค้นหา ผู้ส่ง / Invoice / บริษัท / คลัง..."
+    oninput="debouncedRender()"
+    autocomplete="off"
+    autocorrect="off"
+    spellcheck="false"
+  >
+</div>
+
+<div id="skeleton-state" class="skeleton-wrap">
+  <div class="skeleton-card" style="position:relative;">
+    <div class="skel skel-row1"></div>
+    <div class="skel skel-row2"></div>
+    <div class="skel-meta">
+      <div class="skel skel-cell"></div>
+      <div class="skel skel-cell"></div>
+    </div>
+    <div class="skel skel-row3"></div>
+  </div>
+  <div class="skeleton-card" style="position:relative;">
+    <div class="skel skel-row1"></div>
+    <div class="skel skel-row2"></div>
+    <div class="skel-meta">
+      <div class="skel skel-cell"></div>
+      <div class="skel skel-cell"></div>
+    </div>
+    <div class="skel skel-row3"></div>
+  </div>
+  <div class="skeleton-card" style="position:relative;">
+    <div class="skel skel-row1"></div>
+    <div class="skel skel-row2"></div>
+    <div class="skel-meta">
+      <div class="skel skel-cell"></div>
+      <div class="skel skel-cell"></div>
+    </div>
+    <div class="skel skel-row3"></div>
+  </div>
+</div>
+
+<!-- ---- Empty State ---- -->
+<div id="empty-state" class="state-wrap" style="display:none;">
+  <div class="empty">
+    <div class="empty-icon">✅</div>
+    <div class="empty-title">ไม่มีรายการรอดำเนินการ</div>
+    <div class="empty-sub">รายการทั้งหมดได้รับสินค้าแล้ว หรือยังไม่มีรายการใหม่</div>
+  </div>
+</div>
+
+<!-- ---- Cards ---- -->
+<div class="cards-wrap" id="cards-wrap" style="display:none;"></div>
+
+<!-- ---- Load More ---- -->
+<div class="load-more-wrap" id="load-more-wrap">
+  <button class="load-more-btn" id="load-more-btn" onclick="loadMore()">
+    โหลดรายการเพิ่มเติม ↓
+  </button>
+</div>
+
+<!-- ---- Receiver Modal ---- -->
+<div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-header-icon">📦</div>
+      <div class="modal-header-info">
+        <div class="modal-header-title" id="modal-title">กำลังโหลด...</div>
+        <div class="modal-header-sub" id="modal-sub">หน้ารับสินค้า</div>
+      </div>
+      <div class="modal-header-actions">
+        <a id="modal-open-tab" href="#" target="_blank" class="btn-icon" title="เปิดในแท็บใหม่">↗</a>
+        <button class="btn-icon btn-close-x" onclick="closeModal()" title="ปิด">✕</button>
+      </div>
+    </div>
+    <div class="iframe-wrap">
+      <div class="iframe-loader" id="iframe-loader">
+        <div class="spinner"></div>
+        <div class="iframe-loader-text">กำลังโหลดหน้ารับสินค้า...</div>
+      </div>
+      <iframe
+        id="receiver-iframe"
+        class="receiver-iframe"
+        src="about:blank"
+        allow="clipboard-write"
+      ></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ---- Toast ---- -->
+<div id="_toast"></div>
+
+<script>
+  const THEME_KEY = 'wh_user_theme';
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const btn = document.getElementById('theme-toggle-btn');
+    if (btn) btn.textContent = theme === 'dark' ? '🌙' : '☀️';
+    localStorage.setItem(THEME_KEY, theme);
+  }
+  window.toggleTheme = function() {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+  };
+  (function() { applyTheme(localStorage.getItem(THEME_KEY) || 'dark'); })();
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  startAfter,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAkPFzgT7hLAxPVI129F-vRzA65MIx2VIs",
+  authDomain: "gunkul-my-task-system.firebaseapp.com",
+  projectId: "gunkul-my-task-system",
+  storageBucket: "gunkul-my-task-system.firebasestorage.app",
+  messagingSenderId: "877006770872",
+  appId: "1:877006770872:web:ec56ec0089512899811a4d"
+};
+
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
+
+// ─── Constants ──
+const PAGE_SIZE       = 50;
+const RECEIVER_BASE   = 'https://gunkul-my-task-system.web.app/warehouse/receiver.html';
+const SEARCH_DELAY_MS = 280;
+
+let allPending      = [];
+let prevIds         = new Set();
+let newIds          = new Set();
+let currentOpenId   = null;
+let savedScrollY    = 0;
+let lastDoc         = null;
+let hasMore         = false;
+let unsubscribe     = null;
+
+const offlineBanner = document.getElementById('offline-banner');
+window.addEventListener('offline', () => offlineBanner.classList.add('show'));
+window.addEventListener('online',  () => offlineBanner.classList.remove('show'));
+if (!navigator.onLine) offlineBanner.classList.add('show');
+
+// ─── Query & Snapshot ───
+function buildQuery() {
+  return query(
+    collection(db, 'warehouse_deliveries'),
+    where('status', '==', 'pending'),
+    orderBy('createdAt', 'desc'),
+    limit(PAGE_SIZE)
+  );
+}
+
+function subscribeSnapshot() {
+  if (unsubscribe) unsubscribe();
+
+  const q = buildQuery();
+
+  unsubscribe = onSnapshot(
+    q,
+    (snap) => {
+      document.getElementById('skeleton-state').style.display = 'none';
+
+      const freshDocs  = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const freshIds   = new Set(freshDocs.map(d => d.id));
+
+      // ตรวจรายการใหม่ที่เพิ่งเข้ามา
+      freshDocs.forEach(d => {
+        if (!prevIds.has(d.id)) newIds.add(d.id);
+      });
+      prevIds = freshIds;
+
+      // เก็บ cursor สำหรับ load more
+      lastDoc = snap.docs.length === PAGE_SIZE
+        ? snap.docs[snap.docs.length - 1]
+        : null;
+      hasMore = snap.docs.length === PAGE_SIZE;
+      updateLoadMoreBtn();
+
+      const existingMap = new Map(allPending.map(d => [d.id, d]));
+      freshDocs.forEach(d => existingMap.set(d.id, d));
+
+      allPending.forEach(d => {
+        if (prevIds.has(d.id) && !freshIds.has(d.id)) {
+          existingMap.delete(d.id);
+        }
+      });
+      allPending = Array.from(existingMap.values())
+        .sort((a, b) => {
+          const ta = a.createdAt?.seconds || 0;
+          const tb = b.createdAt?.seconds || 0;
+          return tb - ta;
+        });
+
+      document.getElementById('stat-pending').textContent = allPending.length + (hasMore ? '+' : '');
+      renderCards();
+
+      if (currentOpenId && !freshIds.has(currentOpenId)) {
+        closeModal();
+        showToast('✅ รายการนี้รับสินค้าเรียบร้อยแล้ว');
+      }
+    },
+    (err) => {
+      document.getElementById('skeleton-state').style.display = 'none';
+      document.getElementById('cards-wrap').style.display    = 'none';
+      document.getElementById('empty-state').style.display   = 'block';
+      document.getElementById('empty-state').querySelector('.empty-icon').textContent  = '⚠️';
+      document.getElementById('empty-state').querySelector('.empty-title').textContent = 'โหลดข้อมูลไม่สำเร็จ';
+      document.getElementById('empty-state').querySelector('.empty-sub').textContent   = err.message;
+    }
+  );
+}
+
+// ─── Load More ───────────────────────────────────────────────────────────────
+window.loadMore = async function() {
+  if (!lastDoc || !hasMore) return;
+  const btn = document.getElementById('load-more-btn');
+  btn.disabled    = true;
+  btn.textContent = 'กำลังโหลด...';
+
+  const { getDocs } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+  const q = query(
+    collection(db, 'warehouse_deliveries'),
+    where('status', '==', 'pending'),
+    orderBy('createdAt', 'desc'),
+    startAfter(lastDoc),
+    limit(PAGE_SIZE)
+  );
+
+  try {
+    const snap     = await getDocs(q);
+    const moreDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    moreDocs.forEach(d => {
+      if (!allPending.find(x => x.id === d.id)) {
+        allPending.push(d);
+        newIds.add(d.id);
+      }
+    });
+
+    lastDoc = snap.docs.length === PAGE_SIZE ? snap.docs[snap.docs.length - 1] : null;
+    hasMore = snap.docs.length === PAGE_SIZE;
+
+    document.getElementById('stat-pending').textContent = allPending.length + (hasMore ? '+' : '');
+    updateLoadMoreBtn();
+    renderCards();
+  } catch (err) {
+    showToast('⚠️ โหลดเพิ่มไม่สำเร็จ: ' + err.message);
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'โหลดรายการเพิ่มเติม ↓';
+  }
+};
+
+function updateLoadMoreBtn() {
+  const wrap = document.getElementById('load-more-wrap');
+  wrap.classList.toggle('show', hasMore);
+}
+
+let debounceTimer = null;
+window.debouncedRender = function() {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(renderCards, SEARCH_DELAY_MS);
+};
+
+window.renderCards = function() {
+  const search = document.getElementById('search-input').value.toLowerCase().trim();
+  let docs = allPending;
+  if (search) {
+    docs = docs.filter(d =>
+      (d.sender    || '').toLowerCase().includes(search) ||
+      (d.recipient || '').toLowerCase().includes(search) ||
+      (d.invoice   || '').toLowerCase().includes(search) ||
+      (d.warehouse || '').toLowerCase().includes(search)
+    );
+  }
+
+  const wrap  = document.getElementById('cards-wrap');
+  const empty = document.getElementById('empty-state');
+
+  if (docs.length === 0) {
+    wrap.style.display  = 'none';
+    empty.style.display = 'block';
+    empty.querySelector('.empty-icon').textContent  = search ? '🔍' : '✅';
+    empty.querySelector('.empty-title').textContent = search ? `ไม่พบรายการ "${search}"` : 'ไม่มีรายการรอดำเนินการ';
+    empty.querySelector('.empty-sub').textContent   = search ? 'ลองเปลี่ยนคำค้นหา' : 'รายการทั้งหมดได้รับสินค้าแล้ว หรือยังไม่มีรายการใหม่';
+    return;
+  }
+  wrap.style.display  = 'grid';
+  empty.style.display = 'none';
+
+  // Diff-patch: อัปเดตเฉพาะที่เปลี่ยน
+  const existingCards = new Map();
+  wrap.querySelectorAll('.entry-card[data-id]').forEach(el => {
+    existingCards.set(el.dataset.id, el);
+  });
+
+  const docsIdSet = new Set(docs.map(d => d.id));
+  existingCards.forEach((el, id) => {
+    if (!docsIdSet.has(id)) el.remove();
+  });
+
+  docs.forEach((d, idx) => {
+    let el;
+    if (existingCards.has(d.id)) {
+      el = existingCards.get(d.id);
+      const inner = buildCardInner(d);
+      if (el.dataset.hash !== inner.hash) {
+        el.innerHTML    = inner.html;
+        el.dataset.hash = inner.hash;
+      }
+    } else {
+      el             = document.createElement('div');
+      el.className   = 'entry-card' + (newIds.has(d.id) ? ' new-flash' : '');
+      el.dataset.id  = d.id;
+      const inner    = buildCardInner(d);
+      el.innerHTML   = inner.html;
+      el.dataset.hash = inner.hash;
+      if (newIds.has(d.id)) {
+        setTimeout(() => newIds.delete(d.id), 3000);
+      }
+    }
+    const currentAtIdx = wrap.children[idx];
+    if (currentAtIdx !== el) wrap.insertBefore(el, currentAtIdx || null);
+  });
+};
+
+function buildCardInner(d) {
+  const dateStr = d.date
+    ? new Date(d.date).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })
+    : '—';
+  const createdStr = d.createdAt?.toDate
+    ? d.createdAt.toDate().toLocaleString('th-TH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+    : '';
+  const items = d.items || [];
+  const chips = items.slice(0, 3).map(it =>
+    `<span class="item-chip">${escHtml(it.name)} \u00d7 ${it.qty}${it.unit || 'ชิ้น'}</span>`
+  ).join('');
+  const more = items.length > 3
+    ? `<span class="item-chip item-chip-more">+${items.length - 3} รายการ</span>` : '';
+
+  const html = `
+    <div class="card-header">
+      <div>
+        <div class="card-sender">${escHtml(d.sender || '—')}</div>
+        ${d.invoice ? `<div class="card-invoice">${escHtml(d.invoice)}</div>` : ''}
+      </div>
+      <span class="badge badge-pending"><span class="badge-dot"></span>รอดำเนินการ</span>
+    </div>
+    <div class="card-meta">
+      <div class="meta-cell"><label>บริษัทผู้รับ</label><span>${escHtml(d.recipient || '—')}</span></div>
+      <div class="meta-cell"><label>คลังสินค้า</label><span>${escHtml(d.warehouse || '—')}</span></div>
+    </div>
+    ${items.length > 0 ? `<div class="card-items">${chips}${more}</div>` : ''}
+    <div class="card-footer">
+      <div class="card-date">${dateStr}${createdStr ? ` · สร้าง ${createdStr}` : ''}</div>
+      <div class="card-arrow">📱 รับสินค้า →</div>
+    </div>
+  `;
+  const hash = `${d.sender}|${d.invoice}|${d.recipient}|${d.warehouse}|${items.length}`;
+  return { html, hash };
+}
+
+window.openReceiver = function(id) {
+  const d = allPending.find(x => x.id === id);
+  if (!d) return;
+  currentOpenId = id;
+  const url = `${RECEIVER_BASE}?id=${id}`;
+
+  document.getElementById('modal-title').textContent   = d.sender || 'รับสินค้า';
+  document.getElementById('modal-sub').textContent     = d.invoice ? `Invoice: ${d.invoice}` : `ID: ${id}`;
+  document.getElementById('modal-open-tab').href       = url;
+
+  document.getElementById('iframe-loader').classList.remove('hidden');
+  document.getElementById('receiver-iframe').src       = url;
+  document.getElementById('overlay').classList.add('open');
+
+  savedScrollY = window.scrollY;
+  document.body.style.overflow = 'hidden';
+  document.body.style.width    = '100%';
+};
+
+document.getElementById('receiver-iframe').addEventListener('load', () => {
+  const iframe = document.getElementById('receiver-iframe');
+  if (!iframe.src || iframe.src === 'about:blank') return;
+  setTimeout(() => {
+    document.getElementById('iframe-loader')?.classList.add('hidden');
+  }, 200);
+});
+
+window.handleOverlayClick = function(e) {
+  if (e.target === document.getElementById('overlay')) closeModal();
+};
+
+window.closeModal = function() {
+  document.getElementById('overlay').classList.remove('open');
+
+  document.body.style.overflow = '';
+  document.body.style.width    = '';
+  window.scrollTo(0, savedScrollY);
+
+  currentOpenId = null;
+  document.getElementById('iframe-loader')?.classList.remove('hidden');
+
+  setTimeout(() => {
+    if (!document.getElementById('overlay').classList.contains('open')) {
+      document.getElementById('receiver-iframe').src = 'about:blank';
+    }
+  }, 300);
+};
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('overlay').classList.contains('open')) {
+    closeModal();
+  }
+});
+
+document.getElementById('cards-wrap').addEventListener('click', (e) => {
+  const card = e.target.closest('.entry-card');
+  if (!card) return;
+  openReceiver(card.dataset.id);
+});
+
+window.addEventListener('beforeunload', () => {
+  if (unsubscribe) unsubscribe();
+});
+
+window.showToast = function(msg) {
+  const t        = document.getElementById('_toast');
+  t.textContent  = msg;
+  t.style.display = 'block';
+  clearTimeout(window._tt);
+  window._tt = setTimeout(() => { t.style.display = 'none'; }, 2800);
+};
+
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+subscribeSnapshot();
+</script>
+</body>
+</html>
