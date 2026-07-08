@@ -1294,7 +1294,7 @@ document.addEventListener('keydown',e=>{
 });
 
 window.copyLink=function(id){
-  const url=location.origin+location.pathname.replace('dashboard.html','receiver.html')+'?id='+id;
+  const url=location.origin+location.pathname.replace('dashboard','receiver')+'?id='+id;
   navigator.clipboard.writeText(url).then(()=>toast('📋 คัดลอกลิงก์แล้ว'));
 };
 window.printQR=function(url,sender,invoice,recipient){
