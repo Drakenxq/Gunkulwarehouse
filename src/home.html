@@ -3,510 +3,643 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GUNKUL Warehouse — หน้าแรก</title>
+<title>GUNKUL ENGINEERING — ระบบคลังสินค้ากลุ่มบริษัท</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --navy-deep:#0b1f3f;
-    --navy-mid:#122a52;
-    --navy-line:#1d3766;
-    --gold:#f2a93d;
-    --gold-deep:#d9861e;
-    --gold-glow:rgba(242,169,61,.35);
-    --paper:#f4f6fb;
-    --white:#ffffff;
-    --ink:#16213a;
-    --slate:#5b6b85;
-    --slate-soft:#8b97ad;
-    --green:#2f9e68;
-    --green-soft:#e4f6ec;
-    --sky:#3b82c4;
-    --sky-soft:#e7f1fb;
-    --radius:16px;
+    --ink:#070b14;
+    --panel:#10182b;
+    --panel-light:#16213c;
+    --gold:#f5b840;
+    --gold-dim:#8a6a2c;
+    --cyan:#46d9c4;
+    --cyan-dim:#2b6e64;
+    --text:#f3f1e8;
+    --muted:#7c8aa3;
+    --line:rgba(124,138,163,0.18);
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
   body{
-    font-family:'Noto Sans Thai','Poppins',sans-serif;
-    background:var(--paper);
-    color:var(--ink);
-    -webkit-font-smoothing:antialiased;
+    background:var(--ink);
+    color:var(--text);
+    font-family:'Sarabun',sans-serif;
     overflow-x:hidden;
   }
-  .layout{display:flex;min-height:100vh;}
+  h1,h2,h3,.mono,.code{ font-family:'Chakra Petch',sans-serif; }
 
-  .brand{
-    display:flex;align-items:center;gap:10px;
-    padding:6px 10px 22px 10px;
-    opacity:0;
-    animation:slideIn .6s ease forwards;
+  /* ---------- ambient background ---------- */
+  .ambient{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(600px 400px at 15% 10%, rgba(245,184,64,0.08), transparent 60%),
+      radial-gradient(700px 500px at 85% 30%, rgba(70,217,196,0.07), transparent 60%),
+      var(--ink);
   }
-  .brand .mark{
-    width:34px;height:34px;border-radius:50%;
-    background:radial-gradient(circle at 30% 30%, #ffd27a, var(--gold) 60%, var(--gold-deep));
-    display:flex;align-items:center;justify-content:center;
-    box-shadow:0 0 0 4px rgba(242,169,61,.15);
-    flex-shrink:0;
+
+  /* ---------- nav ---------- */
+  nav{
+    position:relative; z-index:10;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:28px 6vw;
   }
-  .brand .mark svg{width:18px;height:18px;}
-  .brand .txt b{display:block;font-size:15px;font-weight:800;letter-spacing:.5px;color:#fff;}
-  .brand .txt span{display:block;font-size:11px;color:var(--slate-soft);font-weight:500;letter-spacing:.3px;}
-
-  nav.menu{display:flex;flex-direction:column;gap:2px;margin-top:6px;}
-  .menu a{
-    display:flex;align-items:center;gap:12px;
-    padding:11px 12px;border-radius:10px;
-    color:#aebadb;text-decoration:none;
-    font-size:13.5px;font-weight:600;
-    position:relative;
-    opacity:0;
-    animation:slideIn .5s ease forwards;
-    transition:background .25s ease, color .25s ease, transform .2s ease;
+  .brand{ display:flex; align-items:center; gap:12px; }
+    .mark{
+    height:50px; display:flex; align-items:center; flex-shrink:0;
+    }
+    .mark img{
+    height:100%; width:auto; object-fit:contain; display:block;
+    }
+  .brand-text{ font-weight:700; font-size:16px; letter-spacing:0.14em; }
+  .brand-sub{ font-size:11px; color:var(--muted); letter-spacing:0.08em; margin-top:2px; }
+  .badge{
+    font-size:12px; color:var(--gold);
+    border:1px solid var(--gold-dim);
+    padding:7px 16px; border-radius:100px;
+    letter-spacing:0.04em;
+    background:rgba(245,184,64,0.06);
   }
-  .menu a svg{width:17px;height:17px;flex-shrink:0;opacity:.85;}
-  .menu a:hover{background:rgba(255,255,255,.05);color:#fff;transform:translateX(2px);}
-  .menu a.active{background:rgba(242,169,61,.14);color:#fff;}
-  .menu a.active::before{
-    content:"";position:absolute;left:-14px;top:8px;bottom:8px;width:3px;
-    background:var(--gold);border-radius:3px;
-  }
-  .menu a.active svg{opacity:1;color:var(--gold);stroke:var(--gold);}
+  @media (max-width:640px){ .badge{ display:none; } }
 
-
-  @keyframes slideIn{from{opacity:0;transform:translateX(-14px);}to{opacity:1;transform:translateX(0);}}
-
-  /* ---------------- MAIN ---------------- */
-  main{flex:1;min-width:0;}
-
-  /* ---- HERO ---- */
+  /* ---------- hero ---------- */
   .hero{
-    position:relative;
-    margin:26px;
-    border-radius:22px;
-    background:linear-gradient(120deg,var(--navy-deep) 0%, #0e2650 55%, #123064 100%);
-    overflow:hidden;
-    padding:52px 46px;
-    color:#fff;
-    isolation:isolate;
+    position:relative; z-index:5;
+    min-height:82vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:0 6vw 60px;
   }
-  .hero-grid{
-    position:absolute;inset:0;
-    background-image:
-      linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
-      linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
-    background-size:38px 38px;
-    mask-image:radial-gradient(ellipse 70% 70% at 70% 30%, black 20%, transparent 75%);
-    z-index:0;
+  .hero-eyebrow{
+    font-size:13px; letter-spacing:0.3em; color:var(--cyan);
+    margin-bottom:22px; font-family:'Chakra Petch',sans-serif;
   }
-  .hero-glow{
-    position:absolute;width:520px;height:520px;border-radius:50%;
-    background:radial-gradient(circle,var(--gold-glow),transparent 70%);
-    top:-180px;right:-120px;z-index:0;
-    animation:pulseGlow 5s ease-in-out infinite;
-  }
-  @keyframes pulseGlow{0%,100%{opacity:.55;transform:scale(1);}50%{opacity:.9;transform:scale(1.08);}}
-
-  .hero-inner{position:relative;z-index:2;display:flex;justify-content:space-between;gap:40px;align-items:center;flex-wrap:wrap;}
-  .hero-copy{max-width:560px;}
-  .eyebrow{
-    display:inline-flex;align-items:center;gap:8px;
-    font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:1.5px;
-    color:var(--gold);background:rgba(242,169,61,.12);
-    border:1px solid rgba(242,169,61,.35);
-    padding:6px 12px;border-radius:100px;
-    opacity:0;animation:riseIn .6s ease .1s forwards;
-  }
-  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:blink 1.8s infinite;}
-  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
-
   .hero h1{
-    font-family:'Poppins',sans-serif;font-weight:800;
-    font-size:38px;line-height:1.28;margin:18px 0 14px 0;
-    letter-spacing:.2px;
+    font-size:clamp(42px, 8vw, 96px);
+    font-weight:700; line-height:1.02; letter-spacing:0.01em;
+    background:linear-gradient(180deg, #ffffff 0%, #cdd3e0 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
   }
-  .hero h1 .line{display:block;overflow:hidden;}
-  .hero h1 .line span{display:inline-block;opacity:0;transform:translateY(100%);animation:riseIn .7s cubic-bezier(.22,1,.36,1) forwards;}
-  .hero h1 .gold{color:var(--gold);}
-
-  .hero p.sub{
-    font-size:15px;line-height:1.8;color:#c3cee4;font-weight:400;margin:0 0 26px 0;
-    opacity:0;animation:riseIn .6s ease .5s forwards;
+  .hero h2{
+    margin-top:20px;
+    font-size:clamp(20px, 3vw, 30px);
+    font-weight:400; color:var(--text); font-family:'Sarabun',sans-serif;
   }
-  @keyframes riseIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
-
-  .hero-cta{display:flex;gap:12px;opacity:0;animation:riseIn .6s ease .6s forwards;}
-  .btn{
-    font-family:'Noto Sans Thai',sans-serif;font-weight:700;font-size:13.5px;
-    padding:12px 22px;border-radius:10px;border:none;cursor:pointer;
-    text-decoration:none;display:inline-flex;align-items:center;gap:8px;
-    transition:transform .2s ease, box-shadow .2s ease;
+  .hero p{
+    margin-top:18px; max-width:520px;
+    color:var(--muted); font-size:15px; line-height:1.8;
   }
-  .btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1305;box-shadow:0 8px 20px -6px rgba(242,169,61,.6);}
-  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 26px -6px rgba(242,169,61,.75);}
-  .btn-ghost{background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.18);}
-  .btn-ghost:hover{background:rgba(255,255,255,.12);transform:translateY(-2px);}
+  .scroll-cue{
+    margin-top:56px; display:flex; flex-direction:column; align-items:center; gap:10px;
+    color:var(--muted); font-size:12px; letter-spacing:0.15em;
+    text-decoration:none; cursor:pointer;
+  }
+  .scroll-cue .chev{
+    width:14px; height:14px; border-right:1.5px solid var(--muted); border-bottom:1.5px solid var(--muted);
+    transform:rotate(45deg);
+    animation:bob 1.8s ease-in-out infinite;
+  }
+  @keyframes bob{ 0%,100%{ transform:rotate(45deg) translate(0,0); opacity:.5;} 50%{ transform:rotate(45deg) translate(4px,4px); opacity:1;} }
 
-  /* Warehouse illustration */
-  .rack-wrap{position:relative;width:300px;height:230px;flex-shrink:0;opacity:0;animation:riseIn .7s ease .35s forwards;}
-  .rack-wrap svg{width:100%;height:100%;overflow:visible;}
-  .crate{transform-origin:center;opacity:0;animation:dropIn .55s cubic-bezier(.34,1.56,.64,1) forwards;}
-  .conveyor{stroke-dasharray:6 8;animation:dash 1.4s linear infinite;}
-  @keyframes dash{to{stroke-dashoffset:-28;}}
-  @keyframes dropIn{from{opacity:0;transform:translateY(-26px) scale(.85);}to{opacity:1;transform:translateY(0) scale(1);}}
+  /* waveform behind hero */
+  .waveform{ position:absolute; left:0; right:0; bottom:8%; z-index:0; opacity:0.5; }
+  .waveform path{ fill:none; stroke-width:1.4; }
+  .wf-gold{ stroke:var(--gold); }
+  .wf-cyan{ stroke:var(--cyan); }
 
-  /* ---- STATS STRIP ---- */
+  .particle{
+    position:absolute; border-radius:50%; pointer-events:none;
+    background:var(--gold); opacity:.5; filter:blur(0.5px);
+    animation:drift linear infinite;
+  }
+  @keyframes drift{
+    0%{ transform:translateY(0) translateX(0); opacity:0; }
+    10%{ opacity:.6; }
+    90%{ opacity:.4; }
+    100%{ transform:translateY(-140px) translateX(20px); opacity:0; }
+  }
+
+  /* ---------- network / company section ---------- */
+  #network{
+    position:relative; z-index:5;
+    padding:100px 6vw 140px;
+    max-width:1200px; margin:0 auto;
+  }
+  .section-head{ text-align:center; margin-bottom:70px; }
+  .section-head .eyebrow{
+    font-size:12px; letter-spacing:0.25em; color:var(--gold);
+    font-family:'Chakra Petch',sans-serif; margin-bottom:14px;
+  }
+  .section-head h3{ font-size:clamp(26px,4vw,38px); font-weight:600; }
+  .section-head span{ color:var(--muted); }
+  .section-head p{ margin-top:14px; color:var(--muted); font-size:14px; }
+
+  .hub-wrap{ display:flex; justify-content:center; margin-bottom:8px; }
+  #hub{
+    position:relative; z-index:3;
+    width:120px; height:120px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+    background:radial-gradient(circle at 30% 30%, #1c2740, #0c1424);
+    border:1px solid rgba(245,184,64,0.4);
+    box-shadow:0 0 0 1px rgba(255,255,255,0.02), 0 0 40px rgba(245,184,64,0.15);
+  }
+  #hub .hub-mark{ width:30px; height:30px; }
+  #hub .hub-label{ font-size:9px; letter-spacing:0.2em; color:var(--gold); margin-top:6px; }
+  #hub::after{
+    content:''; position:absolute; inset:-14px; border-radius:50%;
+    border:1px solid rgba(245,184,64,0.15);
+    animation:pulse-ring 3.4s ease-out infinite;
+  }
+  @keyframes pulse-ring{
+    0%{ transform:scale(0.9); opacity:.8; }
+    80%{ transform:scale(1.35); opacity:0; }
+    100%{ opacity:0; }
+  }
+
+  #network-svg{ position:absolute; top:0; left:0; z-index:1; overflow:visible; }
+  #network-svg path.line{
+    fill:none; stroke:url(#lineGrad); stroke-width:1.2;
+    stroke-dasharray:4 6; opacity:0.55;
+    animation:flow 2.2s linear infinite;
+  }
+  @keyframes flow{ to{ stroke-dashoffset:-40; } }
+
+  .grid{
+    position:relative; z-index:3;
+    margin-top:60px;
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:20px;
+  }
+  @media (max-width:920px){ .grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:520px){ .grid{ grid-template-columns:1fr; } }
+
+  .company-card{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:26px 22px;
+    text-decoration:none; color:var(--text);
+    display:flex; flex-direction:column; gap:16px;
+    overflow:hidden;
+    transition:transform .35s ease, border-color .35s ease, background .35s ease;
+  }
+  .company-card::before{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(120deg, transparent 30%, rgba(245,184,64,0.08) 50%, transparent 70%);
+    transform:translateX(-120%);
+    transition:transform .7s ease;
+  }
+  .company-card:hover::before{ transform:translateX(120%); }
+  .company-card:hover{
+    transform:translateY(-6px);
+    border-color:rgba(245,184,64,0.45);
+    background:var(--panel-light);
+  }
+  .company-card .icon{
+    width:30px; height:30px; color:var(--cyan);
+    stroke:currentColor; fill:none; stroke-width:1.4;
+  }
+  .company-card .code{
+    font-size:26px; font-weight:700; letter-spacing:0.03em;
+  }
+  .company-card .desc{
+    font-size:12.5px; color:var(--muted); line-height:1.6;
+  }
+  .company-card .enter{
+    margin-top:auto; display:flex; align-items:center; gap:8px;
+    font-size:12px; color:var(--gold); letter-spacing:0.05em;
+    opacity:0; transform:translateY(4px);
+    transition:opacity .3s ease, transform .3s ease;
+  }
+  .company-card:hover .enter{ opacity:1; transform:translateY(0); }
+  .company-card .enter svg{ width:13px; height:13px; transition:transform .3s ease; }
+  .company-card:hover .enter svg{ transform:translateX(3px); }
+  .company-card .node-dot{
+    position:absolute; top:-5px; left:50%; transform:translateX(-50%);
+    width:9px; height:9px; border-radius:50%;
+    background:var(--gold);
+    box-shadow:0 0 10px 2px rgba(245,184,64,0.6);
+  }
+
+  /* ---------- footer ---------- */
+  footer{
+    position:relative; z-index:5;
+    border-top:1px solid var(--line);
+    padding:34px 6vw; text-align:center;
+    color:var(--muted); font-size:12px; letter-spacing:0.03em;
+  }
+  footer .foot-brand{ color:var(--text); font-family:'Chakra Petch',sans-serif; letter-spacing:0.1em; margin-bottom:6px; font-size:13px;}
+
+  /* ---------- stats ---------- */
+  :root{
+    --green:#46d9a0;
+    --green-soft:rgba(70,217,160,0.12);
+    --gold-soft:rgba(245,184,64,0.12);
+    --cyan-soft:rgba(70,217,196,0.12);
+    --blue-soft:rgba(91,143,209,0.12);
+  }
   .stats{
-    display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
-    margin:0 26px 26px 26px;
+    position:relative; z-index:5;
+    max-width:1200px; margin:0 auto;
+    padding:0 6vw 20px;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:20px;
   }
+  @media (max-width:920px){ .stats{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:520px){ .stats{ grid-template-columns:1fr; } }
+
   .stat-card{
-    background:var(--white);border-radius:var(--radius);
-    padding:20px 22px;
-    border:1px solid #e7eaf2;
-    box-shadow:0 2px 10px -6px rgba(16,30,60,.08);
-    opacity:0;transform:translateY(16px);
-    animation:cardIn .55s ease forwards;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:26px 22px;
+    display:flex; flex-direction:column; gap:14px;
+    opacity:0; transform:translateY(16px);
+    animation:rise .7s ease forwards;
+    transition:transform .35s ease, border-color .35s ease;
   }
+  .stat-card:hover{ transform:translateY(-4px); border-color:rgba(245,184,64,0.4); }
+  @keyframes rise{ to{ opacity:1; transform:translateY(0); } }
+
   .stat-card .icon{
-    width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;
+    width:44px; height:44px; border-radius:11px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--gold-soft) !important;
   }
-  .stat-card .icon svg{width:17px;height:17px;}
+  .stat-card:nth-child(1) .icon{ background:var(--cyan-soft) !important; }
+  .stat-card:nth-child(2) .icon{ background:var(--gold-soft) !important; }
+  .stat-card:nth-child(3) .icon{ background:var(--blue-soft) !important; }
+  .stat-card:nth-child(4) .icon{ background:var(--green-soft) !important; }
+  .stat-card .icon svg{ width:22px; height:22px; }
+  .stat-card:nth-child(1) .icon svg{ stroke:var(--cyan) !important; }
+  .stat-card:nth-child(2) .icon svg{ stroke:var(--gold) !important; }
+  .stat-card:nth-child(3) .icon svg{ stroke:#7c93e8 !important; }
+  .stat-card:nth-child(4) .icon svg{ stroke:var(--green) !important; }
+
   .stat-num{
-    font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;color:var(--ink);
-    display:flex;align-items:baseline;gap:2px;
+    font-family:'Chakra Petch',sans-serif;
+    font-size:36px; font-weight:700; letter-spacing:0.01em;
+    color:var(--text);
   }
-  .stat-num small{font-size:14px;color:var(--slate-soft);font-weight:500;}
-  .stat-label{font-size:12.5px;color:var(--slate);margin-top:6px;font-weight:600;}
+  .stat-num small{ font-size:16px; color:var(--muted); font-weight:500; margin-left:2px; }
+  .stat-sub{
+    font-family:'Sarabun',sans-serif;
+    font-size:12px; font-weight:600; color:var(--gold);
+    letter-spacing:0.02em;
+  }
+  .stat-card:nth-child(1) .stat-sub{ color:var(--cyan); }
+  .stat-card:nth-child(3) .stat-sub{ color:#7c93e8; }
+  .stat-card:nth-child(4) .stat-sub{ color:var(--green); }
+  .stat-label{ font-size:12.5px; color:var(--muted); line-height:1.5; }
 
-  /* ---- SECTION HEADER ---- */
-  .section-head{margin:38px 26px 16px 26px;display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-  .section-head h2{font-family:'Poppins',sans-serif;font-size:20px;font-weight:700;margin:0;color:var(--ink);}
-  .section-head p{font-size:13px;color:var(--slate);margin:4px 0 0 0;}
-  .section-tag{
-    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold-deep);
-    background:#fdf3e2;border:1px solid #f3ddaf;padding:4px 10px;border-radius:100px;font-weight:600;
-  }
-
-  /* ---- MODULE GRID ---- */
-  .modules{
-    display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-    gap:16px;margin:0 26px 30px 26px;
-  }
-  .mod-card{
-    background:var(--white);border-radius:var(--radius);padding:22px;
-    border:1px solid #e7eaf2;position:relative;overflow:hidden;
-    text-decoration:none;color:inherit;
-    opacity:0;transform:translateY(18px);
-    transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease;
-  }
-  .mod-card.reveal{animation:cardIn .6s ease forwards;}
-  @keyframes cardIn{to{opacity:1;transform:translateY(0);}}
-  .mod-card::after{
-    content:"";position:absolute;inset:0;border-radius:var(--radius);
-    background:linear-gradient(135deg,transparent 40%, rgba(242,169,61,.08));
-    opacity:0;transition:opacity .3s ease;
-  }
-  .mod-card:hover{transform:translateY(-6px);box-shadow:0 18px 34px -14px rgba(16,30,60,.22);border-color:#f3ddaf;}
-  .mod-card:hover::after{opacity:1;}
-  .mod-card:hover .mod-icon{transform:scale(1.08) rotate(-4deg);background:var(--gold);}
-  .mod-card:hover .mod-icon svg{stroke:#1a1305;}
-  .mod-icon{
-    width:44px;height:44px;border-radius:12px;background:var(--navy-mid);
-    display:flex;align-items:center;justify-content:center;margin-bottom:16px;
-    transition:transform .3s ease, background .3s ease;
-  }
-  .mod-icon svg{width:20px;height:20px;stroke:var(--gold);transition:stroke .3s ease;}
-  .mod-card h3{font-size:15.5px;font-weight:700;margin:0 0 8px 0;color:var(--ink);}
-  .mod-card p{font-size:12.8px;line-height:1.65;color:var(--slate);margin:0 0 14px 0;}
-  .mod-foot{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-weight:600;}
-  .mod-metric{font-family:'IBM Plex Mono',monospace;color:var(--slate-soft);}
-  .mod-arrow{color:var(--gold-deep);display:flex;align-items:center;gap:4px;transition:gap .25s ease;}
-  .mod-card:hover .mod-arrow{gap:8px;}
-  .mod-arrow svg{width:13px;height:13px;}
-
-  /* ---- ESG BANNER ---- */
-  .esg-banner{
-    margin:0 26px 30px 26px;border-radius:var(--radius);
-    background:linear-gradient(120deg,var(--green-soft),#eef8f2 60%,var(--sky-soft));
-    border:1px solid #d8ecdf;
-    padding:26px 30px;display:flex;align-items:center;gap:26px;justify-content:space-between;flex-wrap:wrap;
-    opacity:0;transform:translateY(16px);
-  }
-  .esg-banner.reveal{animation:cardIn .6s ease forwards;}
-  .esg-left{display:flex;align-items:center;gap:16px;max-width:520px;}
-  .esg-icon{
-    width:50px;height:50px;border-radius:13px;background:var(--green);
-    display:flex;align-items:center;justify-content:center;flex-shrink:0;
-    box-shadow:0 8px 18px -6px rgba(47,158,104,.5);
-  }
-  .esg-icon svg{width:24px;height:24px;stroke:#fff;}
-  .esg-left h3{margin:0 0 4px 0;font-size:15.5px;font-weight:700;color:var(--ink);}
-  .esg-left p{margin:0;font-size:12.8px;color:var(--slate);line-height:1.6;}
-  .esg-bars{display:flex;gap:22px;}
-  .esg-bar{display:flex;flex-direction:column;align-items:center;gap:8px;}
-  .esg-ring{width:58px;height:58px;position:relative;}
-  .esg-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
-  .esg-ring circle.bg{stroke:#d8ecdf;}
-  .esg-ring circle.fg{stroke:var(--green);stroke-linecap:round;transition:stroke-dashoffset 1.4s cubic-bezier(.22,1,.36,1);}
-  .esg-ring span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--ink);}
-  .esg-bar small{font-size:11px;color:var(--slate);font-weight:600;}
-
-  /* ---- footer note ---- */
-  .foot-note{margin:0 26px 30px 26px;font-size:11.5px;color:var(--slate-soft);text-align:center;}
-
-  ::selection{background:var(--gold-glow);}
-
-  @media(max-width:900px){
-    .hero{margin:14px;padding:34px 24px;}
-    .stats{grid-template-columns:repeat(2,1fr);margin:0 14px 14px 14px;}
-    .modules{margin:0 14px 20px 14px;}
-    .section-head{margin:28px 14px 14px 14px;}
-    .esg-banner{margin:0 14px 20px 14px;}
-    .rack-wrap{display:none;}
-  }
   @media (prefers-reduced-motion: reduce){
-    *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
+    *{ animation:none !important; transition:none !important; }
   }
 </style>
 </head>
 <body>
-<div class="layout">
 
+<div class="ambient"></div>
 
-  <!-- MAIN -->
-  <main>
-
-    <!-- HERO -->
-    <section class="hero">
-      <div class="hero-grid"></div>
-      <div class="hero-glow"></div>
-      <div class="hero-inner">
-        <div class="hero-copy">
-          <span class="eyebrow"><span class="dot"></span>WARHOUSE NOPPAWONG</span>
-          <h1>
-            <span class="line"><span style="animation-delay:.2s">ยินดีต้อนรับสู่ระบบคลังสินค้า</span></span>
-            <span class="line"><span class="gold" style="animation-delay:.32s">GUNKUL Engineering</span></span>
-          </h1>
-          <p class="sub">ที่กันกุล เราเชื่อมั่นว่าพนักงานทุกคนสามารถเติบโตและพัฒนาทักษะความรู้ความสามารถได้อย่างมืออาชีพ เพื่อเติบโตไปพร้อมกับองค์กร ดังนั้นเราจึงให้ความสำคัญกับพนักงาน และมองหาบุคลากรที่มีศักยภาพเต็มเปี่ยมไปด้วยพลังพร้อมจะเดินทางก้าวข้ามขีดจำกัด ร่วมพัฒนาเทคโนโลยีและนวัตกรรมที่ไม่หยุดนิ่ง สร้างสรรค์พลังงานสะอาดที่ทันสมัย ที่ทุกคนสามารถเข้าถึงได้ เพื่อส่งมอบคุณภาพชีวิตที่ดีให้กับคนในสังคม
-             และคุณอาจเป็นหนึ่งในพลังสำคัญที่เรากำลังมองหา มาร่วมเดินทางเพื่อสร้างการเปลี่ยนแปลงและเปลี่ยนผ่านพลังงานสู่ความยั่งยืนให้กับสังคม และมุ่งสู่เป้าหมายที่จะเติบโตอย่างมั่นคงและอย่างยั่งยืนไปพร้อมกัน</p>
-          <div class="hero-cta">
-            <a href="#" class="btn btn-primary">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-              ไปที่ Dashboard
-            </a>
-          </div>
-        </div>
-
-        <div class="rack-wrap">
-          <svg viewBox="0 0 300 230">
-            <!-- shelf frame -->
-            <g stroke="rgba(255,255,255,.28)" stroke-width="2">
-              <line x1="20" y1="20" x2="20" y2="210"/>
-              <line x1="280" y1="20" x2="280" y2="210"/>
-              <line x1="20" y1="80" x2="280" y2="80"/>
-              <line x1="20" y1="145" x2="280" y2="145"/>
-              <line x1="20" y1="210" x2="280" y2="210"/>
-            </g>
-            <!-- crates -->
-            <g>
-              <rect class="crate" x="34" y="42" width="46" height="32" rx="4" fill="#f2a93d" style="animation-delay:.9s"/>
-              <rect class="crate" x="92" y="36" width="46" height="38" rx="4" fill="#3b82c4" style="animation-delay:1.05s"/>
-              <rect class="crate" x="150" y="44" width="46" height="30" rx="4" fill="#f2a93d" style="animation-delay:1.2s"/>
-              <rect class="crate" x="208" y="38" width="46" height="36" rx="4" fill="#2f9e68" style="animation-delay:1.35s"/>
-
-              <rect class="crate" x="34" y="102" width="46" height="38" rx="4" fill="#3b82c4" style="animation-delay:1.5s"/>
-              <rect class="crate" x="92" y="108" width="46" height="32" rx="4" fill="#f2a93d" style="animation-delay:1.65s"/>
-              <rect class="crate" x="150" y="100" width="46" height="40" rx="4" fill="#f2a93d" style="animation-delay:1.8s"/>
-              <rect class="crate" x="208" y="106" width="46" height="34" rx="4" fill="#3b82c4" style="animation-delay:1.95s"/>
-            </g>
-            <!-- conveyor / energy line -->
-            <line class="conveyor" x1="20" y1="222" x2="280" y2="222" stroke="#f2a93d" stroke-width="3" stroke-linecap="round"/>
-          </svg>
-        </div>
-      </div>
-    </section>
-
-    <!-- STATS -->
-    <section class="stats" id="stats">
-      <div class="stat-card" style="animation-delay:.55s">
-        <div class="icon" style="background:#eaf1fb;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#3b82c4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
-        </div>
-        <div class="stat-num" data-target="1284"><span class="count">0</span></div>
-        <div class="stat-label">รายการสินค้าในระบบ</div>
-      </div>
-      <div class="stat-card" style="animation-delay:.65s">
-        <div class="icon" style="background:#fdf3e2;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d9861e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/></svg>
-        </div>
-        <div class="stat-num" data-target="96"><span class="count">0</span></div>
-        <div class="stat-label">คู่ค้าที่ลงทะเบียน (Suppliers)</div>
-      </div>
-      <div class="stat-card" style="animation-delay:.75s">
-        <div class="icon" style="background:#eef1fb;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#5b6fd1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>
-        </div>
-        <div class="stat-num" data-target="37"><span class="count">0</span></div>
-        <div class="stat-label">งานติดตามที่กำลังดำเนินการ</div>
-      </div>
-      <div class="stat-card" style="animation-delay:.85s">
-        <div class="icon" style="background:var(--green-soft);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9.5-9.5C1 7 3 3.5 6.5 3a5 5 0 0 1 5.5 3 5 5 0 0 1 5.5-3C21 3.5 23 7 21.5 11.5 19 16.5 12 21 12 21z"/></svg>
-        </div>
-        <div class="stat-num" data-target="82"><span class="count">0</span><small>/100</small></div>
-        <div class="stat-label">คะแนน ESG โดยรวม</div>
-      </div>
-    </section>
-
-    <!-- MODULES -->
-    <div class="section-head">
-      <div>
-        <h2>เมนูการทำงาน</h2>
-        <p>เข้าถึงทุกส่วนงานของคลังสินค้าได้จากหน้าเดียว</p>
-      </div>
-      <span class="section-tag">7 MODULES</span>
+<nav>
+  <div class="brand">
+    <div class="mark">
+    <img src="./src/svg/logo-default.svg" alt="GUNKUL ENGINEERING">
     </div>
+  </div>
+  <div class="badge">STOCK &amp; WAREHOUSE PORTAL</div>
+</nav>
 
-    <section class="modules" id="modules">
-      <a href="#" class="mod-card">
-        <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
-        <h3>Dashboard</h3>
-        <p>ภาพรวมข้อมูลคลังสินค้าแบบเรียลไทม์ พร้อมกราฟและตัวชี้วัดสำคัญ</p>
-        <div class="mod-foot"><span class="mod-metric">อัปเดตล่าสุด · วันนี้</span><span class="mod-arrow">เปิดดู<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></span></div>
-      </a>
+<section class="hero">
+  <svg class="waveform" viewBox="0 0 1200 140" preserveAspectRatio="none">
+    <path class="wf-cyan" d="M0,70 C150,10 300,130 450,70 C600,10 750,130 900,70 C1000,30 1100,110 1200,70">
+      <animate attributeName="d" dur="9s" repeatCount="indefinite"
+        values="M0,70 C150,10 300,130 450,70 C600,10 750,130 900,70 C1000,30 1100,110 1200,70;
+                M0,70 C150,130 300,10 450,70 C600,130 750,10 900,70 C1000,110 1100,30 1200,70;
+                M0,70 C150,10 300,130 450,70 C600,10 750,130 900,70 C1000,30 1100,110 1200,70"/>
+    </path>
+    <path class="wf-gold" d="M0,90 C150,50 300,130 450,90 C600,50 750,130 900,90 C1000,60 1100,120 1200,90" opacity="0.6">
+      <animate attributeName="d" dur="11s" repeatCount="indefinite"
+        values="M0,90 C150,50 300,130 450,90 C600,50 750,130 900,90 C1000,60 1100,120 1200,90;
+                M0,90 C150,130 300,50 450,90 C600,130 750,50 900,90 C1000,120 1100,60 1200,90;
+                M0,90 C150,50 300,130 450,90 C600,50 750,130 900,90 C1000,60 1100,120 1200,90"/>
+    </path>
+  </svg>
 
-      <a href="#" class="mod-card">
-        <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></div>
-        <h3>Item Master</h3>
-        <p>ข้อมูลหลักของสินค้าและวัสดุทั้งหมด พร้อมรหัสอ้างอิงและหมวดหมู่</p>
-        <div class="mod-foot"><span class="mod-metric">1,284 SKU</span><span class="mod-arrow">เปิดดู<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></span></div>
-      </a>
+  <div id="particles"></div>
 
-      <a href="#" class="mod-card">
-        <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></svg></div>
-        <h3>Vendor Directory</h3>
-        <p>ทำเนียบคู่ค้าและผู้จำหน่าย พร้อมข้อมูลติดต่อและประวัติการสั่งซื้อ</p>
-        <div class="mod-foot"><span class="mod-metric">96 คู่ค้า</span><span class="mod-arrow">เปิดดู<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></span></div>
-      </a>
+  <div class="hero-eyebrow">GUNKUL ENGINEERING PUBLIC COMPANY LIMITED</div>
+  <h1>WAREHOUSE<br>NOPPAWONG</h1>
+  <h2>ระบบคลังสินค้านพวงศ์กลุ่มบริษัทในเครือกันกุล</h2>
+  <p>ตรวจสอบเช็ค เบิก-จ่าย และติดตามสินค้าคงคลังภายใต้คลังสินค้านพวงศ์</p>
 
-      <a href="#" class="mod-card">
-        <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v4h6V3"/><path d="M9 12h6"/><path d="M9 16h6"/></svg></div>
-        <h3>Tracking Sheet</h3>
-        <p>ติดตามสถานะการเคลื่อนไหวของสินค้าตั้งแต่รับเข้าจนถึงเบิกจ่าย</p>
-        <div class="mod-foot"><span class="mod-metric">37 งานที่เปิดอยู่</span><span class="mod-arrow">เปิดดู<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></span></div>
-      </a>
+  <a href="#network" class="scroll-cue">
+    <span>เลื่อน</span>
+    <span class="chev"></span>
+  </a>
+</section>
 
-      <a href="#" class="mod-card">
-        <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-        <h3>Knowledge Base</h3>
-        <p>คลังความรู้ คู่มือปฏิบัติงาน และมาตรฐานการจัดเก็บสินค้า</p>
-        <div class="mod-foot"><span class="mod-metric">54 บทความ</span><span class="mod-arrow">เปิดดู<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></span></div>
-      </a>
+<section class="stats" id="stats">
+  <div class="stat-card" style="animation-delay:.15s">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+    </div>
+    <div class="stat-num" id="stat-total" data-target="0"><span class="count">0</span></div>
+    <div class="stat-sub" id="stat-sub-total">กำลังโหลด...</div>
+    <div class="stat-label">เอกสารทั้งหมดในระบบ</div>
+  </div>
+  <div class="stat-card" style="animation-delay:.25s">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/></svg>
+    </div>
+    <div class="stat-num" id="stat-suppliers" data-target="0"><span class="count">0</span></div>
+    <div class="stat-sub" id="stat-sub-suppliers">กำลังโหลด...</div>
+    <div class="stat-label">คู่ค้าที่ลงทะเบียน (Suppliers)</div>
+  </div>
+  <div class="stat-card" style="animation-delay:.35s">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>
+    </div>
+    <div class="stat-num" id="stat-pending" data-target="0"><span class="count">0</span></div>
+    <div class="stat-sub" id="stat-sub-pending">กำลังโหลด...</div>
+    <div class="stat-label">งานที่รอดำเนินการ</div>
+  </div>
+  <div class="stat-card" style="animation-delay:.45s">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    </div>
+    <div class="stat-num" id="stat-received" data-target="0"><span class="count">0</span></div>
+    <div class="stat-sub" id="stat-sub-received">กำลังโหลด...</div>
+    <div class="stat-label">รับเข้าคลังแล้ว</div>
+  </div>
+</section>
 
-      <a href="#" class="mod-card">
-        <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><circle cx="5" cy="19" r="2.2"/><circle cx="19" cy="19" r="2.2"/><path d="M12 7.2V12M12 12L6.3 17M12 12l5.7 5"/></svg></div>
-        <h3>Organization Chart</h3>
-        <p>โครงสร้างองค์กรและทีมงานผู้รับผิดชอบในแต่ละส่วนของคลังสินค้า</p>
-        <div class="mod-foot"><span class="mod-metric">8 ทีมงาน</span><span class="mod-arrow">เปิดดู<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></span></div>
-      </a>
-    </section>
+<section id="network">
+  <div class="section-head">
+    <div class="eyebrow">SUBSIDIARY NETWORK</div>
+    <h3>เครือข่ายบริษัท<span>ในคลังสินค้านพวงศ์</span></h3>
+    <p>ข้อมูลอาจมีการอัพเดท</p>
+  </div>
 
-    <!-- ESG BANNER -->
-    <section class="esg-banner" id="esg">
-      <div class="esg-left">
-        <div class="esg-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9.5-9.5C1 7 3 3.5 6.5 3a5 5 0 0 1 5.5 3 5 5 0 0 1 5.5-3C21 3.5 23 7 21.5 11.5 19 16.5 12 21 12 21z"/></svg>
-        </div>
-        <div>
-          <h3>ESG & Sustainability</h3>
-          <p>ติดตามตัวชี้วัดด้านสิ่งแวดล้อม สังคม และธรรมาภิบาลขององค์กร สอดคล้องกับพันธกิจด้านพลังงานสะอาดของ GUNKUL</p>
-        </div>
-      </div>
-      <div class="esg-bars">
-        <div class="esg-bar">
-          <div class="esg-ring">
-            <svg viewBox="0 0 60 60"><circle class="bg" cx="30" cy="30" r="25" fill="none" stroke-width="6"/><circle class="fg" data-pct="88" cx="30" cy="30" r="25" fill="none" stroke-width="6" stroke-dasharray="157" stroke-dashoffset="157"/></svg>
-            <span>88%</span>
-          </div>
-          <small>Environment</small>
-        </div>
-        <div class="esg-bar">
-          <div class="esg-ring">
-            <svg viewBox="0 0 60 60"><circle class="bg" cx="30" cy="30" r="25" fill="none" stroke-width="6"/><circle class="fg" data-pct="79" cx="30" cy="30" r="25" fill="none" stroke-width="6" stroke-dasharray="157" stroke-dashoffset="157"/></svg>
-            <span>79%</span>
-          </div>
-          <small>Social</small>
-        </div>
-        <div class="esg-bar">
-          <div class="esg-ring">
-            <svg viewBox="0 0 60 60"><circle class="bg" cx="30" cy="30" r="25" fill="none" stroke-width="6"/><circle class="fg" data-pct="80" cx="30" cy="30" r="25" fill="none" stroke-width="6" stroke-dasharray="157" stroke-dashoffset="157"/></svg>
-            <span>80%</span>
-          </div>
-          <small>Governance</small>
-        </div>
-      </div>
-    </section>
+  <div class="hub-wrap">
+    <div id="hub">
+      <svg class="hub-mark" viewBox="0 0 40 40" fill="none">
+        <polygon points="20,3 35,12 35,28 20,37 5,28 5,12" stroke="#f5b840" stroke-width="1.4"/>
+        <path d="M20 12 L14 21 H20 L17 29 L26 18 H20 Z" fill="#f5b840"/>
+      </svg>
+      <div class="hub-label">GUNKUL</div>
+    </div>
+  </div>
 
-    <p class="foot-note">GUNKUL Engineering Warhouse Noppawong · ข้อมูลตัวเลขในหน้านี้เป็นข้อมูลตัวอย่างสำหรับการแสดงผล</p>
+  <svg id="network-svg">
+    <defs>
+      <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f5b840"/>
+        <stop offset="100%" stop-color="#46d9c4"/>
+      </linearGradient>
+    </defs>
+    <g id="lines-group"></g>
+  </svg>
 
-  </main>
-</div>
+  <div class="grid" id="grid">
+    <!-- cards injected by JS -->
+  </div>
+</section>
+
+<footer>
+  <div class="foot-brand">GUNKUL ENGINEERING</div>
+  <div>© 2026 Gunkul Engineering Public Company Limited · ระบบคลังสินค้าภายในกลุ่มบริษัท (ใช้งานภายในองค์กรเท่านั้น)</div>
+</footer>
 
 <script>
-  // animate stat counters
-  function animateCount(el){
-    const target = parseInt(el.dataset.target,10);
-    const span = el.querySelector('.count');
-    const dur = 1400;
+  const companies = [
+    { code:'GSC',  desc:'ระบบคลังสินค้า · พลังงานแสงอาทิตย์', icon:'solar' },
+    { code:'FNC',  desc:'ระบบคลังสินค้า · โรงงานและสาธารณูปโภค', icon:'plant' },
+    { code:'GDFF', desc:'ระบบคลังสินค้า · พลังงานลม', icon:'wind' },
+    { code:'GKE',  desc:'ระบบคลังสินค้า · งานวิศวกรรม', icon:'tower' },
+    { code:'GSP1', desc:'ระบบคลังสินค้า · โซลาร์ฟาร์ม', icon:'array' },
+    { code:'GUE',  desc:'ระบบคลังสินค้า · ระบบจำหน่ายไฟฟ้า', icon:'plug' },
+    { code:'SES',  desc:'ระบบคลังสินค้า · ระบบกักเก็บพลังงาน', icon:'battery' },
+  ];
+
+  const icons = {
+    solar: `<rect x="2" y="4" width="20" height="14" rx="1.5"/><path d="M2 9h20M2 14h20M9 4v14M15 4v14"/>`,
+    plant: `<rect x="4" y="9" width="16" height="12"/><path d="M9 21v-6h6v6M4 9l8-6 8 6"/>`,
+    wind: `<path d="M12 21V9"/><circle cx="12" cy="9" r="1.2" fill="currentColor" stroke="none"/><path d="M12 9c0-4 3-6 6-5-1 3-3 5-6 5Z"/><path d="M12 9C8 8 6 5 7 2c3 1 5 3 5 7Z"/><path d="M12 9c3 2 3 6 1 8-2-2-2-5-1-8Z"/>`,
+    tower: `<path d="M12 2 5 20M12 2l7 18M9 8h6M7 13h10M5 20h14"/>`,
+    array: `<path d="M2 20h20"/><rect x="3" y="12" width="7" height="6" transform="skewX(-10)"/><rect x="12" y="12" width="7" height="6" transform="skewX(-10)"/>`,
+    plug: `<path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0V8Z"/><path d="M12 18v4"/>`,
+    battery: `<rect x="3" y="7" width="16" height="10" rx="1.5"/><path d="M19 10v4"/><path d="M7 11v2M11 11v2M15 11v2"/>`,
+  };
+
+  const grid = document.getElementById('grid');
+  companies.forEach(c => {
+    const a = document.createElement('a');
+    a.className = 'company-card';
+    a.innerHTML = `
+      <div class="node-dot"></div>
+      <svg class="icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">${icons[c.icon]}</svg>
+      <div class="code">${c.code}</div>
+      <div class="desc">${c.desc}</div>
+    `;
+    grid.appendChild(a);
+  });
+
+  function drawNetwork(){
+    const section = document.getElementById('network');
+    const svg = document.getElementById('network-svg');
+    const linesGroup = document.getElementById('lines-group');
+    const hub = document.getElementById('hub');
+    const cards = document.querySelectorAll('.company-card');
+    const sRect = section.getBoundingClientRect();
+
+    svg.setAttribute('width', sRect.width);
+    svg.setAttribute('height', sRect.height);
+    svg.style.width = sRect.width + 'px';
+    svg.style.height = sRect.height + 'px';
+
+    const hRect = hub.getBoundingClientRect();
+    const hx = hRect.left + hRect.width/2 - sRect.left;
+    const hy = hRect.top + hRect.height/2 - sRect.top;
+
+    linesGroup.innerHTML = '';
+    cards.forEach((card, i) => {
+      const r = card.getBoundingClientRect();
+      const cx = r.left + r.width/2 - sRect.left;
+      const cy = r.top - sRect.top;
+      const midY = (hy + cy) / 2;
+      const d = `M ${hx} ${hy} C ${hx} ${midY}, ${cx} ${midY}, ${cx} ${cy}`;
+      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d', d);
+      path.setAttribute('class','line');
+      path.style.animationDelay = (i * 0.15) + 's';
+      linesGroup.appendChild(path);
+    });
+  }
+
+  function makeParticles(){
+    const wrap = document.getElementById('particles');
+    wrap.innerHTML = '';
+    const n = window.innerWidth < 640 ? 10 : 20;
+    for(let i=0;i<n;i++){
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = 2 + Math.random()*3;
+      p.style.width = size+'px';
+      p.style.height = size+'px';
+      p.style.left = Math.random()*100+'%';
+      p.style.bottom = (Math.random()*20)+'%';
+      p.style.background = Math.random() > 0.5 ? 'var(--gold)' : 'var(--cyan)';
+      p.style.animationDuration = (6 + Math.random()*8)+'s';
+      p.style.animationDelay = (Math.random()*8)+'s';
+      wrap.appendChild(p);
+    }
+  }
+
+  /* ---------- stats: real data layer (Firestore) ---------- */
+  const STORAGE_KEY = 'gunkul_warehouse_documents';
+  const TARGET_RECIPIENT = 'บริษัท กันกุล โซลาร์ คอมมูนิตี้ จำกัด';
+
+  async function loadDocuments(){
+    try{
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
+      const { getFirestore, collection, query, orderBy, limit, getDocs } =
+        await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAkPFzgT7hLAxPVI129F-vRzA65MIx2VIs",
+        authDomain: "gunkul-my-task-system.firebaseapp.com",
+        projectId: "gunkul-my-task-system",
+        storageBucket: "gunkul-my-task-system.firebasestorage.app",
+        messagingSenderId: "877006770872",
+        appId: "1:877006770872:web:ec56ec0089512899811a4d"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // main feed — powers ทั้งหมด / ต้องดำเนินการ / รับเข้าคลังแล้ว
+      const q = query(collection(db, "warehouse_deliveries"), orderBy('createdAt', 'desc'), limit(500));
+      const snap = await getDocs(q);
+      const docs = snap.docs.map(d => {
+        const x = d.data();
+        return {
+          id: d.id,
+          supplier: x.sender || '',
+          recipient: x.recipient || '',
+          status: x.status || 'pending',
+          date: x.date || ''
+        };
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(docs));
+
+      // suppliers = คู่ค้าไม่ซ้ำกัน จากเอกสารทั้งหมดของทุกบริษัทรวมกัน
+      const supplierCount = new Set(docs.map(d => d.supplier).filter(Boolean)).size;
+      localStorage.setItem(STORAGE_KEY + '_suppliers', String(supplierCount));
+
+      return { docs, supplierCount };
+    }catch(err){
+      console.warn('โหลดจาก Firestore ไม่สำเร็จ ใช้ข้อมูลสำรองแทน:', err);
+      let cached = null, cachedSuppliers = null;
+      try{ cached = JSON.parse(localStorage.getItem(STORAGE_KEY)); }catch(e){}
+      try{ cachedSuppliers = parseInt(localStorage.getItem(STORAGE_KEY + '_suppliers'), 10); }catch(e){}
+      const docs = (cached && Array.isArray(cached) && cached.length) ? cached : seedDocuments();
+      const supplierCount = Number.isFinite(cachedSuppliers)
+        ? cachedSuppliers
+        : new Set(docs.map(d => d.supplier).filter(Boolean)).size;
+      return { docs, supplierCount };
+    }
+  }
+
+  function seedDocuments(){
+    const suppliers = [
+      'หจก. ไทยโซลาร์ ซัพพลาย','บจก. เอเชีย พาวเวอร์ เทค','บจก. กรีนไวร์ อีควิปเมนท์',
+      'บจก. สยาม อินเวอร์เตอร์','หจก. เอ็นเนอร์จี พาร์ทส์','บจก. วินด์เทค โซลูชั่น',
+      'บจก. โซล่าโมดูล ไทย','หจก. เคเบิล แอนด์ วายริ่ง'
+    ];
+    const recipients = [
+      TARGET_RECIPIENT, 'บริษัท เอฟเอ็นซี จำกัด', 'บริษัท กันกุล เอ็นจิเนียริ่ง จำกัด (มหาชน)'
+    ];
+    const docs = [];
+    let id = 1;
+    for(let i=0;i<130;i++){
+      docs.push({
+        id: id++,
+        supplier: suppliers[Math.floor(Math.random()*suppliers.length)],
+        recipient: recipients[Math.floor(Math.random()*recipients.length)],
+        status: Math.random() < 0.72 ? 'received' : 'pending',
+        date: new Date(Date.now() - Math.floor(Math.random()*90)*86400000).toISOString()
+      });
+    }
+    return docs;
+  }
+
+  function computeStats(docs, supplierCount){
+    const t = docs.length;
+    const p = docs.filter(d => d.status === 'pending').length;
+    const r = docs.filter(d => d.status === 'received').length;
+    return { t, p, r, suppliers: supplierCount };
+  }
+
+  async function initStats(){
+    const { docs, supplierCount } = await loadDocuments();
+    const { t, p, r, suppliers } = computeStats(docs, supplierCount);
+
+    document.getElementById('stat-total').dataset.target = t;
+    document.getElementById('stat-suppliers').dataset.target = suppliers;
+    document.getElementById('stat-pending').dataset.target = p;
+    document.getElementById('stat-received').dataset.target = r;
+
+    document.getElementById('stat-sub-total').textContent = 'เอกสารทั้งหมด';
+    document.getElementById('stat-sub-suppliers').textContent = 'คู่ค้าทั้งหมด';
+    document.getElementById('stat-sub-pending').textContent = p > 0 ? 'ต้องดำเนินการ' : 'เรียบร้อย';
+    document.getElementById('stat-sub-received').textContent = `${t > 0 ? Math.round(r / t * 100) : 0}% ของทั้งหมด`;
+
+    document.querySelectorAll('.stat-card').forEach(card => statObserver.observe(card));
+  }
+
+  function animateCount(el, target, duration=1600){
     const start = performance.now();
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(prefersReduced){ el.textContent = target.toLocaleString('en-US'); return; }
     function tick(now){
-      const p = Math.min(1,(now-start)/dur);
-      const eased = 1 - Math.pow(1-p,3);
-      span.textContent = Math.round(eased*target).toLocaleString('en-US');
-      if(p<1) requestAnimationFrame(tick);
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic
+      const val = Math.round(target * eased);
+      el.textContent = val.toLocaleString('en-US');
+      if(p < 1){ requestAnimationFrame(tick); }
     }
     requestAnimationFrame(tick);
   }
 
-  function animateRing(ring){
-    const circle = ring.querySelector('.fg');
-    const pct = parseFloat(circle.dataset.pct);
-    const circumference = 157;
-    const offset = circumference - (pct/100)*circumference;
-    requestAnimationFrame(()=>{ circle.style.strokeDashoffset = offset; });
-  }
-
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
+  const statObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
       if(entry.isIntersecting){
-        const el = entry.target;
-        if(el.classList.contains('stat-card')){
-          animateCount(el.querySelector('.stat-num'));
-        }
-        if(el.id === 'esg'){
-          el.querySelectorAll('.esg-ring').forEach(animateRing);
-        }
-        el.classList.add('reveal');
-        io.unobserve(el);
+        const numEl = entry.target.querySelector('.stat-num');
+        const countEl = numEl.querySelector('.count');
+        const target = parseInt(numEl.dataset.target, 10);
+        animateCount(countEl, target);
+        statObserver.unobserve(entry.target);
       }
     });
-  },{threshold:.3});
+  }, { threshold: 0.4 });
 
-  document.querySelectorAll('.stat-card').forEach(el=>io.observe(el));
-  document.getElementById('esg') && io.observe(document.getElementById('esg'));
+  document.querySelectorAll('.stat-card'); // (observers now attached inside initStats once real data is loaded)
 
-  // staggered reveal for module cards on scroll
-  const cardIo = new IntersectionObserver((entries)=>{
-    entries.forEach((entry,i)=>{
-      if(entry.isIntersecting){
-        setTimeout(()=>entry.target.classList.add('reveal'), i*70);
-        cardIo.unobserve(entry.target);
-      }
-    });
-  },{threshold:.15});
-  document.querySelectorAll('.mod-card').forEach(el=>cardIo.observe(el));
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(drawNetwork, 120);
+  });
+
+  window.addEventListener('load', () => {
+    makeParticles();
+    drawNetwork();
+    initStats();
+    if(document.fonts && document.fonts.ready){
+      document.fonts.ready.then(drawNetwork);
+    }
+  });
 </script>
+
 </body>
 </html>
