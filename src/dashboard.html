@@ -1116,15 +1116,17 @@ function buildModalHTML(d,id){
     </div></div>`;
     if(d.signatureData) html+=`<div class="dsec"><div class="dsec-title">ลายเซ็น</div><div class="sig-wrap"><img src="${d.signatureData}" alt="ลายเซ็น" style="max-width:100%;display:block;border-radius:4px;"></div></div>`;
   } else {
-    html+=`<div class="dsec" id="qr-section-wrap"><div class="dsec-title">QR สำหรับเซ็นรับ</div>
+html += `<div class="dsec" id="qr-section-wrap"><div class="dsec-title">QR สำหรับเซ็นรับ</div>
     <div class="qr-section">
       <div class="qr-img-wrap"><div id="qr-box"></div></div>
       <div class="qr-right">
-        <input readonly class="qr-url" value="/src/receiver?id=${id}}">
+        <input readonly class="qr-url" value="/receiver?id=${id}">
         <div style="display:flex;gap:8px;margin-top:4px;">
-          <button class="act-btn" onclick="copyLink('/src/receiver?id=${id}')">📋 คัดลอกลิงก์</button>
-         <a href="/src/receiver?id=${id}" target="_blank" class="act-btn" style="padding:6px 11px;text-decoration:none">📦เปิดหน้ารับ ↗</a>
-          <button class="act-btn edit" onclick="printQR('/src/receiver?id=${id}}','${escA(d.sender||'')}','${escA(d.invoice||'')}','${escA(d.recipient||'')}')">🖨️ พิมพ์ QR</button>
+          <button class="act-btn" onclick="copyLink('/receiver?id=${id}')">📋 คัดลอกลิงก์</button>
+          
+          <a href="/receiver?id=${id}" target="_blank" class="act-btn" style="padding:6px 11px;text-decoration:none">📦เปิดหน้ารับ ↗</a>
+          
+          <button class="act-btn edit" onclick="printQR('/receiver?id=${id}','${escA(d.sender||'')}','${escA(d.invoice||'')}','${escA(d.recipient||'')}')">🖨️ พิมพ์ QR</button>
         </div>
         <div class="qr-hint">สแกนเพื่อเปิดหน้าต่างเซ็นรับสินค้าบนมือถือ</div>
       </div>
