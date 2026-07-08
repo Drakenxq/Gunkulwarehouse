@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>GUNKUL Warehouse — Sidebar</title>
+<style>
+  :root{
+    --navy-top:#1f2e52;
+    --navy-bottom:#101a30;
+    --active-bg:#2b3c63;
+    --gold:#d0a154;
+    --text-dim:#9aa7c2;
+    --text-bright:#ffffff;
+    --divider:rgba(255,255,255,0.08);
+    --sidebar-w:232px;
+    --sidebar-w-collapsed:76px;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    font-family:"Segoe UI", "Noto Sans Thai", -apple-system, sans-serif;
+    background:#e9edf3; 
+  }
+
+  /* ============ SIDEBAR ============ */
+  .sidebar{
+    position:relative;
+    width:var(--sidebar-w);
+    height:100vh;
+    background:linear-gradient(180deg,var(--navy-top) 0%,var(--navy-bottom) 100%);
+    display:flex;
+    flex-direction:column;
+    transition:width .25s ease;
+    overflow:hidden;
+    flex-shrink:0;
+  }
+  .sidebar.collapsed{width:var(--sidebar-w-collapsed);}
+
+  /* ---- header / logo ---- */
+  .sidebar-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:22px 20px 20px;
+    white-space:nowrap;
+  }
+  .logo-mark{
+    width:28px;height:28px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .brand{
+    display:flex;
+    flex-direction:column;
+    line-height:1.1;
+    overflow:hidden;
+  }
+  .brand-bold{
+    font-size:16px;
+    font-weight:800;
+    color:var(--text-bright);
+    letter-spacing:.3px;
+  }
+  .brand-light{
+    font-size:11.5px;
+    font-weight:400;
+    color:var(--text-dim);
+    letter-spacing:.5px;
+  }
+
+  /* ---- nav ---- */
+  .sidebar-nav{
+    margin-top:6px;
+    padding:0 12px;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    flex:1;
+    overflow-y:auto;
+  }
+  .nav-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:11px 12px;
+    border-radius:8px;
+    text-decoration:none;
+    color:var(--text-dim);
+    font-size:14px;
+    font-weight:500;
+    white-space:nowrap;
+    border-left:3px solid transparent;
+    transition:background .15s ease,color .15s ease;
+  }
+  .nav-item svg{
+    width:19px;height:19px;flex-shrink:0;
+    stroke:currentColor;
+  }
+  .nav-item:hover{
+    background:rgba(255,255,255,0.05);
+    color:var(--text-bright);
+  }
+  .nav-item.active{
+    background:var(--active-bg);
+    color:var(--text-bright);
+    font-weight:700;
+    border-left:3px solid var(--gold);
+  }
+  .nav-item.active svg{ stroke:var(--gold); }
+
+  .nav-label{overflow:hidden;text-overflow:ellipsis;}
+
+  /* ---- footer ---- */
+  .sidebar-footer{
+    padding:14px 12px 18px;
+    border-top:1px solid var(--divider);
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    position:relative;
+  }
+  .signout-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 12px;
+    border-radius:8px;
+    text-decoration:none;
+    color:var(--text-dim);
+    font-size:14px;
+    font-weight:500;
+    white-space:nowrap;
+    transition:background .15s ease,color .15s ease;
+  }
+  .signout-item:hover{
+    background:rgba(255,255,255,0.05);
+    color:var(--text-bright);
+  }
+  .signout-item svg{width:18px;height:18px;flex-shrink:0;stroke:currentColor;}
+
+  .collapse-btn{
+    position:absolute;
+    right:-14px;
+    top:-32px;
+    width:28px;height:28px;
+    border-radius:50%;
+    background:var(--gold);
+    border:3px solid var(--navy-bottom);
+    color:#20304f;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    font-size:14px;
+    line-height:1;
+  }
+  .collapse-btn svg{width:14px;height:14px;stroke:#20304f;stroke-width:3;transition:transform .25s ease;}
+  .sidebar.collapsed .collapse-btn svg{transform:rotate(180deg);}
+
+  /* hide text labels when collapsed */
+  .sidebar.collapsed .brand,
+  .sidebar.collapsed .nav-label,
+  .sidebar.collapsed .signout-item span{
+    display:none;
+  }
+  .sidebar.collapsed .nav-item,
+  .sidebar.collapsed .signout-item{
+    justify-content:center;
+    gap:0;
+  }
+  .sidebar.collapsed .sidebar-header{
+    justify-content:center;
+    padding:22px 0 20px;
+  }
+  
+  .app{
+    display:flex;
+    height:100vh;
+  }
+
+    #content{
+        flex:1;
+        height:100%;
+        border:none;
+        background:#f5f7fb;
+    }
+  /* thin scrollbar for nav */
+  .sidebar-nav::-webkit-scrollbar{width:4px;}
+  .sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" fill="#d0a154"/>
+          <path d="M8 12.5L10.8 15.3L16 9" stroke="#101a30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand">
+        <span class="brand-bold">GUNKUL</span>
+        <span class="brand-light">Warehouse</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="./src/home.html" target="contentFrame" data-page="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span class="nav-label">Home</span>
+      </a>
+      <a class="nav-item" href="./src/dashboard.html" target="contentFrame" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span class="nav-label">Dashboard</span>
+      </a>
+      <a class="nav-item" href="./src/item-master.html" target="contentFrame" data-page="item-master">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+        <span class="nav-label">Item Master</span>
+      </a>
+      <a class="nav-item" href="./src/warehouse_dashboard.html" target="contentFrame" data-page="vendor-directory">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M9 12h.01M15 12h.01M9 8h.01M15 8h.01"/></svg>
+        <span class="nav-label">Vendor Directory</span>
+      </a>
+      <a class="nav-item" href="tracking-sheet.html" target="contentFrame" data-page="tracking-sheet">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a1 1 0 0 1 1 1v1H8V4a1 1 0 0 1 1-1Z"/><path d="M6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6Z"/><path d="M9 11h6M9 15h6"/></svg>
+        <span class="nav-label">Tracking Sheet</span>
+      </a>
+      <a class="nav-item" href="knowledge-base.html" target="contentFrame" data-page="knowledge-base">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v18H6.5A2.5 2.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5v-13Z"/></svg>
+        <span class="nav-label">Knowledge Base</span>
+      </a>
+      <a class="nav-item" href="esg.html" target="contentFrame" data-page="esg">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c6-4 9-8 9-13a9 9 0 0 0-18 0c0 5 3 9 9 13Z"/><path d="M12 8v7M9 11h6"/></svg>
+        <span class="nav-label">ESG &amp; Sustainability</span>
+      </a>
+      <a class="nav-item" href="org-chart.html" target="contentFrame" data-page="org-chart">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V12M12 12 6.5 17M12 12 17.5 17"/></svg>
+        <span class="nav-label">Organization Chart</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a class="signout-item" href="#" data-page="signout">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        <span>Sign out</span>
+      </a>
+      <button class="collapse-btn" id="collapseBtn" aria-label="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+    </div>
+  </aside>
+
+   <iframe id="content" name="contentFrame" src="./src/home.html"></iframe> 
+</div>
+
+<script>
+  // ตัวเปิด-ปิด ย่อขยาย Sidebar
+  const sidebar = document.getElementById('sidebar');
+  const collapseBtn = document.getElementById('collapseBtn');
+  const SIDEBAR_KEY = 'sidebarCollapsed';
+
+  if(localStorage.getItem(SIDEBAR_KEY) === 'true'){
+      sidebar.classList.add('collapsed');
+  }
+
+  collapseBtn.addEventListener('click',()=>{
+
+      sidebar.classList.toggle('collapsed');
+
+      localStorage.setItem(
+          SIDEBAR_KEY,
+          sidebar.classList.contains('collapsed')
+      );
+
+  });
+
+  const STORAGE_KEY = 'gunkul_active_page';
+  const DEFAULT_PAGE = 'home';
+  const PAGE_PATH = './src/';
+
+  // ฟังก์ชันสลับคลาส Active ของเมนู
+  function setActivePage(page) {
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.page === page);
+    });
+    localStorage.setItem(STORAGE_KEY, page);
+  }
+
+    const savedPage = localStorage.getItem(STORAGE_KEY) || DEFAULT_PAGE;
+
+    setActivePage(savedPage);
+
+    const target = document.querySelector(
+        `.nav-item[data-page="${savedPage}"]`
+    );
+
+    if(target){
+        document.getElementById('content').src = target.getAttribute('href');
+    }
+
+  const content = document.getElementById('content');
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+
+        item.addEventListener('click',(e)=>{
+
+            e.preventDefault();
+
+            if(item.dataset.page === 'signout') return;
+
+            setActivePage(item.dataset.page);
+
+            content.src = item.getAttribute('href');
+
+        });
+
+    });
+
+  // จัดการกรณีคลิก Sign out
+  const signoutBtn = document.querySelector('.signout-item');
+  if (signoutBtn) {
+    signoutBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if(confirm('คุณต้องการออกจากระบบใช่หรือไม่?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        alert('ออกจากระบบสำเร็จ');
+        // window.location.href = 'login.html'; // ลิงก์ไปยังหน้า Login ของคุณ (ถ้ามี)
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

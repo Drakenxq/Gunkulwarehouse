@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<title>Warehouse Deliveries — Gunkul Warehouse Noppawong / dashboarddemo.html</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Inter', 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #eef0f4;
+    color: #16223f;
+  }
+  .icon { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; flex-shrink: 0; }
+
+  /* ---------- Layout ---------- */
+  .app { display: flex; min-height: 100vh; }
+
+
+  .nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+  .nav-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    margin-bottom: 2px;
+    border-radius: 8px;
+    border: none;
+    border-left: 3px solid transparent;
+    background: transparent;
+    color: #c3cbde;
+    font-size: 13.5px;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+  }
+ 
+
+  .collapse-btn {
+    width: 100%; display: flex; align-items: center; justify-content: center;
+    padding: 8px 0; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03); color: #c3cbde; cursor: pointer;
+  }
+
+  /* ---------- Main ---------- */
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  .header {
+    background: #16223f;
+    padding: 28px 32px 100px;
+  }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(217,166,90,0.15); color: #f2c785;
+    font-size: 11.5px; font-weight: 600; letter-spacing: .5px;
+    padding: 4px 12px; border-radius: 20px; margin-bottom: 14px;
+  }
+  .title { color: #fff; font-size: 26px; font-weight: 700; margin: 0 0 6px; display: flex; align-items: center; gap: 10px; }
+  .title .icon { width: 24px; height: 24px; stroke: #f2c785; }
+  .subtitle { color: #9aa5bd; font-size: 13.5px; margin: 0; }
+
+  .header-actions { display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
+
+  .conn-status {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 20px;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: #dfe3ee;
+  }
+  .conn-dot { width: 8px; height: 8px; border-radius: 50%; background: #9ca3af; flex-shrink: 0; }
+  .conn-status.live .conn-dot { background: #3fd67a; box-shadow: 0 0 0 3px rgba(63,214,122,0.2); }
+  .conn-status.live { color: #baf3cf; }
+  .conn-status.connecting .conn-dot { background: #f2c785; animation: pulse 1.1s ease-in-out infinite; }
+  .conn-status.connecting { color: #f2c785; }
+  .conn-status.error .conn-dot { background: #f16565; }
+  .conn-status.error { color: #ffc4c4; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+
+  .action-row { display: flex; gap: 10px; }
+  .export-btn, .refresh-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    color: #fff; font-size: 13px; font-weight: 500; padding: 9px 16px;
+    border-radius: 8px; cursor: pointer; font-family: inherit;
+  }
+  .export-btn:hover, .refresh-btn:hover { background: rgba(255,255,255,0.14); }
+  .export-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .updates-card {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; padding: 12px 16px; min-width: 270px;
+  }
+  .updates-title { display: flex; align-items: center; gap: 6px; color: #f2c785; font-size: 12px; font-weight: 600; margin-bottom: 8px; }
+  .updates-title .icon { width: 13px; height: 13px; stroke: #f2c785; }
+  .update-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; color: #dfe3ee; padding: 4px 0; }
+  .update-row .code { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
+  .update-row .date { color: #9aa5bd; white-space: nowrap; }
+  .updates-empty { color: #9aa5bd; font-size: 12.5px; padding: 6px 0; }
+
+  .stat-cards { display: flex; gap: 16px; margin-top: 24px; flex-wrap: wrap; }
+  .stat-card {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; padding: 16px 20px; flex: 1; min-width: 180px;
+  }
+  .stat-label { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: #c3cbde; font-size: 12.5px; }
+  .stat-label .icon { width: 15px; height: 15px; stroke: #d9a65a; }
+  .stat-value { color: #fff; font-size: 26px; font-weight: 700; }
+
+  .content { padding: 0 32px 32px; margin-top: -70px; }
+
+  .filter-card, .table-card {
+    background: #fff; border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(15,25,55,0.08);
+  }
+  .filter-card { padding: 20px 24px; margin-bottom: 20px; }
+  .filter-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .filter-group { flex: 1 1 160px; }
+  .filter-group.search { flex: 2 1 260px; }
+  .filter-label { font-size: 12px; color: #6b7280; display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+  .filter-label .icon { width: 13px; height: 13px; }
+  .filter-input, .filter-select {
+    width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #e5e7eb;
+    font-size: 13.5px; outline: none; font-family: inherit; background: #fff;
+  }
+  .filter-input:focus, .filter-select:focus { border-color: #d9a65a; }
+
+  .filter-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 13px; color: #6b7280; flex-wrap: wrap; gap: 10px; }
+  .filter-meta strong { color: #111827; }
+  .filter-meta label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 780px; }
+  thead tr { background: #16223f; }
+  th { text-align: left; color: #e6e9f2; font-weight: 600; padding: 14px 20px; white-space: nowrap; }
+  th.num { text-align: right; }
+  td { padding: 16px 20px; border-bottom: 1px solid #f1f2f5; }
+  tbody tr:last-child td { border-bottom: none; }
+  td.code { color: #6b7280; white-space: nowrap; }
+  td.name { color: #16223f; font-weight: 600; max-width: 320px; }
+  td.category { color: #6b7280; }
+  td.num { text-align: right; white-space: nowrap; }
+    .vendor-pill {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: #f1f2f5;
+        color: #374151;
+        font-size: 12px;
+        font-weight: 600;
+
+        white-space: normal;
+        word-break: break-word;
+        max-width: 320px;
+        line-height: 1.4;
+    }
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 11px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .status-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .status-delivered { background: #e7f8ee; color: #1a8a4a; }
+  .status-delivered .dot { background: #1a8a4a; }
+  .status-transit { background: #eaf1fe; color: #1d5fd1; }
+  .status-transit .dot { background: #1d5fd1; }
+  .status-pending { background: #fdf3e3; color: #a1740f; }
+  .status-pending .dot { background: #a1740f; }
+  .status-cancelled { background: #fdecec; color: #c23434; }
+  .status-cancelled .dot { background: #c23434; }
+  .status-other { background: #f1f2f5; color: #374151; }
+  .status-other .dot { background: #6b7280; }
+
+  .price { color: #16223f; font-weight: 700; }
+  .empty-row td, .state-row td { text-align: center; color: #9ca3af; padding: 40px; }
+  .state-row .state-inner { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .state-row .icon { width: 30px; height: 30px; stroke: #c3cbde; }
+  .state-row .state-title { color: #6b7280; font-weight: 600; font-size: 14px; }
+  .state-row .state-sub { font-size: 12.5px; color: #9ca3af; max-width: 420px; }
+
+  /* ---------- Detail Modal Styles ---------- */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      backdrop-filter: blur(4px);
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .modal-hd {
+      position: sticky;
+      top: 0;
+      background: #16223f;
+      color: #fff;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
+    .modal-hd h2 { font-size: 16px; font-weight: 700; margin: 0; }
+    .modal-body { padding: 24px; flex: 1; }
+    .btn-close {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px 10px;
+      line-height: 1;
+      transition: all 0.15s;
+    }
+    .btn-close:hover { background: rgba(255, 255, 255, 0.2); }
+    
+    /* Detail Item Layout */
+    .dsec { margin-bottom: 20px; }
+    .dsec-title {
+      font-size: 11px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dsec-title::before {
+      content: ''; display: block; width: 3px; height: 11px; background: #d9a65a; border-radius: 2px;
+    }
+    .igrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .icell { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 14px; }
+    .icell label { font-size: 11px; color: #6b7280; display: block; margin-bottom: 2px; font-weight: 500; }
+    .icell span { font-size: 14px; font-weight: 600; color: #16223f; }
+    .icell.full { grid-column: 1 / -1; }
+    
+    tbody tr { cursor: pointer; transition: background 0.15s; }
+    tbody tr:hover { background: #f8fafc; }
+
+  .spinner {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 3px solid #e5e7eb; border-top-color: #d9a65a;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-banner {
+    background: #fdecec; border: 1px solid #f7c9c9; color: #b23a3a;
+    border-radius: 10px; padding: 12px 16px; margin-bottom: 20px;
+    font-size: 13px; display: flex; align-items: flex-start; gap: 10px;
+  }
+  .error-banner .icon { width: 16px; height: 16px; stroke: #b23a3a; flex-shrink: 0; margin-top: 1px; }
+  .error-banner code { background: rgba(0,0,0,0.05); padding: 1px 6px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Main -->
+  <div class="main">
+    <div class="header">
+      <div class="header-top">
+        <div>
+          <span class="badge">WAREHOUSE</span>
+          <h1 class="title">
+            <svg class="icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            Warehouse Deliveries
+          </h1>
+          <p class="subtitle">ชื่อมต่อข้อมูลสดจาก Firebase Firestore</p>
+        </div>
+
+        <div class="header-actions">
+          <div class="conn-status connecting" id="connStatus">
+            <span class="conn-dot"></span>
+            <span id="connStatusText">กำลังเชื่อมต่อ Firebase…</span>
+          </div>
+
+          <div class="action-row">
+            <button class="refresh-btn" id="refreshBtn" title="ข้อมูลอัปเดตแบบเรียลไทม์อยู่แล้ว">
+              <svg class="icon" viewBox="0 0 24 24" style="width:15px;height:15px;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              รีเฟรช
+            </button>
+            <button class="export-btn" id="exportBtn" disabled>
+              <svg class="icon" viewBox="0 0 24 24" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              ส่งออก CSV
+            </button>
+          </div>
+
+          <div class="updates-card">
+            <div class="updates-title">
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="12 6 12 12 16 14"/><circle cx="12" cy="12" r="10"/></svg>
+              รายการล่าสุด
+            </div>
+            <div id="updatesList"><div class="updates-empty">กำลังโหลด…</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-cards" id="statCards"></div>
+    </div>
+
+      <div id="overlay" class="overlay">
+        <div class="modal" style="width: 95%; max-width: 1200px; height: 90vh; max-height: 90vh;"> 
+          <div class="modal-hd">
+            <h2 id="modalTitle">ใบรับสินค้า (Receiver)</h2>
+            <button class="btn-close" onclick="closeModal()">&times;</button>
+          </div>
+          <div class="modal-body" style="padding: 0; flex: 1; height: 100%; overflow: hidden;">
+            <iframe id="receiverFrame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+          </div>
+        </div>
+      </div>
+
+    <div class="content">
+      <div class="error-banner" id="errorBanner" style="display:none;">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="errorBannerText"></span>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-row">
+          <div class="filter-group search">
+            <label class="filter-label">
+              <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              ค้นหา
+            </label>
+            <input class="filter-input" id="searchInput" placeholder="รหัส/เลขที่ใบส่งของ, สินค้า, ผู้จัดส่ง..." />
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">สถานะ</label>
+            <select class="filter-select" id="statusSelect"></select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">เรียงตาม</label>
+            <select class="filter-select" id="sortSelect"></select>
+          </div>
+        </div>
+
+        <div class="filter-meta">
+          <span>แสดง <strong id="countShown">0</strong> จาก <strong id="countTotal">0</strong> รายการ</span>
+          <label>
+            <input type="checkbox" id="pendingOnly" />
+            แสดงเฉพาะที่ยังไม่รับ
+          </label>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>วันที่นำส่ง</th>
+              <th>ผู้จัดส่ง (Supplier)</th>
+              <th>รายการสินค้า</th>
+              <th>บริษัทผู้รับ</th>
+              <th>หมายเลข PO</th>
+              <th>สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr class="state-row"><td colspan="7">
+              <div class="state-inner">
+                <div class="spinner"></div>
+                <div class="state-title">กำลังโหลดข้อมูลจาก ฐานข้อมูล…</div>
+              </div>
+            </td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import {
+  getFirestore, collection, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+/* ---------------------------------------------------------
+   Firebase config — this project is the MAIN data source.
+   Collection used: warehouse_deliveries
+--------------------------------------------------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyAkPFzgT7hLAxPVI129F-vRzA65MIx2VIs",
+  authDomain: "gunkul-my-task-system.firebaseapp.com",
+  projectId: "gunkul-my-task-system",
+  storageBucket: "gunkul-my-task-system.firebasestorage.app",
+  messagingSenderId: "877006770872",
+  appId: "1:877006770872:web:ec56ec0089512899811a4d"
+};
+
+const COLLECTION_NAME = "warehouse_deliveries";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* ---------------------------------------------------------
+   Firestore data state
+--------------------------------------------------------- */
+let RAW_DOCS = [];       // raw docs straight from Firestore, normalized
+let hasLoadedOnce = false;
+
+const STATUS_OPTIONS = [
+  { value: "all", label: "ทั้งหมด" },
+  { value: "pending", label: "รอดำเนินการ" },
+  { value: "in_transit", label: "อยู่ระหว่างขนส่ง" },
+  { value: "delivered", label: "รับแล้ว" },
+  { value: "cancelled", label: "ยกเลิก/มีปัญหา" },
+];
+const SORT_OPTIONS = [
+  { value: "date_desc", label: "วันที่ล่าสุดก่อน" },
+  { value: "date_asc", label: "วันที่เก่าสุดก่อน" },
+  { value: "amount_desc", label: "มูลค่าสูง-ต่ำ" },
+  { value: "amount_asc", label: "มูลค่าต่ำ-สูง" },
+];
+
+function fmtCurrency(n) {
+  if (typeof n !== "number" || Number.isNaN(n)) return "-";
+  return "฿" + n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+}
+
+/* Pull the first matching field name out of a doc, tolerating varied schemas */
+function pick(obj, keys, fallback = undefined) {
+  for (const k of keys) {
+    if (obj[k] !== undefined && obj[k] !== null && obj[k] !== "") return obj[k];
+  }
+  return fallback;
+}
+
+function toDate(value) {
+  if (!value) return null;
+  if (typeof value.toDate === "function") return value.toDate(); // Firestore Timestamp
+  if (value instanceof Date) return value;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function fmtDate(d) {
+  if (!d) return "-";
+  return d.toLocaleDateString("th-TH", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+function normalizeStatus(raw) {
+  const s = String(raw || "").toLowerCase().trim();
+  if ([
+  "received",
+  "delivered",
+  "completed",
+  "done",
+  "สำเร็จ",
+  "รับแล้ว"
+  ].includes(s)) return "delivered";
+  if (["in_transit", "in-transit", "transit", "shipping", "อยู่ระหว่างขนส่ง", "กำลังขนส่ง"].includes(s)) return "in_transit";
+  if (["cancelled", "canceled", "delayed", "failed", "ยกเลิก", "ล่าช้า"].includes(s)) return "cancelled";
+  if (["pending", "รอดำเนินการ", "รอ"].includes(s) || !s) return "pending";
+  return "pending";
+}
+
+function statusMeta(status) {
+  switch (status) {
+    case "delivered": return { cls: "status-delivered", label: "รับแล้ว" };
+    case "in_transit": return { cls: "status-transit", label: "อยู่ระหว่างขนส่ง" };
+    case "cancelled": return { cls: "status-cancelled", label: "ยกเลิก/มีปัญหา" };
+    case "pending": return { cls: "status-pending", label: "รอดำเนินการ" };
+    default: return { cls: "status-other", label: status || "ไม่ระบุ" };
+  }
+}
+
+/* Normalize a raw Firestore doc into a stable shape the UI relies on */
+function normalizeDoc(id, data) {
+
+  const firstItem = Array.isArray(data.items) && data.items.length
+    ? data.items[0]
+    : {};
+
+  return {
+    id,
+
+    sender: data.sender || "-",
+    recipient: data.recipient || "-",
+    invoice: data.invoice || "-",
+
+    itemName: firstItem.name || "-",
+
+    quantity: firstItem.qty
+      ? `${firstItem.qty} ${firstItem.unit || ""}`
+      : "-",
+
+    date: toDate(data.date),
+
+    status: normalizeStatus(data.status)
+  };
+}
+
+/* ---------------------------------------------------------
+   Connection status UI
+--------------------------------------------------------- */
+function setConnStatus(state, text) {
+  const el = document.getElementById("connStatus");
+  el.className = "conn-status " + state;
+  document.getElementById("connStatusText").textContent = text;
+}
+
+function showError(message) {
+  const banner = document.getElementById("errorBanner");
+  banner.style.display = "flex";
+  document.getElementById("errorBannerText").innerHTML =
+    `ไม่สามารถโหลดข้อมูลจาก Firestore ได้: <code>${message}</code>`;
+}
+function clearError() {
+  document.getElementById("errorBanner").style.display = "none";
+}
+
+/* ---------------------------------------------------------
+   Filters
+--------------------------------------------------------- */
+function renderFilterOptions() {
+  document.getElementById("statusSelect").innerHTML =
+    STATUS_OPTIONS.map(o => `<option value="${o.value}">${o.label}</option>`).join("");
+  document.getElementById("sortSelect").innerHTML =
+    SORT_OPTIONS.map(o => `<option value="${o.value}">${o.label}</option>`).join("");
+}
+
+function getFilteredRows() {
+  const query = document.getElementById("searchInput").value.toLowerCase().trim();
+  const status = document.getElementById("statusSelect").value;
+  const sort = document.getElementById("sortSelect").value;
+  const pendingOnly = document.getElementById("pendingOnly").checked;
+
+  let rows = RAW_DOCS.filter(r => {
+    const matchesQuery =
+      !query ||
+      (r.invoice || "").toLowerCase().includes(query) ||
+      (r.sender || "").toLowerCase().includes(query) ||
+      (r.recipient || "").toLowerCase().includes(query) ||
+      (r.itemName || "").toLowerCase().includes(query);
+
+    const matchesStatus = status === "all" || r.status === status;
+    const matchesPending = !pendingOnly || r.status !== "delivered";
+    return matchesQuery && matchesStatus && matchesPending;
+  });
+
+  rows.sort((a, b) => {
+    if (sort === "date_desc") return (b.date?.getTime() || 0) - (a.date?.getTime() || 0);
+    if (sort === "date_asc") return (a.date?.getTime() || 0) - (b.date?.getTime() || 0);
+    if (sort === "amount_desc") return (b.amount || 0) - (a.amount || 0);
+    if (sort === "amount_asc") return (a.amount || 0) - (b.amount || 0);
+    return 0;
+  });
+
+  return rows;
+}
+
+  /* ---------------------------------------------------------
+    Rendering
+  --------------------------------------------------------- */
+  function renderStats() {
+    const total = RAW_DOCS.length;
+    const totalValue = RAW_DOCS.reduce((sum, r) => sum + (r.amount || 0), 0);
+    const pendingCount = RAW_DOCS.filter(r => r.status === "pending" || r.status === "in_transit").length;
+    const deliveredCount = RAW_DOCS.filter(r => r.status === "delivered").length;
+
+    const stats = [
+      { icon: '<rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>', label: "รายการนำส่งทั้งหมด", value: total.toLocaleString("en-US") },
+      { icon: '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>', label: "มูลค่ารวม", value: fmtCurrency(totalValue) },
+      { icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', label: "รอดำเนินการ", value: pendingCount.toLocaleString("en-US") },
+      { icon: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>', label: "สินค้าที่รับแล้ว", value: deliveredCount.toLocaleString("en-US") },
+    ];
+    document.getElementById("statCards").innerHTML = stats.map(s => `
+      <div class="stat-card">
+        <div class="stat-label"><svg class="icon" viewBox="0 0 24 24">${s.icon}</svg>${s.label}</div>
+        <div class="stat-value">${s.value}</div>
+      </div>
+    `).join("");
+  }
+
+  function renderRecentUpdates() {
+    const recent = [...RAW_DOCS]
+      .filter(r => r.date)
+      .sort((a, b) => b.date.getTime() - a.date.getTime())
+      .slice(0, 6);
+
+    const list = document.getElementById("updatesList");
+    if (recent.length === 0) {
+      list.innerHTML = `<div class="updates-empty">ยังไม่มีข้อมูลนำส่ง</div>`;
+      return;
+    }
+    list.innerHTML = recent.map(r => `
+      <div class="update-row">
+        <span class="code" title="${r.itemName}">${r.code}</span>
+        <span class="date">${fmtDate(r.date)}</span>
+      </div>
+    `).join("");
+  }
+
+  function renderEmptyState() {
+    document.getElementById("tableBody").innerHTML = `
+      <tr class="state-row"><td colspan="8">
+        <div class="state-inner">
+          <svg class="icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          <div class="state-title">ยังไม่มีข้อมูลใน collection "warehouse_deliveries"</div>
+          <div class="state-sub">เมื่อมีการเพิ่มเอกสารในคอลเลกชันนี้บน Firestore ระบบจะแสดงผลที่นี่โดยอัตโนมัติแบบเรียลไทม์</div>
+        </div>
+      </td></tr>`;
+  }
+
+  function renderTable() {
+    document.getElementById("countTotal").textContent = RAW_DOCS.length;
+
+    if (RAW_DOCS.length === 0) {
+      document.getElementById("countShown").textContent = 0;
+      document.getElementById("exportBtn").disabled = true;
+      renderEmptyState();
+      return;
+    }
+
+    const rows = getFilteredRows();
+    document.getElementById("countShown").textContent = rows.length;
+    document.getElementById("exportBtn").disabled = rows.length === 0;
+
+    const body = document.getElementById("tableBody");
+    if (rows.length === 0) {
+      body.innerHTML = `<tr class="empty-row"><td colspan="8">ไม่พบรายการที่ตรงกับเงื่อนไข</td></tr>`;
+      return;
+    }
+
+      body.innerHTML = rows.map(r => {
+        const meta = statusMeta(r.status);
+
+    return `
+      <tr onclick="openReceiverModal('${r.id}')">
+        <td>${fmtDate(r.date)}</td>
+
+          <td>
+            <span class="vendor-pill">${r.sender}</span>
+          </td>
+
+          <td class="name">${r.itemName}</td>
+
+          <td>
+            <span class="vendor-pill">${r.recipient}</span>
+          </td>
+
+          <td>${r.invoice}</td>
+
+          <td>
+            <span class="status-pill ${meta.cls}">
+              <span class="dot"></span>${meta.label}
+            </span>
+          </td>
+        </tr>`;
+      }).join("");
+  }
+
+    function renderAll() {
+      renderStats();
+      renderRecentUpdates();
+      renderTable();
+    }
+
+    window.openDetail = function(id) {
+    const d = RAW_DOCS.find(x => x.id === id);
+    if (!d) return;
+
+    const modalBody = document.getElementById('modalBody');
+    
+    modalBody.innerHTML = `
+      <div class="dsec">
+        <div class="dsec-title">ข้อมูลทั่วไป</div>
+        <div class="igrid">
+          <div class="icell">
+            <label>หมายเลข PO / Invoice</label>
+            <span>${d.invoice || '-'}</span>
+          </div>
+          <div class="icell">
+            <label>วันที่นำส่ง</label>
+            <span>${fmtDate(d.date)}</span>
+          </div>
+          <div class="icell">
+            <label>ผู้จัดส่ง (Supplier)</label>
+            <span>${d.sender || '-'}</span>
+          </div>
+          <div class="icell">
+            <label>บริษัทผู้รับ</label>
+            <span>${d.recipient || '-'}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dsec">
+        <div class="dsec-title">รายละเอียดสินค้า</div>
+        <div class="igrid">
+          <div class="icell full">
+            <label>รายการสินค้า</label>
+            <span>${d.itemName || '-'}</span>
+          </div>
+          <div class="icell">
+            <label>จำนวน</label>
+            <span>${d.quantity || '-'}</span>
+          </div>
+          <div class="icell">
+            <label>สถานะ</label>
+            <span>${statusMeta(d.status).label}</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+// ประกาศตัวแปรสถานะเบื้องต้นสำหรับควบคุมการแก้ไข
+let curOpenId = null;
+let isEdit = false;
+
+// ฟังก์ชันสำหรับเปิดหน้าต่าง Modal
+window.openDetail = function(id) {
+  const d = RAW_DOCS.find(x => x.id === id);
+  if (!d) return;
+
+  curOpenId = id;
+  isEdit = false;
+  
+  // เรียกใช้งานฟังก์ชัน refreshModal ตามที่คุณต้องการ
+  refreshModal(d);
+
+  // แสดงผลหน้าต่าง Overlay
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+// ฟังก์ชันตามรูปแบบที่คุณระบุ เพื่อจัดการข้อมูลและสถานะปุ่มต่าง ๆ ใน Modal
+function refreshModal(d){
+  const id = d.id;
+  
+  // ตรวจสอบและอัปเดต Badge สถานะ (ปรับให้รองรับโครงสร้างสถานะของ dashboarddemo.html)
+  const isReceived = d.status === 'delivered' || d.status === 'received';
+  const modalTitleEl = document.getElementById('modalTitle');
+  
+  // จัดการสร้างหรือดึงพื้นที่สำหรับแสดง Badge หัวข้อให้ออกมาสวยงาม
+  if (modalTitleEl) {
+    const meta = statusMeta(d.status);
+    modalTitleEl.innerHTML = `
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span>รายละเอียดเอกสาร</span>
+        <span class="status-pill ${meta.cls}" style="font-size:11px; padding:2px 8px;">
+          <span class="dot"></span>${meta.label}
+        </span>
+      </div>
+    `;
+  }
+
+  // อัปเดตเนื้อหาข้อมูลภายใน Modal Body
+  const modalBody = document.getElementById('modalBody');
+  if (modalBody) {
+    modalBody.innerHTML = buildModalHTML(d, id);
+  }
+
+  // เคลียร์ค่าค้างคาของเหตุการณ์ปุ่ม (หากไม่มีปุ่มเหล่านี้ใน HTML ระบบจะไม่ Error)
+  const sv = document.getElementById('btn-save');
+  const cv = document.getElementById('btn-cancel-edit');
+  const eb = document.getElementById('btn-edit-mode');
+  if (sv) { sv.classList.remove('show'); sv.disabled = false; sv.textContent = '💾 บันทึก'; }
+  if (cv) { cv.classList.remove('show'); }
+  if (eb) { eb.classList.remove('editing'); eb.textContent = '✏️ แก้ไข'; }
+
+  if (d.status !== 'delivered' && d.status !== 'received') {
+    const rurl = location.origin + location.pathname.replace('dashboarddemo.html', 'receiver.html') + '?id=' + id;
+    setTimeout(() => {
+      const box = document.getElementById('qr-box');
+      if (box && !box.querySelector('canvas,img') && typeof QRCode !== 'undefined') {
+        new QRCode(box, {
+          text: rurl,
+          width: 140,
+          height: 140,
+          colorDark: '#000000',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+    }, 50);
+  }
+}
+
+// ฟังก์ชันสร้างโครงสร้าง HTML สำหรับเนื้อหาที่จะใส่ใน Modal Body
+function buildModalHTML(d, id) {
+  return `
+    <div class="dsec">
+      <div class="dsec-title">ข้อมูลทั่วไป</div>
+      <div class="igrid">
+        <div class="icell">
+          <label>หมายเลข PO / Invoice</label>
+          <span>${d.invoice || '-'}</span>
+        </div>
+        <div class="icell">
+          <label>วันที่นำส่ง</label>
+          <span>${fmtDate(d.date)}</span>
+        </div>
+        <div class="icell">
+          <label>ผู้จัดส่ง (Supplier)</label>
+          <span>${d.sender || '-'}</span>
+        </div>
+        <div class="icell">
+          <label>บริษัทผู้รับ</label>
+          <span>${d.recipient || '-'}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dsec">
+      <div class="dsec-title">รายละเอียดสินค้า</div>
+      <div class="igrid">
+        <div class="icell full">
+          <label>รายการสินค้า</label>
+          <span>${d.itemName || '-'}</span>
+        </div>
+        <div class="icell">
+          <label>จำนวน</label>
+          <span>${d.quantity || '-'}</span>
+        </div>
+        <div class="icell">
+          <label>สถานะคลัง</label>
+          <span>${statusMeta(d.status).label}</span>
+        </div>
+      </div>
+    </div>
+    
+    ${(d.status !== 'delivered' && d.status !== 'received') ? `
+      <div class="dsec" style="display:flex; flex-direction:column; align-items:center; margin-top:20px;">
+        <div class="dsec-title" style="align-self:flex-start;">สแกนเพื่อรับสินค้า</div>
+        <div id="qr-box" style="padding:10px; background:#fff; border:1px solid #e5e7eb; border-radius:8px;"></div>
+      </div>
+    ` : ''}
+  `;
+}
+
+// ฟังก์ชันเมื่อกดคลิกแถวตาราง ให้สั่งโหลดหน้า receiver.html เข้ามาใน iframe
+window.openReceiverModal = function(id) {
+  const iframe = document.getElementById('receiverFrame');
+  
+  // สั่งกำหนด URL พร้อมส่ง id ของแถวนั้นๆ ไปให้หน้า receiver.html
+  iframe.src = `receiver.html?id=${id}`;
+  
+  // เปิดแสดงหน้าต่าง Modal ขึ้นมา
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+// ฟังก์ชันสำหรับสั่งปิดหน้าต่าง Modal และเคลียร์หน้าเว็บ
+window.closeModal = function() {
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  
+  // ล้างค่า URL ใน iframe เพื่อให้หยุดทำงานเมื่อปิดหน้าต่างลงไป
+  document.getElementById('receiverFrame').src = '';
+};
+
+// ปิดหน้าต่างเมื่อคลิกพื้นที่ว่างสีดำด้านนอกกล่อง
+document.getElementById('overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ฟังก์ชันสำหรับปิดหน้าต่าง Modal
+window.closeModal = function() {
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  curOpenId = null;
+};
+
+// ปิดเมื่อกดนอกกล่องข้อความ
+document.getElementById('overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+  /* ---------------------------------------------------------
+    CSV export of the currently filtered rows
+  --------------------------------------------------------- */
+  function exportCsv() {
+    const rows = getFilteredRows();
+    if (rows.length === 0) return;
+    const header = ["วันที่นำส่ง", "ผู้ส่ง", "รายการสินค้า", "ผู้จัดส่ง", "หมายเลข PO","สถานะ"];
+    const lines = [header.join(",")];
+    rows.forEach(r => {
+      const meta = statusMeta(r.status);
+    const cells = [
+        fmtDate(r.date),
+        r.sender,
+        r.itemName,
+        r.recipient,
+        r.invoice,
+        meta.label
+      ];
+      lines.push(cells.map(c => `"${String(c).replace(/"/g, '""')}"`).join(","));
+    });
+    const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `warehouse_deliveries_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+/* ---------------------------------------------------------
+   Wire up UI events
+--------------------------------------------------------- */
+renderFilterOptions();
+["searchInput", "statusSelect", "sortSelect", "pendingOnly"].forEach(id => {
+  document.getElementById(id).addEventListener("input", renderTable);
+});
+document.getElementById("exportBtn").addEventListener("click", exportCsv);
+document.getElementById("refreshBtn").addEventListener("click", () => {
+  // Data is already realtime via onSnapshot; this just gives visual feedback.
+  const btn = document.getElementById("refreshBtn");
+  btn.disabled = true;
+  setTimeout(() => { btn.disabled = false; }, 500);
+});
+
+/* ---------------------------------------------------------
+   Firestore realtime subscription — MAIN data source
+--------------------------------------------------------- */
+try {
+  const colRef = collection(db, COLLECTION_NAME);
+  onSnapshot(
+    colRef,
+    (snapshot) => {
+      clearError();
+      RAW_DOCS = snapshot.docs.map(doc => normalizeDoc(doc.id, doc.data()));
+      hasLoadedOnce = true;
+      setConnStatus("live", ` • อัปเดตล่าสุด ${new Date().toLocaleTimeString("th-TH")}`);
+      renderAll();
+    },
+    (err) => {
+      console.error("Firestore onSnapshot error:", err);
+      setConnStatus("error", "การเชื่อมต่อผิดพลาด");
+      showError(err.message || String(err));
+      if (!hasLoadedOnce) {
+        RAW_DOCS = [];
+        renderAll();
+      }
+    }
+  );
+} catch (err) {
+  console.error("Firebase init error:", err);
+  setConnStatus("error", "ไม่สามารถเริ่มต้น Firebase ได้");
+  showError(err.message || String(err));
+}
+</script>
+</body>
+</html>

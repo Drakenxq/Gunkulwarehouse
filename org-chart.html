@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ผังโครงสร้างองค์กร</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B1017;
+  --surface:#141B26;
+  --surface-2:#1B2431;
+  --surface-3:#222D3C;
+  --line:#2C3A4B;
+  --line-bright:#3D5266;
+  --gold:#F0A83C;
+  --gold-dim:#4A3A1F;
+  --teal:#2FC7B0;
+  --teal-dim:#1B3D38;
+  --slate:#7C93AE;
+  --slate-dim:#2A3644;
+  --vacant:#E2794F;
+  --vacant-dim:#3E2A20;
+  --danger:#E2554F;
+  --text:#E9EEF4;
+  --text-dim:#8A97AA;
+  --text-faint:#57677D;
+  --radius:10px;
+}
+*{box-sizing:border-box;}
+html,body{
+  margin:0;padding:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Sarabun',sans-serif;
+  min-height:100vh;
+}
+::selection{background:var(--gold);color:#1a1200;}
+.page{max-width:1500px;margin:0 auto;padding:40px 32px 80px;}
+
+.eyebrow{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;color:var(--gold);letter-spacing:.04em;
+  margin-bottom:10px;font-weight:500;
+}
+.eyebrow svg{width:15px;height:15px;stroke:var(--gold);}
+h1{
+  font-family:'Kanit',sans-serif;font-weight:700;font-size:34px;
+  margin:0 0 12px;color:var(--text);letter-spacing:.01em;
+}
+.lede{color:var(--text-dim);font-size:15px;line-height:1.7;max-width:760px;margin:0 0 22px;}
+.lede b{color:var(--text);font-weight:600;}
+
+.toolbar{
+  display:flex;gap:12px;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;margin-bottom:20px;
+}
+.search-wrap{position:relative;flex:1;min-width:260px;max-width:420px;}
+.search-wrap svg{
+  position:absolute;left:13px;top:50%;transform:translateY(-50%);
+  width:16px;height:16px;stroke:var(--text-faint);pointer-events:none;
+}
+#search{
+  width:100%;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);color:var(--text);font-family:'Sarabun',sans-serif;
+  font-size:14px;padding:11px 14px 11px 38px;outline:none;transition:border-color .15s;
+}
+#search:focus{border-color:var(--gold);}
+#search::placeholder{color:var(--text-faint);}
+
+.toolbar-actions{display:flex;gap:10px;align-items:center;}
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--surface);border:1px solid var(--line);color:var(--text);
+  font-family:'Sarabun',sans-serif;font-size:13.5px;font-weight:500;
+  padding:10px 15px;border-radius:var(--radius);cursor:pointer;
+  transition:border-color .15s, background .15s;white-space:nowrap;
+}
+.btn svg{width:15px;height:15px;stroke:currentColor;flex-shrink:0;}
+.btn:hover{border-color:var(--line-bright);background:var(--surface-2);}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:#1a1200;}
+.btn.primary:hover{background:#f5b658;}
+.btn.ghost-danger{color:var(--danger);}
+.btn.ghost-danger:hover{border-color:var(--danger);}
+
+.save-status{font-size:12.5px;color:var(--text-faint);display:flex;align-items:center;gap:6px;}
+.save-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+.save-dot.saving{background:var(--gold);}
+
+.hint-bar{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--teal);
+  border-radius:var(--radius);padding:13px 16px;font-size:13.5px;color:var(--text-dim);
+  margin-bottom:28px;line-height:1.6;
+}
+.hint-bar svg{width:16px;height:16px;stroke:var(--teal);flex-shrink:0;margin-top:1px;}
+.hint-bar b{color:var(--text);font-weight:600;}
+
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:22px;}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-dim);}
+.legend-swatch{width:10px;height:10px;border-radius:2px;}
+
+.chart-frame{
+  position:relative;background:var(--surface);border:1px solid var(--line);
+  border-radius:14px;overflow:hidden;
+}
+.chart-frame::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size:28px 28px;opacity:.18;
+}
+.chart-scroll{
+  overflow:auto;padding:56px 40px 70px;position:relative;
+}
+.chart-viewport{
+  transform-origin:top center;
+  transition:transform .12s ease-out;
+  display:flex;justify-content:center;
+  min-width:max-content;width:100%;
+}
+
+ul.tree, ul.tree ul{
+  padding-top:26px;position:relative;
+  display:flex;justify-content:center;
+}
+ul.tree{padding-top:0;}
+ul.tree ul{margin-top:0;}
+.tree li{
+  list-style:none;position:relative;
+  padding:26px 18px 0 18px;
+  display:flex;flex-direction:column;align-items:center;
+}
+.tree li::before, .tree li::after{
+  content:'';position:absolute;top:0;right:50%;
+  border-top:2px solid var(--line-bright);width:50%;height:26px;
+}
+.tree li::after{right:auto;left:50%;border-left:2px solid var(--line-bright);}
+.tree li:only-child::after, .tree li:only-child::before{display:none;}
+.tree li:only-child{padding-top:0;}
+.tree li:first-child::before{border:0 none;}
+.tree li:last-child::after{border:0 none;}
+.tree li:last-child::before{border-right:2px solid var(--line-bright);border-radius:0 4px 0 0;}
+.tree li:first-child::after{border-radius:4px 0 0 0;}
+.tree > li{padding-top:0;}
+.tree > li::before, .tree > li::after{display:none;}
+.tree ul::before{
+  content:'';position:absolute;top:0;left:50%;
+  border-left:2px solid var(--line-bright);width:0;height:26px;
+}
+.node-joint{
+  position:absolute;top:20px;left:50%;transform:translate(-50%,-50%);
+  width:6px;height:6px;border-radius:50%;background:var(--line-bright);
+  box-shadow:0 0 0 3px var(--surface);z-index:2;
+}
+.tree > li > .node-joint{display:none;}
+
+.node{
+  width:220px;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:var(--radius);padding:13px 14px 12px;position:relative;
+  border-left:3px solid var(--slate);transition:border-color .15s;
+}
+.node:hover{border-color:var(--line-bright);}
+.node.level-vp{border-left-color:var(--gold);}
+.node.level-manager{border-left-color:var(--teal);}
+.node.level-supervisor{border-left-color:#5B8FD1;}
+.node.level-staff{border-left-color:var(--slate);}
+.node.dimmed{opacity:.28;}
+.node.matched{box-shadow:0 0 0 1px var(--gold);}
+
+.node-head{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:2px;}
+.node-title{
+  font-family:'Kanit',sans-serif;font-weight:600;font-size:14.5px;color:var(--text);
+  outline:none;border-radius:4px;padding:1px 3px;margin:-1px -3px;flex:1;
+  min-width:0;word-break:break-word;
+}
+.node-title:focus{background:var(--surface-3);box-shadow:0 0 0 1px var(--line-bright);}
+.node-gear{
+  background:none;border:none;color:var(--text-faint);cursor:pointer;padding:2px;
+  border-radius:4px;flex-shrink:0;display:flex;
+}
+.node-gear:hover{color:var(--danger);background:var(--surface-3);}
+.node-gear svg{width:14px;height:14px;stroke:currentColor;}
+
+.node-scope{
+  font-size:11.5px;color:var(--text-faint);outline:none;border-radius:4px;
+  padding:1px 3px;margin:0 -3px 9px;min-height:15px;
+}
+.node-scope:empty::before{content:'เพิ่มขอบเขตงาน...';color:var(--text-faint);opacity:.6;}
+.node-scope:focus{background:var(--surface-3);box-shadow:0 0 0 1px var(--line-bright);}
+
+.members{display:flex;flex-direction:column;gap:5px;margin-bottom:9px;}
+.member{
+  display:flex;align-items:center;gap:7px;background:var(--surface);
+  border:1px solid var(--line);border-radius:7px;padding:5px 6px 5px 8px;
+}
+.member.vacant{border-color:var(--vacant-dim);background:var(--vacant-dim);}
+.member-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+.member.vacant .member-dot{background:var(--vacant);}
+.member-name{
+  flex:1;font-size:12.5px;font-weight:500;color:var(--text);outline:none;
+  border-radius:3px;min-width:0;word-break:break-word;
+}
+.member.vacant .member-name{color:var(--vacant);font-style:italic;}
+.member-name:focus{background:var(--surface-3);}
+.member-name:empty::before{content:'ชื่อ...';color:var(--text-faint);font-style:normal;}
+.member-tags{
+  font-size:10.5px;color:var(--text-faint);outline:none;border-radius:3px;
+  max-width:70px;text-align:right;flex-shrink:0;
+}
+.member-tags:empty::before{content:'แท็ก';opacity:.5;}
+.member-tags:focus{background:var(--surface-3);color:var(--text-dim);max-width:none;}
+.member-del{
+  background:none;border:none;color:var(--text-faint);cursor:pointer;
+  padding:1px;display:flex;flex-shrink:0;border-radius:3px;
+}
+.member-del:hover{color:var(--danger);}
+.member-del svg{width:11px;height:11px;stroke:currentColor;}
+
+.node-actions{display:flex;flex-direction:column;gap:5px;}
+.mini-btn{
+  display:flex;align-items:center;gap:6px;justify-content:center;
+  background:none;border:1px dashed var(--line);color:var(--text-faint);
+  font-family:'Sarabun',sans-serif;font-size:11.5px;padding:6px 8px;
+  border-radius:7px;cursor:pointer;width:100%;transition:border-color .15s,color .15s;
+}
+.mini-btn:hover{border-color:var(--teal);color:var(--teal);}
+.mini-btn svg{width:12px;height:12px;stroke:currentColor;}
+.mini-btn.child:hover{border-color:var(--gold);color:var(--gold);}
+
+.zoom-panel{
+  position:sticky;bottom:20px;left:100%;
+  transform:translateX(-100%);
+  display:flex;align-items:center;gap:4px;
+  background:var(--surface-3);border:1px solid var(--line-bright);
+  border-radius:999px;padding:6px 8px;margin:16px 24px 0 0;width:max-content;
+  box-shadow:0 6px 20px rgba(0,0,0,.35);
+}
+.zoom-btn{
+  background:none;border:none;color:var(--text-dim);cursor:pointer;
+  width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;
+}
+.zoom-btn:hover{background:var(--surface-2);color:var(--text);}
+.zoom-btn svg{width:15px;height:15px;stroke:currentColor;}
+.zoom-val{font-size:12px;color:var(--text-dim);min-width:36px;text-align:center;font-weight:500;}
+
+.footer-note{text-align:center;color:var(--text-faint);font-size:12px;margin-top:34px;}
+
+@media (max-width:640px){
+  .page{padding:24px 16px 60px;}
+  h1{font-size:26px;}
+  .toolbar{flex-direction:column;align-items:stretch;}
+  .search-wrap{max-width:none;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="eyebrow">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18M3 9v10a2 2 0 0 0 2 2h4m10-12v10a2 2 0 0 1-2 2H9"/></svg>
+    โครงสร้างองค์กร
+  </div>
+  <h1>Organization Chart</h1>
+  <p class="lede">ผังโครงสร้างฝ่ายจัดซื้อ (Purchasing &amp; Logistics) — <b>คลิกที่ชื่อหรือตำแหน่งเพื่อแก้ไขได้ทันที</b> เพิ่ม/ลบบุคคลหรือตำแหน่งได้เสมอ เพื่อรองรับการ scale up หรือปรับเปลี่ยนสายงานในอนาคต</p>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="ค้นหาคน ตำแหน่ง หรือขอบเขตงาน...">
+    </div>
+    <div class="toolbar-actions">
+      <span class="save-status"><span class="save-dot" id="saveDot"></span><span id="saveLabel">บันทึกอัตโนมัติในเบราว์เซอร์</span></span>
+      <button class="btn ghost-danger" id="resetBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+        รีเซ็ตตัวอย่าง
+      </button>
+    </div>
+  </div>
+
+  <div class="hint-bar">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 20h.01M12 4a8 8 0 0 0-8 8c0 3 1.5 4.5 2.5 5.5S8 19 8 20h8c0-1 .5-1.5 1.5-2.5S20 15 20 12a8 8 0 0 0-8-8Z"/></svg>
+    <div><b>ทุกช่องแก้ไขได้:</b> คลิกชื่อ/ตำแหน่งเพื่อแก้ไข กดปุ่มเส้นประเพื่อเพิ่มคนหรือเพิ่มตำแหน่งว่าง หรือกดไอคอนถังขยะเพื่อลบตำแหน่งทั้งกล่อง</div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--gold)"></span>ผู้บริหาร (VP)</div>
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--teal)"></span>ผู้จัดการ</div>
+    <div class="legend-item"><span class="legend-swatch" style="background:#5B8FD1"></span>หัวหน้างาน</div>
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--slate)"></span>เจ้าหน้าที่</div>
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--vacant)"></span>ตำแหน่งว่าง</div>
+  </div>
+
+  <div class="chart-frame">
+    <div class="chart-scroll" id="chartScroll">
+      <div class="chart-viewport" id="viewport">
+        <ul class="tree" id="tree"></ul>
+      </div>
+    </div>
+    <div class="zoom-panel">
+      <button class="zoom-btn" id="zoomOut" aria-label="ซูมออก"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3M8 11h6"/></svg></button>
+      <span class="zoom-val" id="zoomVal">100%</span>
+      <button class="zoom-btn" id="zoomIn" aria-label="ซูมเข้า"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3M11 8v6M8 11h6"/></svg></button>
+      <button class="zoom-btn" id="zoomReset" aria-label="รีเซ็ตซูม"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+    </div>
+  </div>
+
+  <p class="footer-note">© 2026 บริษัทตัวอย่าง จำกัด (มหาชน) — ข้อมูลตัวอย่างเพื่อสาธิตการใช้งานเท่านั้น</p>
+</div>
+
+<script>
+(function(){
+  var STORAGE_KEY = 'org-chart-tree-v1';
+  var uid = function(){ return 'n'+Math.random().toString(36).slice(2,10); };
+
+  function sampleData(){
+    return {
+      id: uid(), title: 'VP. Logistics', scope: '', level:'vp',
+      members:[{id:uid(), name:"คุณสมชาย", tags:'Executive'}],
+      children:[
+        {
+          id: uid(), title:'Purchasing Manager', scope:'Utility', level:'manager',
+          members:[{id:uid(), name:'คุณอารีย์', tags:'Utility'}],
+          children:[
+            {
+              id: uid(), title:'Purchasing Supervisor', scope:'Utility, Solar Farm, Wind', level:'supervisor',
+              members:[{id:uid(), name:'', tags:'', vacant:true}],
+              children:[
+                { id: uid(), title:'Purchasing Engineer', scope:'', level:'staff',
+                  members:[
+                    {id:uid(), name:'คุณจิรา', tags:'Farm'},
+                    {id:uid(), name:'คุณพลอย', tags:'Farm, Wind'}
+                  ], children:[] },
+                { id: uid(), title:'Purchasing Officer', scope:'', level:'staff',
+                  members:[{id:uid(), name:'คุณอิศรา', tags:'O&M'}], children:[] }
+              ]
+            }
+          ]
+        },
+        {
+          id: uid(), title:'Purchasing Manager', scope:'Residential, C&I', level:'manager',
+          members:[{id:uid(), name:'คุณรักษ์', tags:'C&I, COP'}],
+          children:[
+            {
+              id: uid(), title:'Imp & Exp Supervisor', scope:'Import Export, Shipping', level:'supervisor',
+              members:[{id:uid(), name:'คุณนกน้อย', tags:'Overseas'}],
+              children:[
+                { id: uid(), title:'Purchasing Officer', scope:'Overseas', level:'staff',
+                  members:[{id:uid(), name:'คุณแกม', tags:'Module'}], children:[] },
+                { id: uid(), title:'Shipping Officer', scope:'', level:'staff',
+                  members:[{id:uid(), name:'คุณคง', tags:'Customs'}], children:[] }
+              ]
+            },
+            {
+              id: uid(), title:'Purchasing Supervisor', scope:'Residential, Solar Rooftop', level:'supervisor',
+              members:[{id:uid(), name:'คุณอาร์ม', tags:'Inverter'}],
+              children:[
+                { id: uid(), title:'Purchasing Engineer', scope:'', level:'staff',
+                  members:[{id:uid(), name:'คุณไวท์', tags:'DC Cable'}], children:[] }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+  }
+
+  var data = null;
+  var saveTimer = null;
+
+  function setSaving(on){
+    var dot = document.getElementById('saveDot');
+    dot.classList.toggle('saving', on);
+  }
+
+  function persist(){
+    setSaving(true);
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async function(){
+      try{
+        if(window.storage){ await window.storage.set(STORAGE_KEY, JSON.stringify(data), false); }
+      }catch(e){ console.warn('save failed', e); }
+      setSaving(false);
+    }, 400);
+  }
+
+  async function load(){
+    try{
+      if(window.storage){
+        var res = await window.storage.get(STORAGE_KEY, false);
+        if(res && res.value){ data = JSON.parse(res.value); render(); return; }
+      }
+    }catch(e){}
+    data = sampleData();
+    render();
+  }
+
+  function findNode(node, id){
+    if(node.id === id) return node;
+    for(var i=0;i<node.children.length;i++){
+      var f = findNode(node.children[i], id);
+      if(f) return f;
+    }
+    return null;
+  }
+  function findParent(node, id, parent){
+    if(node.id === id) return parent;
+    for(var i=0;i<node.children.length;i++){
+      var f = findParent(node.children[i], id, node);
+      if(f !== undefined && f !== null) return f;
+    }
+    return null;
+  }
+
+  function levelLabel(level){
+    return {vp:'level-vp', manager:'level-manager', supervisor:'level-supervisor', staff:'level-staff'}[level] || 'level-staff';
+  }
+  function childLevel(level){
+    if(level==='vp') return 'manager';
+    if(level==='manager') return 'supervisor';
+    return 'staff';
+  }
+
+  function icon(name){
+    var icons = {
+      trash: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>',
+      x: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+      user: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+      branch: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 3v12M18 9v6M6 15a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3"/><circle cx="6" cy="3" r="0"/><circle cx="6" cy="18" r="0"/></svg>'
+    };
+    return icons[name] || '';
+  }
+
+  function buildNodeEl(node, isRoot){
+    var li = document.createElement('li');
+
+    if(!isRoot){
+      var joint = document.createElement('span');
+      joint.className = 'node-joint';
+      li.appendChild(joint);
+    }
+
+    var card = document.createElement('div');
+    card.className = 'node ' + levelLabel(node.level);
+    card.dataset.id = node.id;
+
+    var head = document.createElement('div');
+    head.className = 'node-head';
+    var title = document.createElement('div');
+    title.className = 'node-title';
+    title.contentEditable = true;
+    title.textContent = node.title;
+    title.dataset.field = 'title';
+    title.dataset.id = node.id;
+    var gear = document.createElement('button');
+    gear.className = 'node-gear';
+    gear.innerHTML = icon('trash');
+    gear.title = 'ลบตำแหน่งนี้';
+    gear.addEventListener('click', function(){ deleteNode(node.id); });
+    head.appendChild(title); head.appendChild(gear);
+    card.appendChild(head);
+
+    var scope = document.createElement('div');
+    scope.className = 'node-scope';
+    scope.contentEditable = true;
+    scope.textContent = node.scope || '';
+    scope.dataset.field = 'scope';
+    scope.dataset.id = node.id;
+    card.appendChild(scope);
+
+    var membersWrap = document.createElement('div');
+    membersWrap.className = 'members';
+    node.members.forEach(function(m){
+      membersWrap.appendChild(buildMemberEl(node, m));
+    });
+    card.appendChild(membersWrap);
+
+    var actions = document.createElement('div');
+    actions.className = 'node-actions';
+
+    var addMember = document.createElement('button');
+    addMember.className = 'mini-btn';
+    addMember.innerHTML = icon('user') + '<span>เพิ่มบุคลากร</span>';
+    addMember.addEventListener('click', function(){ addMemberTo(node.id); });
+    actions.appendChild(addMember);
+
+    var addChild = document.createElement('button');
+    addChild.className = 'mini-btn child';
+    addChild.innerHTML = icon('branch') + '<span>เพิ่มตำแหน่งย่อย</span>';
+    addChild.addEventListener('click', function(){ addChildTo(node.id); });
+    actions.appendChild(addChild);
+
+    card.appendChild(actions);
+    li.appendChild(card);
+
+    if(node.children && node.children.length){
+      var ul = document.createElement('ul');
+      node.children.forEach(function(c){
+        ul.appendChild(buildNodeEl(c, false));
+      });
+      li.appendChild(ul);
+    }
+    return li;
+  }
+
+  function buildMemberEl(node, m){
+    var row = document.createElement('div');
+    row.className = 'member' + (m.vacant ? ' vacant' : '');
+    var dot = document.createElement('span'); dot.className = 'member-dot';
+    var name = document.createElement('div');
+    name.className = 'member-name'; name.contentEditable = true;
+    name.textContent = m.name || (m.vacant ? 'ตำแหน่งว่าง' : '');
+    name.dataset.field='member-name'; name.dataset.id = node.id; name.dataset.mid = m.id;
+    var tags = document.createElement('div');
+    tags.className = 'member-tags'; tags.contentEditable = true;
+    tags.textContent = m.tags || '';
+    tags.dataset.field='member-tags'; tags.dataset.id = node.id; tags.dataset.mid = m.id;
+    var del = document.createElement('button');
+    del.className = 'member-del'; del.innerHTML = icon('x'); del.title='ลบ';
+    del.addEventListener('click', function(){ deleteMember(node.id, m.id); });
+    row.appendChild(dot); row.appendChild(name); row.appendChild(tags); row.appendChild(del);
+    return row;
+  }
+
+  function render(){
+    var tree = document.getElementById('tree');
+    tree.innerHTML = '';
+    tree.appendChild(buildNodeEl(data, true));
+    attachEditableHandlers();
+    applySearch();
+  }
+
+  function attachEditableHandlers(){
+    document.querySelectorAll('[data-field="title"]').forEach(function(el){
+      el.addEventListener('blur', function(){
+        var n = findNode(data, el.dataset.id);
+        if(n){ n.title = el.textContent.trim() || 'ตำแหน่งใหม่'; persist(); }
+      });
+      el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); el.blur(); } });
+    });
+    document.querySelectorAll('[data-field="scope"]').forEach(function(el){
+      el.addEventListener('blur', function(){
+        var n = findNode(data, el.dataset.id);
+        if(n){ n.scope = el.textContent.trim(); persist(); }
+      });
+      el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); el.blur(); } });
+    });
+    document.querySelectorAll('[data-field="member-name"]').forEach(function(el){
+      el.addEventListener('blur', function(){
+        var n = findNode(data, el.dataset.id);
+        if(n){
+          var m = n.members.find(function(x){return x.id===el.dataset.mid;});
+          if(m){
+            var val = el.textContent.trim();
+            m.name = val; m.vacant = !val;
+            el.parentElement.classList.toggle('vacant', !val);
+            if(!val) el.textContent = 'ตำแหน่งว่าง'; else if(el.textContent!==val) el.textContent = val;
+            persist();
+          }
+        }
+      });
+      el.addEventListener('focus', function(){
+        var n = findNode(data, el.dataset.id);
+        var m = n && n.members.find(function(x){return x.id===el.dataset.mid;});
+        if(m && m.vacant){ el.textContent=''; }
+      });
+      el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); el.blur(); } });
+    });
+    document.querySelectorAll('[data-field="member-tags"]').forEach(function(el){
+      el.addEventListener('blur', function(){
+        var n = findNode(data, el.dataset.id);
+        if(n){
+          var m = n.members.find(function(x){return x.id===el.dataset.mid;});
+          if(m){ m.tags = el.textContent.trim(); persist(); }
+        }
+      });
+      el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); el.blur(); } });
+    });
+  }
+
+  function addMemberTo(nodeId){
+    var n = findNode(data, nodeId);
+    if(!n) return;
+    n.members.push({id:uid(), name:'', tags:'', vacant:true});
+    render(); persist();
+    var el = document.querySelector('.member-name[data-id="'+nodeId+'"]:last-of-type, [data-id="'+nodeId+'"]');
+    var all = document.querySelectorAll('[data-field="member-name"][data-id="'+nodeId+'"]');
+    if(all.length){ var last = all[all.length-1]; last.focus(); }
+  }
+  function deleteMember(nodeId, mid){
+    var n = findNode(data, nodeId);
+    if(!n) return;
+    if(n.members.length<=1){
+      n.members[0] = {id:uid(), name:'', tags:'', vacant:true};
+    } else {
+      n.members = n.members.filter(function(m){return m.id!==mid;});
+    }
+    render(); persist();
+  }
+  function addChildTo(nodeId){
+    var n = findNode(data, nodeId);
+    if(!n) return;
+    var newNode = {
+      id: uid(), title:'ตำแหน่งใหม่', scope:'', level: childLevel(n.level),
+      members:[{id:uid(), name:'', tags:'', vacant:true}], children:[]
+    };
+    n.children.push(newNode);
+    render(); persist();
+    var t = document.querySelector('.node-title[data-id="'+newNode.id+'"]');
+    if(t){ t.focus(); document.execCommand && selectAllText(t); }
+  }
+  function selectAllText(el){
+    var range = document.createRange();
+    range.selectNodeContents(el);
+    var sel = window.getSelection();
+    sel.removeAllRanges(); sel.addRange(range);
+  }
+  function deleteNode(nodeId){
+    if(nodeId === data.id){
+      alert('ไม่สามารถลบตำแหน่งสูงสุดได้ กรุณาแก้ไขชื่อแทน');
+      return;
+    }
+    var parent = findParent(data, nodeId, null);
+    if(!parent) return;
+    var n = findNode(data, nodeId);
+    var childCount = n.children ? n.children.length : 0;
+    var msg = childCount > 0
+      ? 'ตำแหน่งนี้มีตำแหน่งย่อยอยู่ ' + childCount + ' รายการ ต้องการลบทั้งหมดหรือไม่?'
+      : 'ต้องการลบตำแหน่งนี้หรือไม่?';
+    if(!confirm(msg)) return;
+    parent.children = parent.children.filter(function(c){return c.id!==nodeId;});
+    render(); persist();
+  }
+
+  function applySearch(){
+    var q = document.getElementById('search').value.trim().toLowerCase();
+    var cards = document.querySelectorAll('.node');
+    if(!q){
+      cards.forEach(function(c){ c.classList.remove('dimmed','matched'); });
+      return;
+    }
+    var matchIds = new Set();
+    function walk(n, ancestors){
+      var text = (n.title + ' ' + (n.scope||'') + ' ' + n.members.map(function(m){return (m.name||'')+' '+(m.tags||'');}).join(' ')).toLowerCase();
+      var hit = text.indexOf(q) !== -1;
+      if(hit){
+        matchIds.add(n.id);
+        ancestors.forEach(function(a){ matchIds.add(a); });
+      }
+      n.children.forEach(function(c){ walk(c, ancestors.concat([n.id])); });
+    }
+    walk(data, []);
+    cards.forEach(function(c){
+      var id = c.dataset.id;
+      if(matchIds.has(id)){
+        c.classList.remove('dimmed');
+        var text = c.textContent.toLowerCase();
+        c.classList.toggle('matched', text.indexOf(q)!==-1);
+      } else {
+        c.classList.add('dimmed'); c.classList.remove('matched');
+      }
+    });
+  }
+
+  document.getElementById('search').addEventListener('input', applySearch);
+
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    if(confirm('รีเซ็ตกลับเป็นข้อมูลตัวอย่างเริ่มต้น? การแก้ไขทั้งหมดจะหายไป')){
+      data = sampleData(); render(); persist();
+    }
+  });
+
+  var zoom = 1;
+  function setZoom(z){
+    zoom = Math.min(1.5, Math.max(0.4, z));
+    document.getElementById('viewport').style.transform = 'scale('+zoom+')';
+    document.getElementById('zoomVal').textContent = Math.round(zoom*100)+'%';
+  }
+  document.getElementById('zoomIn').addEventListener('click', function(){ setZoom(zoom+0.1); });
+  document.getElementById('zoomOut').addEventListener('click', function(){ setZoom(zoom-0.1); });
+  document.getElementById('zoomReset').addEventListener('click', function(){ setZoom(0.85); });
+
+  load().then(function(){ setZoom(0.85); });
+})();
+</script>
+</body>
+</html>

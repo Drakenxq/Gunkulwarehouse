@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="th" class="auth-pending">
+<head>
+<meta charset="UTF-8">
+<title>GUNKUL Warehouse — Sidebar</title>
+<style>
+  :root{
+    --navy-top:#1f2e52;
+    --navy-bottom:#101a30;
+    --active-bg:#2b3c63;
+    --gold:#d0a154;
+    --text-dim:#9aa7c2;
+    --text-bright:#ffffff;
+    --divider:rgba(255,255,255,0.08);
+    --sidebar-w:232px;
+    --sidebar-w-collapsed:76px;
+  }
+
+  *{box-sizing:border-box;}
+
+  html.auth-pending{ visibility:hidden; }
+
+  body{
+    margin:0;
+    font-family:"Segoe UI", "Noto Sans Thai", -apple-system, sans-serif;
+    background:#e9edf3; 
+  }
+
+  @keyframes sidebarSlideIn{
+    from{ opacity:0; transform:translateX(-24px); }
+    to{ opacity:1; transform:translateX(0); }
+  }
+  @keyframes fadeSlideDown{
+    from{ opacity:0; transform:translateY(-8px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  @keyframes itemRiseIn{
+    from{ opacity:0; transform:translateX(-14px); }
+    to{ opacity:1; transform:translateX(0); }
+  }
+  @keyframes logoGlow{
+    0%,100%{ filter:drop-shadow(0 0 0 rgba(208,161,84,0)); }
+    50%{ filter:drop-shadow(0 0 6px rgba(208,161,84,.55)); }
+  }
+  @keyframes contentFadeIn{
+    from{ opacity:0; transform:translateY(6px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  @keyframes barSweep{
+    0%{ transform:translateX(-40%); }
+    100%{ transform:translateX(140%); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important;}
+  }
+
+  /* ============ SIDEBAR ============ */
+  .sidebar{
+    position:relative;
+    width:var(--sidebar-w);
+    height:100vh;
+    background:linear-gradient(180deg,var(--navy-top) 0%,var(--navy-bottom) 100%);
+    display:flex;
+    flex-direction:column;
+    transition:width .32s cubic-bezier(.4,0,.2,1);
+    overflow:hidden;
+    flex-shrink:0;
+    animation:sidebarSlideIn .5s cubic-bezier(.22,1,.36,1) both;
+  }
+  .sidebar.collapsed{width:var(--sidebar-w-collapsed);}
+
+  /* ---- header / logo ---- */
+  .sidebar-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:22px 20px 20px;
+    white-space:nowrap;
+    opacity:0;
+    animation:fadeSlideDown .55s ease .1s forwards;
+  }
+  .logo-mark{
+    width:auto;height:auto;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    animation:logoGlow 3.2s ease-in-out infinite;
+    transition:transform .3s ease;
+  }
+  .sidebar-header:hover .logo-mark{ transform:scale(1.08) rotate(-6deg); }
+  .brand{
+    display:flex;
+    flex-direction:column;
+    line-height:1.1;
+    overflow:hidden;
+  }
+  .brand-bold{
+    font-size:16px;
+    font-weight:800;
+    color:var(--text-bright);
+    letter-spacing:.3px;
+  }
+  .brand-light{
+    font-size:11.5px;
+    font-weight:400;
+    color:var(--text-dim);
+    letter-spacing:.5px;
+  }
+
+  /* ---- nav ---- */
+  .sidebar-nav{
+    margin-top:6px;
+    padding:0 12px;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    flex:1;
+    overflow-y:auto;
+  }
+  .nav-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:11px 12px;
+    border-radius:8px;
+    text-decoration:none;
+    color:var(--text-dim);
+    font-size:14px;
+    font-weight:500;
+    white-space:nowrap;
+    border-left:3px solid transparent;
+    position:relative;
+    opacity:0;
+    animation:itemRiseIn .45s ease forwards;
+    transition:background .2s ease,color .2s ease,transform .2s ease,border-color .25s ease,padding-left .2s ease;
+  }
+  .nav-item svg{
+    width:19px;height:19px;flex-shrink:0;
+    stroke:currentColor;
+    transition:stroke .2s ease,transform .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .nav-item:nth-child(1){animation-delay:.08s;}
+  .nav-item:nth-child(2){animation-delay:.13s;}
+  .nav-item:nth-child(3){animation-delay:.18s;}
+  .nav-item:nth-child(4){animation-delay:.23s;}
+  .nav-item:nth-child(5){animation-delay:.28s;}
+  .nav-item:nth-child(6){animation-delay:.33s;}
+  .nav-item:nth-child(7){animation-delay:.38s;}
+  .nav-item:nth-child(8){animation-delay:.43s;}
+  .nav-item:hover{
+    background:rgba(255,255,255,0.06);
+    color:var(--text-bright);
+    transform:translateX(3px);
+  }
+  .nav-item:hover svg{ transform:scale(1.1); }
+  .nav-item:active{ transform:translateX(3px) scale(.97); }
+  .nav-item.active{
+    background:var(--active-bg);
+    color:var(--text-bright);
+    font-weight:700;
+    border-left:3px solid var(--gold);
+    box-shadow:inset 0 0 0 1px rgba(208,161,84,.12), 0 4px 14px -6px rgba(0,0,0,.4);
+  }
+  .nav-item.active svg{ stroke:var(--gold); }
+  .nav-item.active::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:8px;
+    background:linear-gradient(90deg, rgba(208,161,84,.16), transparent 60%);
+    pointer-events:none;
+    animation:fadeSlideDown .3s ease;
+  }
+
+  .nav-label{overflow:hidden;text-overflow:ellipsis;}
+
+  /* ---- footer ---- */
+  .sidebar-footer{
+    padding:14px 12px 18px;
+    border-top:1px solid var(--divider);
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    position:relative;
+  }
+  .user-info{
+    padding:2px 12px 10px;
+    white-space:nowrap;
+    overflow:hidden;
+  }
+  .user-name{
+    font-size:13px;
+    font-weight:500;
+    color:var(--text-dim);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .sidebar.collapsed .user-info{ display:none; }
+  .signout-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 12px;
+    border-radius:8px;
+    text-decoration:none;
+    color:var(--text-dim);
+    font-size:14px;
+    font-weight:500;
+    white-space:nowrap;
+    transition:background .2s ease,color .2s ease,transform .2s ease;
+  }
+  .signout-item:hover{
+    background:rgba(220,80,80,0.12);
+    color:#ff8a8a;
+    transform:translateX(3px);
+  }
+  .signout-item:hover svg{ stroke:#ff8a8a; transform:translateX(2px); }
+  .signout-item svg{width:18px;height:18px;flex-shrink:0;stroke:currentColor;transition:stroke .2s ease,transform .2s ease;}
+
+  .collapse-btn{
+    position:absolute;
+    right:-14px;
+    top:-32px;
+    width:28px;height:28px;
+    border-radius:50%;
+    background:var(--gold);
+    border:3px solid var(--navy-bottom);
+    color:#20304f;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    font-size:14px;
+    line-height:1;
+    transition:transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease;
+  }
+  .collapse-btn:hover{
+    transform:scale(1.12);
+    box-shadow:0 0 0 5px rgba(208,161,84,.18);
+  }
+  .collapse-btn:active{ transform:scale(.92); }
+  .collapse-btn svg{width:14px;height:14px;stroke:#20304f;stroke-width:3;transition:transform .35s cubic-bezier(.4,0,.2,1);}
+  .sidebar.collapsed .collapse-btn svg{transform:rotate(180deg);}
+
+  /* hide text labels when collapsed */
+  .sidebar.collapsed .brand,
+  .sidebar.collapsed .nav-label,
+  .sidebar.collapsed .signout-item span{
+    display:none;
+  }
+  .sidebar.collapsed .nav-item,
+  .sidebar.collapsed .signout-item{
+    justify-content:center;
+    gap:0;
+  }
+  .sidebar.collapsed .sidebar-header{
+    justify-content:center;
+    padding:22px 0 20px;
+  }
+  
+  .app{
+    display:flex;
+    height:100vh;
+  }
+
+  .content-wrap{
+    position:relative;
+    flex:1;
+    height:100%;
+    overflow:hidden;
+  }
+
+  .load-bar{
+    position:absolute;
+    top:0; left:0;
+    height:3px;
+    width:100%;
+    background:rgba(208,161,84,0);
+    z-index:5;
+    pointer-events:none;
+    overflow:hidden;
+    opacity:0;
+    transition:opacity .2s ease;
+  }
+  .load-bar.active{
+    opacity:1;
+    background:rgba(208,161,84,.18);
+  }
+  .load-bar span{
+    display:block;
+    position:absolute;
+    top:0; left:0;
+    height:100%;
+    width:40%;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    animation:barSweep 1s ease-in-out infinite;
+  }
+
+    #content{
+        flex:1;
+        width:100%;
+        height:100%;
+        border:none;
+        background:#f5f7fb;
+        opacity:0;
+        transition:opacity .35s ease;
+    }
+    #content.loaded{
+        opacity:1;
+        animation:contentFadeIn .4s ease;
+    }
+  /* thin scrollbar for nav */
+  .sidebar-nav::-webkit-scrollbar{width:4px;}
+  .sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-mark">
+        <img alt="Gunkul" src="./src/svg/logo-default.svg" style="height: 20px; width: auto; flex-shrink: 0; filter: brightness(0) invert(1);">
+      </div>
+      <div class="brand">
+        <span class="brand-light">Warehouse</span>
+         <span class="brand-light">Noppawong</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="./src/home.html" target="contentFrame" data-page="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        <span class="nav-label">Home</span>
+      </a>
+      <a class="nav-item" href="./src/dashboard.html" target="contentFrame" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span class="nav-label">Dashboard</span>
+      </a>
+      <a class="nav-item" href="./src/item-master.html" target="contentFrame" data-page="item-master">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+        <span class="nav-label">Item Master</span>
+      </a>
+      <a class="nav-item" href="./src/warehouse_dashboard.html" target="contentFrame" data-page="vendor-directory">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M9 12h.01M15 12h.01M9 8h.01M15 8h.01"/></svg>
+        <span class="nav-label">Vendor Directory</span>
+      </a>
+      <a class="nav-item" href="tracking-sheet.html" target="contentFrame" data-page="tracking-sheet">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a1 1 0 0 1 1 1v1H8V4a1 1 0 0 1 1-1Z"/><path d="M6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6Z"/><path d="M9 11h6M9 15h6"/></svg>
+        <span class="nav-label">Tracking Sheet</span>
+      </a>
+      <a class="nav-item" href="knowledge-base.html" target="contentFrame" data-page="knowledge-base">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v18H6.5A2.5 2.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5v-13Z"/></svg>
+        <span class="nav-label">Knowledge Base</span>
+      </a>
+      <a class="nav-item" href="esg.html" target="contentFrame" data-page="esg">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c6-4 9-8 9-13a9 9 0 0 0-18 0c0 5 3 9 9 13Z"/><path d="M12 8v7M9 11h6"/></svg>
+        <span class="nav-label">ESG &amp; Sustainability</span>
+      </a>
+      <a class="nav-item" href="org-chart.html" target="contentFrame" data-page="org-chart">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V12M12 12 6.5 17M12 12 17.5 17"/></svg>
+        <span class="nav-label">Organization Chart</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info" id="userInfo">
+        <span class="user-name" id="userName">กำลังโหลด...</span>
+      </div>
+      <a class="signout-item" href="#" data-page="signout">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        <span>Sign out</span>
+      </a>
+      <button class="collapse-btn" id="collapseBtn" aria-label="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+    </div>
+  </aside>
+
+   <div class="content-wrap">
+     <div class="load-bar" id="loadBar"><span></span></div>
+     <iframe id="content" name="contentFrame" src="./src/home.html"></iframe>
+   </div>
+</div>
+
+<!-- ===== Auth Guard ===== -->
+<script type="module">
+  import { auth } from "./src/js/firebase.js";
+  import { onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc }
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const db = getFirestore(auth.app);
+
+  const userNameEl = document.getElementById('userName');
+  const signoutBtn = document.querySelector('.signout-item');
+
+  function revealApp(){
+    document.documentElement.classList.remove('auth-pending');
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      // ไม่มีการล็อกอิน -> เด้งไปหน้า login
+      window.location.replace('login.html');
+      return;
+    }
+
+    // ดึงชื่อผู้ใช้จาก Firestore: users/{uid} -> field "name"
+    let displayName = user.displayName || (user.email ? user.email.split('@')[0] : 'ผู้ใช้งาน');
+    try {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (snap.exists() && snap.data().name) {
+        displayName = snap.data().name;
+      }
+    } catch (err) {
+      console.error('โหลดชื่อผู้ใช้จาก Firestore ไม่สำเร็จ:', err);
+    }
+
+    userNameEl.textContent = displayName;
+    revealApp();
+  });
+
+  if (signoutBtn) {
+    signoutBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (confirm('คุณต้องการออกจากระบบใช่หรือไม่?')) {
+        try {
+          await signOut(auth);
+        } catch (err) {
+          console.error('Sign out error:', err);
+        } finally {
+          localStorage.removeItem('gunkul_active_page');
+          window.location.href = 'login.html';
+        }
+      }
+    });
+  }
+</script>
+
+<script>
+  // ตัวเปิด-ปิด ย่อขยาย Sidebar
+  const sidebar = document.getElementById('sidebar');
+  const collapseBtn = document.getElementById('collapseBtn');
+  const SIDEBAR_KEY = 'sidebarCollapsed';
+
+  if(localStorage.getItem(SIDEBAR_KEY) === 'true'){
+      sidebar.classList.add('collapsed');
+  }
+
+  collapseBtn.addEventListener('click',()=>{
+      sidebar.classList.toggle('collapsed');
+      localStorage.setItem(
+          SIDEBAR_KEY,
+          sidebar.classList.contains('collapsed')
+      );
+  });
+
+  const STORAGE_KEY = 'gunkul_active_page';
+  const DEFAULT_PAGE = 'home';
+  const PAGE_PATH = './src/';
+
+  const content = document.getElementById('content');
+  const loadBar = document.getElementById('loadBar');
+
+  // แสดง/ซ่อน แถบโหลดหน้า พร้อม fade-in เนื้อหาเมื่อโหลดเสร็จ
+  function showLoading(){
+    loadBar.classList.add('active');
+    content.classList.remove('loaded');
+  }
+  function hideLoading(){
+    loadBar.classList.remove('active');
+    // reflow เพื่อให้ทริกอนิเมชันใหม่ทุกครั้ง
+    void content.offsetWidth;
+    content.classList.add('loaded');
+  }
+  content.addEventListener('load', hideLoading);
+
+  // ฟังก์ชันสลับคลาส Active ของเมนู
+  function setActivePage(page) {
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.page === page);
+    });
+    localStorage.setItem(STORAGE_KEY, page);
+  }
+
+  function navigateTo(item){
+    setActivePage(item.dataset.page);
+    showLoading();
+    content.src = item.getAttribute('href');
+  }
+
+  const savedPage = localStorage.getItem(STORAGE_KEY) || DEFAULT_PAGE;
+  setActivePage(savedPage);
+
+  const target = document.querySelector(`.nav-item[data-page="${savedPage}"]`);
+  if(target){
+      showLoading();
+      content.src = target.getAttribute('href');
+  }
+
+  document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click',(e)=>{
+          e.preventDefault();
+          if(item.dataset.page === 'signout') return;
+          if(item.classList.contains('active')) return; // already on this page
+          navigateTo(item);
+      });
+  });
+
+</script>
+
+</body>
+</html>

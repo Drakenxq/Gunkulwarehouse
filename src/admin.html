@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — ระบบรับสินค้า</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2333;
+    --border: #2a3048;
+    --accent: #4f8ef7;
+    --accent2: #7c5cfc;
+    --text: #e8eaf0;
+    --muted: #6b7299;
+    --success: #2dd4a0;
+    --danger: #f75f5f;
+    --warn: #f7a94f;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* Header */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .topbar-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .topbar h1 { font-size: 16px; font-weight: 600; letter-spacing: 0.02em; }
+  .topbar span { font-size: 12px; color: var(--muted); margin-left: auto; font-family: 'IBM Plex Mono', monospace; }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
+
+  /* Section cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::before {
+    content: '';
+    display: block;
+    width: 3px; height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* Form fields */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-row.full { grid-template-columns: 1fr; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .field input, .field select, .field textarea {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 14px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--accent);
+  }
+  .field input::placeholder { color: var(--muted); }
+
+  /* Items table */
+  .items-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 8px;
+    padding: 0 8px 8px;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .item-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .item-row input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 13px;
+    padding: 8px 10px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  .item-row input:focus { border-color: var(--accent); }
+
+  .btn-remove {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 6px 10px;
+    font-size: 14px;
+    transition: all 0.2s;
+    line-height: 1;
+  }
+  .btn-remove:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+  .btn-add-item {
+    background: none;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 10px;
+    font-size: 13px;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    width: 100%;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+  .btn-add-item:hover { border-color: var(--accent); color: var(--accent); background: rgba(79,142,247,0.06); }
+
+  /* Buttons */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 28px;
+    transition: opacity 0.2s, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-secondary {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    cursor: pointer;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 18px;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-secondary:hover { background: var(--border); }
+
+  /* QR Result */
+  #qr-section { display: none; }
+  .qr-box {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+  .qr-info {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    word-break: break-all;
+    color: var(--muted);
+  }
+  .qr-info strong { color: var(--success); display: block; margin-bottom: 4px; }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 13px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    z-index: 999;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { opacity:0; transform: translateX(-50%) translateY(10px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+  .toast-show { display: flex !important; }
+
+  .doc-id-tag {
+    display: inline-block;
+    background: rgba(79,142,247,0.12);
+    border: 1px solid rgba(79,142,247,0.3);
+    color: var(--accent);
+    border-radius: 6px;
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    padding: 3px 8px;
+    margin-left: 8px;
+  }
+
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+
+  @media (max-width: 520px) {
+    .form-row { grid-template-columns: 1fr; }
+    .items-header { grid-template-columns: 2fr 1fr auto; }
+    .item-row { grid-template-columns: 2fr 1fr auto; }
+    .item-row .unit-col { display: none; }
+    .items-header .unit-header { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-icon">📦</div>
+  <h1>Warehouse — Admin Panel</h1>
+  <span id="today-date"></span>
+</div>
+
+<div class="container">
+
+  <!-- Delivery Info -->
+  <div class="card">
+    <div class="card-title">ข้อมูลการส่งสินค้า</div>
+    <div class="form-row">
+      <div class="field">
+        <label>วันที่รับสินค้า</label>
+        <input type="date" id="delivery-date">
+      </div>
+      <div class="field">
+        <label>ผู้ส่ง / บริษัทผู้ส่ง</label>
+        <input type="text" id="sender" placeholder="เช่น บริษัท ABC จำกัด">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>เลขที่ใบส่งสินค้า (Invoice/PO)</label>
+        <input type="text" id="invoice" placeholder="เช่น INV-2025-001">
+      </div>
+      <div class="field">
+        <label>คลังสินค้า / สถานที่รับ</label>
+        <input type="text" id="warehouse" placeholder="เช่น คลัง A อาคาร 3">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>บริษัทผู้รับ</label>
+        <input type="text" id="recipient" placeholder="เช่น บริษัท ABC จำกัด">
+      </div>
+      <div class="field">
+        <label>หมายเหตุ</label>
+        <input type="text" id="note" placeholder="ข้อมูลเพิ่มเติม (ถ้ามี)">
+      </div>
+    </div>
+  </div>
+
+  <!-- Items -->
+  <div class="card">
+    <div class="card-title">รายการสินค้า</div>
+    <div class="items-header">
+      <span>ชื่อสินค้า</span>
+      <span>จำนวน</span>
+      <span class="unit-header">หน่วย</span>
+      <span></span>
+    </div>
+    <div id="items-container"></div>
+    <button class="btn-add-item" onclick="addItem()">+ เพิ่มรายการสินค้า</button>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn-primary" id="save-btn" onclick="saveAndGenQR()">
+      <span>⚡</span> สร้าง QR Code
+    </button>
+    <button class="btn-secondary" onclick="resetForm()">
+      ล้างข้อมูล
+    </button>
+  </div>
+
+  <!-- QR Result -->
+  <div class="card" id="qr-section" style="margin-top:16px;">
+    <div class="card-title">QR Code สำเร็จ <span id="doc-id-tag" class="doc-id-tag"></span></div>
+    <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start;">
+      <div>
+        <div class="qr-box" id="qr-display"></div>
+        <div style="text-align:center; font-size:11px; color:var(--muted); margin-top:4px;">สแกนด้วยกล้องมือถือ</div>
+      </div>
+      <div style="flex:1; min-width:200px;">
+        <div class="qr-info">
+          <strong>✅ บันทึกสำเร็จ</strong>
+          <span id="qr-url-display"></span>
+        </div>
+        <div class="actions">
+          <button class="btn-secondary" onclick="copyLink()">📋 คัดลอกลิงก์</button>
+          <button class="btn-secondary" onclick="printQR()">🖨️ พิมพ์ QR</button>
+          <button class="btn-secondary" onclick="newDelivery()">+ ใบใหม่</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast">
+  <span id="toast-icon">✅</span>
+  <span id="toast-msg">สำเร็จ</span>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAkPFzgT7hLAxPVI129F-vRzA65MIx2VIs",
+  authDomain: "gunkul-my-task-system.firebaseapp.com",
+  projectId: "gunkul-my-task-system",
+  storageBucket: "gunkul-my-task-system.firebasestorage.app",
+  messagingSenderId: "877006770872",
+  appId: "1:877006770872:web:ec56ec0089512899811a4d"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window._db = db;
+window._addDoc = addDoc;
+window._collection = collection;
+
+// Set today
+const today = new Date();
+document.getElementById('delivery-date').value = today.toISOString().split('T')[0];
+document.getElementById('today-date').textContent = today.toLocaleDateString('th-TH', { weekday:'short', year:'numeric', month:'long', day:'numeric' });
+
+// Init items
+window.itemCount = 0;
+window.addItem = function() {
+  itemCount++;
+  const c = document.getElementById('items-container');
+  const row = document.createElement('div');
+  row.className = 'item-row';
+  row.id = 'item-' + itemCount;
+  row.innerHTML = `
+    <input type="text" placeholder="ชื่อสินค้า / รายการ" class="item-name">
+    <input type="number" placeholder="0" min="0" class="item-qty" style="text-align:center;">
+    <input type="text" placeholder="ชิ้น / กล่อง" class="item-unit unit-col">
+    <button class="btn-remove" onclick="removeItem('item-${itemCount}')">✕</button>
+  `;
+  c.appendChild(row);
+  row.querySelector('.item-name').focus();
+};
+
+window.removeItem = function(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+};
+
+// Add 3 default rows
+addItem(); addItem(); addItem();
+
+window.saveAndGenQR = async function() {
+  const btn = document.getElementById('save-btn');
+  const date = document.getElementById('delivery-date').value;
+  const sender = document.getElementById('sender').value.trim();
+  const invoice = document.getElementById('invoice').value.trim();
+  const warehouse = document.getElementById('warehouse').value.trim();
+  const recipient = document.getElementById('recipient').value.trim();
+  const note = document.getElementById('note').value.trim();
+
+  if (!date || !sender) {
+    showToast('⚠️ กรุณากรอกวันที่และผู้ส่งสินค้า', true);
+    return;
+  }
+
+  const rows = document.querySelectorAll('.item-row');
+  const items = [];
+  rows.forEach(r => {
+    const name = r.querySelector('.item-name').value.trim();
+    const qty = r.querySelector('.item-qty').value;
+    const unit = r.querySelector('.item-unit') ? r.querySelector('.item-unit').value.trim() : '';
+    if (name) items.push({ name, qty: Number(qty) || 0, unit: unit || 'ชิ้น', checked: false });
+  });
+
+  if (items.length === 0) {
+    showToast('⚠️ กรุณาเพิ่มรายการสินค้าอย่างน้อย 1 รายการ', true);
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span>⏳</span> กำลังบันทึก...';
+
+  try {
+    const docRef = await window._addDoc(window._collection(window._db, 'warehouse_deliveries'), {
+      date,
+      sender,
+      invoice: invoice || '',
+      warehouse: warehouse || '',
+      recipient: recipient || '',
+      note: note || '',
+      items,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      signatureData: null,
+      receivedAt: null,
+      receivedBy: null,
+    });
+
+    const docId = docRef.id;
+    const base = window.location.href.replace('admin.html', 'receiver.html');
+    const receiverURL = `${base}?id=${docId}`;
+
+    // QR
+    document.getElementById('qr-section').style.display = 'block';
+    document.getElementById('doc-id-tag').textContent = docId.slice(0,8) + '...';
+    document.getElementById('qr-display').innerHTML = '';
+    new QRCode(document.getElementById('qr-display'), {
+      text: receiverURL,
+      width: 200, height: 200,
+      colorDark: '#000', colorLight: '#fff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+    document.getElementById('qr-url-display').textContent = receiverURL;
+    window._currentURL = receiverURL;
+    showToast('✅ บันทึกสำเร็จ สร้าง QR Code แล้ว');
+    document.getElementById('qr-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    console.error(e);
+    showToast('❌ เกิดข้อผิดพลาด: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>⚡</span> สร้าง QR Code';
+  }
+};
+
+window.copyLink = function() {
+  navigator.clipboard.writeText(window._currentURL || '').then(() => showToast('📋 คัดลอกลิงก์แล้ว'));
+};
+
+window.printQR = function() {
+  const url = window._currentURL || '';
+  const sender = document.getElementById('sender').value.trim();
+  const invoice = document.getElementById('invoice').value.trim();
+  const recipient = document.getElementById('recipient').value.trim();
+  const win = window.open('', '_blank', 'width=420,height=560');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>QR รับสินค้า</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+  <style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'IBM Plex Sans Thai',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f5f5f5;padding:24px;}.card{background:#fff;border:2px solid #000;border-radius:14px;padding:28px 24px;text-align:center;width:100%;max-width:340px;box-shadow:0 4px 20px rgba(0,0,0,0.1);}.icon{font-size:32px;margin-bottom:8px;}h2{font-size:18px;font-weight:600;margin-bottom:4px;}.sub{font-size:13px;color:#666;margin-bottom:4px;}.divider{border:none;border-top:1px dashed #ccc;margin:16px 0;}#qr{display:flex;justify-content:center;margin-bottom:16px;}.footer{font-size:11px;color:#999;margin-top:8px;word-break:break-all;}.scan-label{font-size:13px;color:#333;font-weight:600;background:#f0f0f0;border-radius:6px;padding:6px 12px;display:inline-block;margin-bottom:12px;}@media print{body{background:#fff;padding:0;}.card{box-shadow:none;}}</style>
+  </head><body><div class="card"><div class="icon">📦</div><h2>ใบรับสินค้า</h2>
+  ${sender ? `<div class="sub">ผู้ส่ง: <strong>${sender}</strong></div>` : ''}
+  ${recipient ? `<div class="sub">ผู้รับ: <strong>${recipient}</strong></div>` : ''}
+  ${invoice ? `<div class="sub">Invoice/po: <strong>${invoice}</strong></div>` : ''}
+  <hr class="divider"><div class="scan-label">📱 สแกนเพื่อยืนยันรับสินค้า</div>
+  <div id="qr"></div><div class="footer">${url}</div></div>
+  <script>new QRCode(document.getElementById('qr'),{text:'${url}',width:200,height:200,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});setTimeout(()=>window.print(),900);<\/script></body></html>`);
+  win.document.close();
+};
+
+window.resetForm = function() {
+  document.getElementById('sender').value = '';
+  document.getElementById('invoice').value = '';
+  document.getElementById('warehouse').value = '';
+  document.getElementById('recipient').value = '';
+  document.getElementById('note').value = '';
+  document.getElementById('items-container').innerHTML = '';
+  document.getElementById('qr-section').style.display = 'none';
+  window.itemCount = 0;
+  addItem(); addItem(); addItem();
+};
+
+window.newDelivery = function() {
+  resetForm();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  const m = document.getElementById('toast-msg');
+  m.textContent = msg;
+  t.style.borderColor = isError ? 'rgba(247,95,95,0.4)' : 'var(--border)';
+  t.classList.add('toast-show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('toast-show'), 3000);
+}
+window.showToast = showToast;
+</script>
+</body>
+</html>
