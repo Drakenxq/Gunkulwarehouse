@@ -110,14 +110,21 @@ h1{
   background-size:28px 28px;opacity:.18;
 }
 .chart-scroll{
-  overflow:auto;padding:56px 40px 70px;position:relative;
+  overflow:hidden;position:relative;
+  height:min(74vh, 780px);min-height:440px;
+  cursor:grab;touch-action:none;user-select:none;
+  scrollbar-width:none;-ms-overflow-style:none;
 }
+.chart-scroll::-webkit-scrollbar{display:none;}
+.chart-scroll.dragging{cursor:grabbing;}
 .chart-viewport{
-  transform-origin:top center;
-  transition:transform .12s ease-out;
-  display:flex;justify-content:center;
-  min-width:max-content;width:100%;
+  position:absolute;top:0;left:0;
+  transform-origin:0 0;
+  padding:56px 60px 90px;
+  will-change:transform;
 }
+.node{cursor:default;user-select:text;}
+.node-title,.node-scope,.member-name,.member-tags{cursor:text;}
 
 ul.tree, ul.tree ul{
   padding-top:26px;position:relative;
@@ -251,6 +258,7 @@ ul.tree ul{margin-top:0;}
   h1{font-size:26px;}
   .toolbar{flex-direction:column;align-items:stretch;}
   .search-wrap{max-width:none;}
+  .chart-scroll{height:min(64vh, 620px);min-height:360px;}
 }
 </style>
 </head>
@@ -536,6 +544,7 @@ const orgDocRef = doc(db, 'orgchart', 'main');
     tree.appendChild(buildNodeEl(data, true));
     attachEditableHandlers();
     applySearch();
+    if(!hasCentered){ centerView(); hasCentered = true; }
   }
 
   function attachEditableHandlers(){
@@ -672,17 +681,111 @@ const orgDocRef = doc(db, 'orgchart', 'main');
 
   document.getElementById('search').addEventListener('input', applySearch);
 
-  var zoom = 1;
-  function setZoom(z){
-    zoom = Math.min(1.5, Math.max(0.4, z));
-    document.getElementById('viewport').style.transform = 'scale('+zoom+')';
+  var MIN_ZOOM = 0.3, MAX_ZOOM = 2;
+  var zoom = 0.85, panX = 0, panY = 0, hasCentered = false;
+  var scrollEl = document.getElementById('chartScroll');
+  var viewportEl = document.getElementById('viewport');
+
+  function applyTransform(){
+    viewportEl.style.transform = 'translate('+panX+'px,'+panY+'px) scale('+zoom+')';
     document.getElementById('zoomVal').textContent = Math.round(zoom*100)+'%';
   }
+  function clampZoom(z){ return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z)); }
+
+  function centerView(){
+    var cw = scrollEl.clientWidth, ch = scrollEl.clientHeight;
+    var vw = viewportEl.offsetWidth, vh = viewportEl.offsetHeight;
+    panX = (cw - vw*zoom)/2;
+    panY = Math.max(16, (ch - vh*zoom)/2);
+    applyTransform();
+  }
+
+  // Zoom while keeping the point (cx,cy) — in chart-scroll's own coordinates — visually fixed
+  function zoomAt(newZoom, cx, cy){
+    newZoom = clampZoom(newZoom);
+    var ratio = newZoom / zoom;
+    panX = cx - (cx - panX)*ratio;
+    panY = cy - (cy - panY)*ratio;
+    zoom = newZoom;
+    applyTransform();
+  }
+  function setZoom(z){
+    var rect = scrollEl.getBoundingClientRect();
+    zoomAt(z, rect.width/2, rect.height/2);
+  }
+
   document.getElementById('zoomIn').addEventListener('click', function(){ setZoom(zoom+0.1); });
   document.getElementById('zoomOut').addEventListener('click', function(){ setZoom(zoom-0.1); });
-  document.getElementById('zoomReset').addEventListener('click', function(){ setZoom(0.85); });
+  document.getElementById('zoomReset').addEventListener('click', function(){ zoom = 0.85; centerView(); });
 
-  setZoom(0.85);
+  // --- Drag to pan (mouse) ---
+  var isPanning = false, panStartX=0, panStartY=0, panOrigX=0, panOrigY=0;
+  scrollEl.addEventListener('mousedown', function(e){
+    if(e.target.closest('.node')) return; // let clicks/editing on cards work normally
+    isPanning = true;
+    scrollEl.classList.add('dragging');
+    panStartX = e.clientX; panStartY = e.clientY;
+    panOrigX = panX; panOrigY = panY;
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', function(e){
+    if(!isPanning) return;
+    panX = panOrigX + (e.clientX - panStartX);
+    panY = panOrigY + (e.clientY - panStartY);
+    applyTransform();
+  });
+  window.addEventListener('mouseup', function(){
+    if(isPanning){ isPanning = false; scrollEl.classList.remove('dragging'); }
+  });
+
+  // --- Wheel / trackpad to zoom (centered on cursor) ---
+  scrollEl.addEventListener('wheel', function(e){
+    e.preventDefault();
+    var rect = scrollEl.getBoundingClientRect();
+    var cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+    var delta = -e.deltaY * 0.0016;
+    zoomAt(zoom * (1+delta), cx, cy);
+  }, {passive:false});
+
+  // --- Touch: one-finger pan, two-finger pinch to zoom ---
+  var touchMode = null, touchStartX=0, touchStartY=0, touchOrigX=0, touchOrigY=0;
+  var pinchStartDist=0, pinchStartZoom=1, pinchCx=0, pinchCy=0;
+  function touchDist(a,b){ var dx=a.clientX-b.clientX, dy=a.clientY-b.clientY; return Math.sqrt(dx*dx+dy*dy); }
+  scrollEl.addEventListener('touchstart', function(e){
+    if(e.touches.length === 1){
+      if(e.target.closest('.node')) { touchMode = null; return; }
+      touchMode = 'pan';
+      touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
+      touchOrigX = panX; touchOrigY = panY;
+    } else if(e.touches.length === 2){
+      touchMode = 'pinch';
+      pinchStartDist = touchDist(e.touches[0], e.touches[1]);
+      pinchStartZoom = zoom;
+      var rect = scrollEl.getBoundingClientRect();
+      pinchCx = (e.touches[0].clientX+e.touches[1].clientX)/2 - rect.left;
+      pinchCy = (e.touches[0].clientY+e.touches[1].clientY)/2 - rect.top;
+    }
+  }, {passive:true});
+  scrollEl.addEventListener('touchmove', function(e){
+    if(!touchMode) return;
+    e.preventDefault();
+    if(touchMode === 'pan' && e.touches.length === 1){
+      panX = touchOrigX + (e.touches[0].clientX - touchStartX);
+      panY = touchOrigY + (e.touches[0].clientY - touchStartY);
+      applyTransform();
+    } else if(touchMode === 'pinch' && e.touches.length === 2){
+      var dist = touchDist(e.touches[0], e.touches[1]);
+      var newZoom = clampZoom(pinchStartZoom * (dist/pinchStartDist));
+      var ratio = newZoom / zoom;
+      panX = pinchCx - (pinchCx - panX)*ratio;
+      panY = pinchCy - (pinchCy - panY)*ratio;
+      zoom = newZoom;
+      applyTransform();
+    }
+  }, {passive:false});
+  scrollEl.addEventListener('touchend', function(){ touchMode = null; });
+  window.addEventListener('resize', function(){ if(hasCentered) applyTransform(); });
+
   startRealtimeSync();
 })();
 </script>
