@@ -70,7 +70,6 @@ h1{
 #search:focus{border-color:var(--gold);}
 #search::placeholder{color:var(--text-faint);}
 
-.toolbar-actions{display:flex;gap:10px;align-items:center;}
 .btn{
   display:inline-flex;align-items:center;gap:7px;
   background:var(--surface);border:1px solid var(--line);color:var(--text);
@@ -85,9 +84,6 @@ h1{
 .btn.ghost-danger{color:var(--danger);}
 .btn.ghost-danger:hover{border-color:var(--danger);}
 
-.save-status{font-size:12.5px;color:var(--text-faint);display:flex;align-items:center;gap:6px;}
-.save-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;}
-.save-dot.saving{background:var(--gold);}
 
 .hint-bar{
   display:flex;gap:10px;align-items:flex-start;
@@ -273,13 +269,6 @@ ul.tree ul{margin-top:0;}
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input id="search" type="text" placeholder="ค้นหาคน ตำแหน่ง หรือขอบเขตงาน...">
     </div>
-    <div class="toolbar-actions">
-      <span class="save-status"><span class="save-dot" id="saveDot"></span><span id="saveLabel">บันทึกอัตโนมัติในเบราว์เซอร์</span></span>
-      <button class="btn ghost-danger" id="resetBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
-        รีเซ็ตตัวอย่าง
-      </button>
-    </div>
   </div>
 
   <div class="chart-frame">
@@ -376,7 +365,7 @@ const orgDocRef = doc(db, 'orgchart', 'main');
 
   function setSaving(on){
     var dot = document.getElementById('saveDot');
-    dot.classList.toggle('saving', on);
+    if(dot) dot.classList.toggle('saving', on);
   }
 
   var suppressNextSnapshot = false;
@@ -682,12 +671,6 @@ const orgDocRef = doc(db, 'orgchart', 'main');
   }
 
   document.getElementById('search').addEventListener('input', applySearch);
-
-  document.getElementById('resetBtn').addEventListener('click', function(){
-    if(confirm('รีเซ็ตกลับเป็นข้อมูลตัวอย่างเริ่มต้น? การแก้ไขทั้งหมดจะหายไป')){
-      data = sampleData(); render(); persist();
-    }
-  });
 
   var zoom = 1;
   function setZoom(z){
