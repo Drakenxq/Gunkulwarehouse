@@ -625,7 +625,7 @@ const orgDocRef = doc(db, 'orgchart', 'main');
   }
   function deleteNode(nodeId){
     if(nodeId === data.id){
-      alert('ไม่สามารถลบตำแหน่งสูงสุดได้ กรุณาแก้ไขชื่อแทน');
+      alert('ไม่สามารถลบหรือแก้ไขตำแหน่งสูงสุดได้ กรุณาแก้ไขชื่อแทน');
       return;
     }
     var parent = findParent(data, nodeId, null);
