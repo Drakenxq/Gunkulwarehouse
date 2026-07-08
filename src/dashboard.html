@@ -1029,7 +1029,7 @@ function refreshModal(d){
   eb.textContent='✏️ แก้ไข';
   
   if(d.status!=='received'){
-    const rurl=location.origin+location.pathname.replace('dashboard.html','receiver.html')+'?id='+id;
+    const rurl=location.origin+location.pathname.replace('dashboard','receiver')+'?id='+id;
     setTimeout(()=>{
       const box=document.getElementById('qr-box');
       if(box && !box.querySelector('canvas,img')){
@@ -1042,7 +1042,7 @@ function refreshModal(d){
 function buildModalHTML(d,id){
   const ds=d.date?new Date(d.date).toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'}):'—';
   const items=d.items||[];
-  const rurl=location.origin+location.pathname.replace('dashboard.html','receiver.html')+'?id='+id;
+  const rurl=location.origin+location.pathname.replace('dashboard','receiver')+'?id='+id;
   let html=`
   <div class="edit-banner" id="edit-banner">✏️ โหมดแก้ไข — กรุณากด "บันทึก" เมื่อแก้ไขเสร็จสิ้น</div>
   <div class="dsec">
