@@ -64,7 +64,7 @@ form.addEventListener('submit', (e) => {
 
   signInWithEmailAndPassword(auth, username, password)
     .then(() => {
-      window.location.href = 'main.html';
+      window.location.href = 'index.html';
     })
     .catch((err) => {
       setLoading(false);
