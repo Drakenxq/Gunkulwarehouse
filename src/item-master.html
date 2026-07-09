@@ -48,6 +48,15 @@ body { background: var(--bg); color: var(--text); font-family: 'IBM Plex Sans Th
 }
 .btn:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.3); opacity: 1; }
 
+.live-badge {
+  display: flex; align-items: center; gap: 6px; font-size: 12px; color: rgba(255,255,255,0.75);
+  padding: 6px 10px; border-radius: 100px; background: rgba(255,255,255,0.06);
+}
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: #34d399; flex-shrink: 0; }
+.live-dot.paused { background: #94a3b8; animation: none !important; }
+.live-dot.live { animation: pulse-dot 1.6s ease-in-out infinite; }
+@keyframes pulse-dot { 0%,100%{ opacity:1; box-shadow:0 0 0 0 rgba(52,211,153,.5);} 50%{ opacity:.6; box-shadow:0 0 0 5px rgba(52,211,153,0);} }
+
 .tabs {
   display: flex; gap: 4px; padding: 16px 20px 0;
   border-bottom: 1px solid var(--border); background: var(--card);
@@ -199,6 +208,11 @@ tr:hover { background: rgba(15,23,42,.03); }
   <div class="logo"><i class="ti ti-package"></i></div>
   <h1>Warehouse Dashboard</h1>
   <div class="top-actions">
+    <div class="live-badge">
+      <span class="live-dot live" id="liveDot"></span>
+      <span id="liveLabel">อัปเดตล่าสุด: -</span>
+    </div>
+    <button class="btn" onclick="manualRefresh()"><i class="ti ti-refresh"></i> รีเฟรชตอนนี้</button>
     <button class="btn" onclick="exportCSV()"><i class="ti ti-download"></i> Export CSV</button>
   </div>
 </div>
@@ -326,7 +340,6 @@ window.switchTab = function(tabId, btn) {
   if (tabId === 'items') renderItemSummary();
 };
 
-// helpers ที่ต้องใช้ทั้ง module และ non-module scope
 window._escHtml = function(str) {
   return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 };
@@ -340,7 +353,7 @@ window._formatDate = function(dateStr) {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, query, orderBy, limit, onSnapshot }
+import { getFirestore, collection, query, orderBy, limit, getDocs }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -361,24 +374,101 @@ const fmt = window._formatDate;
 
 let receipts = [];
 let chart = null;
+let pollTimer = null;
+let isFetching = false;
 
-// ✅ FIX: เพิ่ม orderBy + limit — ไม่ดึงทั้งหมดแบบไม่จำกัด
+/* =========================================================
+   NEAR-REAL-TIME ผ่าน polling แทน onSnapshot
+   -----------------------------------------------------------
+   เหตุผล: onSnapshot จะเปิด connection ค้างไว้ตลอดเวลาที่แท็บเปิดอยู่
+   และทุกครั้งที่มีการเขียนข้อมูลใหม่เข้าคอลเลกชัน จะ push อ่านซ้ำไปหา
+   ทุก client ที่เปิดค้างไว้พร้อมกัน — ถ้ามีหลายคนเปิด dashboard ทิ้งไว้
+   ทั้งวัน reads จะพุ่งขึ้นแบบคาดเดาไม่ได้ตามความถี่การเขียนข้อมูล
+
+   Polling ทุก REFRESH_MS วินาที (ปรับได้) ให้ผลลัพธ์ "เกือบเรียลไทม์"
+   (ข้อมูลเก่าสุดไม่เกิน REFRESH_MS) แต่จำนวน reads คงที่และคาดการณ์ได้
+   ล่วงหน้า: reads/วัน ≈ (จำนวนคนที่เปิดหน้า) x (ชั่วโมงที่เปิดค้าง x 60 / นาทีต่อรอบ) x DOC_LIMIT
+
+   + หยุด polling อัตโนมัติเมื่อสลับไปแท็บอื่น (document.visibilitychange)
+     แล้วเช็ครีเฟรชทันทีเมื่อกลับมาที่แท็บนี้ — ลด reads ตอนไม่มีคนดูอยู่จริง
+   ========================================================= */
+const REFRESH_MS = 4 * 60 * 1000;   // ทุก 4 นาที (อยู่ในช่วง 3-5 นาทีตามที่ต้องการ)
+const DOC_LIMIT = 150;               // ลดจาก 500 → 150 (ปรับตามปริมาณเอกสารจริงที่ใช้งาน)
+
 const q = query(
   collection(db, "warehouse_deliveries"),
   orderBy('createdAt', 'desc'),
-  limit(500)
+  limit(DOC_LIMIT)
 );
 
-onSnapshot(q, (snapshot) => {
-  receipts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-  loadDashboard();
-  renderTable();
-  renderWarehouse();
-  renderChart();
-  if (document.getElementById('tab-items').classList.contains('active')) {
-    renderItemSummary();
+async function fetchReceipts(showSpinner = false) {
+  if (isFetching) return; // กันยิงซ้ำซ้อนถ้ากดรีเฟรชถี่ๆ
+  isFetching = true;
+  setLiveState('loading');
+  try {
+    const snap = await getDocs(q);
+    receipts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    loadDashboard();
+    renderTable();
+    renderWarehouse();
+    renderChart();
+    if (document.getElementById('tab-items').classList.contains('active')) {
+      renderItemSummary();
+    }
+    setLiveState('live');
+  } catch (err) {
+    console.warn('โหลดข้อมูลไม่สำเร็จ:', err);
+    setLiveState('error');
+  } finally {
+    isFetching = false;
+  }
+}
+
+function setLiveState(state) {
+  const dot = document.getElementById('liveDot');
+  const label = document.getElementById('liveLabel');
+  const now = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  if (state === 'loading') {
+    dot.className = 'live-dot live';
+    label.textContent = 'กำลังอัปเดต...';
+  } else if (state === 'live') {
+    dot.className = 'live-dot live';
+    label.textContent = `อัปเดตล่าสุด: ${now}`;
+  } else if (state === 'paused') {
+    dot.className = 'live-dot paused';
+    label.textContent = `หยุดชั่วคราว (ไม่ได้ดูอยู่) · ล่าสุด ${now}`;
+  } else if (state === 'error') {
+    dot.className = 'live-dot paused';
+    label.textContent = 'โหลดข้อมูลไม่สำเร็จ';
+  }
+}
+
+function startPolling() {
+  stopPolling();
+  pollTimer = setInterval(() => fetchReceipts(), REFRESH_MS);
+}
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+// หยุด/เริ่ม polling ตามการมองเห็นของแท็บ — ประหยัด reads ตอนไม่มีคนดูอยู่จริง
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    stopPolling();
+    setLiveState('paused');
+  } else {
+    fetchReceipts();      // รีเฟรชทันทีตอนกลับมาที่แท็บ
+    startPolling();
   }
 });
+
+window.manualRefresh = function () {
+  fetchReceipts();
+};
+
+// โหลดครั้งแรก + เริ่ม polling
+fetchReceipts();
+startPolling();
 
 /* ============ KPI ============ */
 function loadDashboard() {
@@ -415,7 +505,7 @@ function loadDashboard() {
       : `↓ ${Math.abs(growth).toFixed(1)}% จากเดือนที่แล้ว`;
 }
 
-/* ============ TABLE — ✅ FIX: map+join แทน innerHTML += ============ */
+/* ============ TABLE ============ */
 window.renderTable = function() {
   document.getElementById('tableBody').innerHTML = receipts.map(r => {
     const totalItems = r.items ? r.items.length : 0;
@@ -456,7 +546,7 @@ window.closeModal = function() {
   document.getElementById('detailModal').style.display = 'none';
 };
 
-/* ============ WAREHOUSE — ✅ FIX: map+join แทน innerHTML += ============ */
+/* ============ WAREHOUSE ============ */
 window.renderWarehouse = function() {
   const counts = {};
   receipts.forEach(r => {
@@ -473,16 +563,15 @@ window.renderWarehouse = function() {
   }).join('');
 };
 
-/* ============ CHART — ✅ FIX: update แทน destroy/recreate ============ */
+/* ============ CHART ============ */
 window.renderChart = function() {
   const labels = receipts.map(r => r.date || '');
   const data = receipts.map(r => r.items ? r.items.length : 0);
 
   if (chart) {
-    // อัปเดต data โดยไม่ destroy — เร็วกว่าและไม่ memory leak
     chart.data.labels = labels;
     chart.data.datasets[0].data = data;
-    chart.update('none'); // 'none' = ไม่ animate ซ้ำ
+    chart.update('none');
     return;
   }
 
@@ -579,7 +668,6 @@ window.renderItemSummary = function() {
     return;
   }
 
-  // ✅ build HTML ทั้งหมดใน map+join ครั้งเดียว
   container.innerHTML = items.map((item, idx) => {
     const checkedPct = item.totalQty > 0 ? Math.round((item.checkedQty / item.totalQty) * 100) : 0;
     const rows = item.invoices.map(inv => `
