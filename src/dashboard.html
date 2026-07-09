@@ -756,6 +756,25 @@ let selectedIds=new Set();
 let renderTimer=null, pageListener=null, isSearchMode=false;
 let pageCursors=[null];
 
+// ── Listener lifecycle management ──
+// Ensures the Firestore real-time listener is torn down whenever the page is
+// not actively being viewed, to avoid unnecessary read operations.
+function stopListener(){
+  if(pageListener){ pageListener(); pageListener = null; }
+}
+
+window.addEventListener('beforeunload', stopListener);
+
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden){
+    stopListener();
+  } else {
+    // Tab is visible again — do a fresh one-shot reload instead of leaving
+    // a listener running silently in the background the whole time.
+    if(document.getElementById('app-screen').style.display!=='none' && !isSearchMode) loadPage('first');
+  }
+});
+
 // ── Auth ──
 onAuthStateChanged(auth,async(user)=>{
   if(!user){showLogin();return}
@@ -789,7 +808,10 @@ window.doLogin=async function(){
     btn.disabled=false; btn.textContent='Sign In';
   }
 };
-window.doLogout=async function(){await signOut(auth)};
+window.doLogout=async function(){
+  stopListener();
+  await signOut(auth);
+};
 document.getElementById('login-password').addEventListener('keydown',e=>{if(e.key==='Enter')window.doLogin()});
 
 // ── Data Loading ──
@@ -832,7 +854,7 @@ async function loadPage(direction){
       q=cursor ? query(base,...conds,startAfter(cursor),limit(perPage)) : query(base,...conds,limit(perPage));
     }
 
-    if(pageListener) pageListener();
+    stopListener();
     pageListener = onSnapshot(q, (snapshot) => {
       allDocs = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
       if(snapshot.docs.length > 0) pageCursors[curPage] = snapshot.docs[snapshot.docs.length - 1];
