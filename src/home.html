@@ -497,13 +497,38 @@
 
   /* ---------- stats: real data layer (Firestore) ---------- */
   const STORAGE_KEY = 'gunkul_warehouse_documents';
+  const STATS_CACHE_KEY = 'gunkul_warehouse_stats_cache';
+  const CACHE_TTL_MS = 5 * 60 * 1000; // 5 นาที — ลด reads โดยไม่ทำให้ตัวเลขล้าสมัยเกินไป
   const TARGET_RECIPIENT = 'บริษัท กันกุล โซลาร์ คอมมูนิตี้ จำกัด';
 
-  async function loadDocuments(){
+  function readStatsCache(){
+    try{
+      const raw = localStorage.getItem(STATS_CACHE_KEY);
+      if(!raw) return null;
+      const parsed = JSON.parse(raw);
+      if(!parsed || typeof parsed.ts !== 'number') return null;
+      if(Date.now() - parsed.ts > CACHE_TTL_MS) return null; // หมดอายุ
+      return parsed.data;
+    }catch(e){ return null; }
+  }
+
+  function writeStatsCache(data){
+    try{
+      localStorage.setItem(STATS_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+    }catch(e){ /* localStorage เต็มหรือถูกบล็อก — ข้ามไป ไม่ critical */ }
+  }
+
+  async function loadStats(){
+    // 1) ใช้ cache ก่อนถ้ายังไม่หมดอายุ — ไม่ยิง Firestore เลย = ประหยัด reads ทั้งหมด
+    const cached = readStatsCache();
+    if(cached) return cached;
+
     try{
       const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
-      const { getFirestore, collection, query, orderBy, limit, getDocs } =
-        await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+      const {
+        getFirestore, collection, query, where,
+        getCountFromServer
+      } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
 
       const firebaseConfig = {
         apiKey: "AIzaSyAkPFzgT7hLAxPVI129F-vRzA65MIx2VIs",
@@ -516,83 +541,90 @@
 
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
+      const col = collection(db, "warehouse_deliveries");
 
-      // main feed — powers ทั้งหมด / ต้องดำเนินการ / รับเข้าคลังแล้ว
-      const q = query(collection(db, "warehouse_deliveries"), orderBy('createdAt', 'desc'), limit(500));
-      const snap = await getDocs(q);
-      const docs = snap.docs.map(d => {
-        const x = d.data();
-        return {
-          id: d.id,
-          supplier: x.sender || '',
-          recipient: x.recipient || '',
-          status: x.status || 'pending',
-          date: x.date || ''
-        };
-      });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(docs));
+      // 2) ใช้ getCountFromServer แทนการดึงเอกสารทั้งหมดมานับเอง
+      //    แต่ละ count query นับเป็นแค่ "1 read" ไม่ว่าจะมีเอกสารกี่พันชิ้นก็ตาม
+      //    (เทียบกับของเดิมที่ getDocs(limit(500)) กิน 500 reads ต่อการโหลด 1 ครั้ง)
+      const [totalSnap, pendingSnap, receivedSnap] = await Promise.all([
+        getCountFromServer(col),
+        getCountFromServer(query(col, where('status', '==', 'pending'))),
+        getCountFromServer(query(col, where('status', '==', 'received'))),
+      ]);
 
-      // suppliers = คู่ค้าไม่ซ้ำกัน จากเอกสารทั้งหมดของทุกบริษัทรวมกัน
-      const supplierCount = new Set(docs.map(d => d.supplier).filter(Boolean)).size;
-      localStorage.setItem(STORAGE_KEY + '_suppliers', String(supplierCount));
+      const t = totalSnap.data().count;
+      const p = pendingSnap.data().count;
+      const r = receivedSnap.data().count;
 
-      return { docs, supplierCount };
+      // จำนวนคู่ค้าไม่ซ้ำ (suppliers) ต้องอาศัยข้อมูลจริงของแต่ละเอกสาร ไม่สามารถนับด้วย count query ได้ตรงๆ
+      // ใช้ค่าที่แคชไว้จากครั้งก่อนถ้ามี ถ้าไม่มีเลยค่อย fallback ไปดึงตัวอย่างเอกสารจำนวนจำกัด (ไม่ใช่ทั้งหมด)
+      let suppliers = getCachedSupplierCount();
+      if(suppliers === null){
+        suppliers = await estimateSupplierCount(db, collection, query, col);
+      }
+
+      const data = { t, p, r, suppliers };
+      writeStatsCache(data);
+      setCachedSupplierCount(suppliers);
+      return data;
     }catch(err){
-      console.warn('โหลดจาก Firestore ไม่สำเร็จ ใช้ข้อมูลสำรองแทน:', err);
-      let cached = null, cachedSuppliers = null;
-      try{ cached = JSON.parse(localStorage.getItem(STORAGE_KEY)); }catch(e){}
-      try{ cachedSuppliers = parseInt(localStorage.getItem(STORAGE_KEY + '_suppliers'), 10); }catch(e){}
-      const docs = (cached && Array.isArray(cached) && cached.length) ? cached : seedDocuments();
-      const supplierCount = Number.isFinite(cachedSuppliers)
-        ? cachedSuppliers
-        : new Set(docs.map(d => d.supplier).filter(Boolean)).size;
-      return { docs, supplierCount };
+      console.warn('โหลดสถิติจาก Firestore ไม่สำเร็จ ใช้ข้อมูลสำรองแทน:', err);
+      const fallback = readStatsCache() || seedStats();
+      return fallback;
     }
   }
 
-  function seedDocuments(){
-    const suppliers = [
-      'หจก. ไทยโซลาร์ ซัพพลาย','บจก. เอเชีย พาวเวอร์ เทค','บจก. กรีนไวร์ อีควิปเมนท์',
-      'บจก. สยาม อินเวอร์เตอร์','หจก. เอ็นเนอร์จี พาร์ทส์','บจก. วินด์เทค โซลูชั่น',
-      'บจก. โซล่าโมดูล ไทย','หจก. เคเบิล แอนด์ วายริ่ง'
-    ];
-    const recipients = [
-      TARGET_RECIPIENT, 'บริษัท เอฟเอ็นซี จำกัด', 'บริษัท กันกุล เอ็นจิเนียริ่ง จำกัด (มหาชน)'
-    ];
-    const docs = [];
-    let id = 1;
-    for(let i=0;i<130;i++){
-      docs.push({
-        id: id++,
-        supplier: suppliers[Math.floor(Math.random()*suppliers.length)],
-        recipient: recipients[Math.floor(Math.random()*recipients.length)],
-        status: Math.random() < 0.72 ? 'received' : 'pending',
-        date: new Date(Date.now() - Math.floor(Math.random()*90)*86400000).toISOString()
-      });
-    }
-    return docs;
+  function getCachedSupplierCount(){
+    try{
+      const v = localStorage.getItem(STORAGE_KEY + '_suppliers');
+      return v === null ? null : parseInt(v, 10);
+    }catch(e){ return null; }
   }
 
-  function computeStats(docs, supplierCount){
-    const t = docs.length;
-    const p = docs.filter(d => d.status === 'pending').length;
-    const r = docs.filter(d => d.status === 'received').length;
-    return { t, p, r, suppliers: supplierCount };
+  function setCachedSupplierCount(n){
+    try{ localStorage.setItem(STORAGE_KEY + '_suppliers', String(n)); }catch(e){}
+  }
+
+  // ดึงตัวอย่างเอกสารจำนวนจำกัด (ไม่ใช่ทั้งหมด) เฉพาะตอนที่ไม่เคยมีค่าคู่ค้าแคชไว้เลยเท่านั้น
+  async function estimateSupplierCount(db, collectionFn, queryFn, col){
+    try{
+      const { getDocs, limit, orderBy } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+      const sampleQ = queryFn(col, orderBy('createdAt', 'desc'), limit(100));
+      const snap = await getDocs(sampleQ);
+      const set = new Set();
+      snap.docs.forEach(d => { const s = d.data().sender; if(s) set.add(s); });
+      return set.size;
+    }catch(e){
+      return 0;
+    }
+  }
+
+  function seedStats(){
+    return { t: 130, p: 36, r: 94, suppliers: 8 };
+  }
+
+  function computeSubs(t, p, r){
+    return {
+      total: 'เอกสารทั้งหมด',
+      suppliers: 'คู่ค้าทั้งหมด',
+      pending: p > 0 ? 'ต้องดำเนินการ' : 'เรียบร้อย',
+      received: `${t > 0 ? Math.round(r / t * 100) : 0}% ของทั้งหมด`
+    };
   }
 
   async function initStats(){
-    const { docs, supplierCount } = await loadDocuments();
-    const { t, p, r, suppliers } = computeStats(docs, supplierCount);
+    const { t, p, r, suppliers } = await loadStats();
+    const subs = computeSubs(t, p, r);
 
     document.getElementById('stat-total').dataset.target = t;
     document.getElementById('stat-suppliers').dataset.target = suppliers;
     document.getElementById('stat-pending').dataset.target = p;
     document.getElementById('stat-received').dataset.target = r;
 
-    document.getElementById('stat-sub-total').textContent = 'เอกสารทั้งหมด';
-    document.getElementById('stat-sub-suppliers').textContent = 'คู่ค้าทั้งหมด';
-    document.getElementById('stat-sub-pending').textContent = p > 0 ? 'ต้องดำเนินการ' : 'เรียบร้อย';
-    document.getElementById('stat-sub-received').textContent = `${t > 0 ? Math.round(r / t * 100) : 0}% ของทั้งหมด`;
+    document.getElementById('stat-sub-total').textContent = subs.total;
+    document.getElementById('stat-sub-suppliers').textContent = subs.suppliers;
+    document.getElementById('stat-sub-pending').textContent = subs.pending;
+    document.getElementById('stat-sub-received').textContent = subs.received;
 
     document.querySelectorAll('.stat-card').forEach(card => statObserver.observe(card));
   }
@@ -622,8 +654,6 @@
       }
     });
   }, { threshold: 0.4 });
-
-  document.querySelectorAll('.stat-card'); // (observers now attached inside initStats once real data is loaded)
 
   let resizeTimer;
   window.addEventListener('resize', () => {
