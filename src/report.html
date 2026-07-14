@@ -20,6 +20,7 @@
   --ink:        #3B82F6;
   --ink-tint:   rgba(59, 130, 246, 0.1);
   
+  --navy: #0d1b3e; --navy2: #16295c; --navy3: #1f3570;
   --received:   #10B981; 
   --received-tint: rgba(16, 185, 129, 0.15);
   --pending:    #EF4444; 
@@ -54,7 +55,7 @@ a{color:inherit;}
   display:flex; align-items:center; justify-content:space-between;
   padding:24px clamp(18px,4vw,48px);
   border-bottom:1px solid var(--line);
-  background:#16295c;
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy2) 60%, var(--navy3) 100%);
 }
 .topbar__title h1{font-size:22px; color:var(--text); font-weight:600;}
 .topbar__title p{font-size:13px; color:var(--muted); margin-top:4px;}
