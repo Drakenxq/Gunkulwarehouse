@@ -1,674 +1,385 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GUNKUL ENGINEERING — ระบบคลังสินค้ากลุ่มบริษัท</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>GUNKUL Engineering - Green & Sustainable Supply Chain Hub</title>
+
+7<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
 <style>
-  :root{
-    --ink:#070b14;
-    --panel:#10182b;
-    --panel-light:#16213c;
-    --gold:#f5b840;
-    --gold-dim:#8a6a2c;
-    --cyan:#46d9c4;
-    --cyan-dim:#2b6e64;
-    --text:#f3f1e8;
-    --muted:#7c8aa3;
-    --line:rgba(124,138,163,0.18);
-  }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  html{scroll-behavior:smooth;}
-  body{
-    background:var(--ink);
-    color:var(--text);
-    font-family:'Sarabun',sans-serif;
-    overflow-x:hidden;
-  }
-  h1,h2,h3,.mono,.code{ font-family:'Chakra Petch',sans-serif; }
+:root {
+  --bg-clean: #f8fafc;
+  --panel-glass: rgba(255, 255, 255, 0.8);
+  --border-subtle: rgba(16, 185, 129, 0.12);
+  
+  --gunkul-orange: #f97316;
+  --eco-green: #10b981;
+  --eco-mint: #059669;
+  --clean-blue: #0284c7;
+  
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --card-shadow: 0 20px 40px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
 
-  /* ---------- ambient background ---------- */
-  .ambient{
-    position:fixed; inset:0; z-index:0; pointer-events:none;
-    background:
-      radial-gradient(600px 400px at 15% 10%, rgba(245,184,64,0.08), transparent 60%),
-      radial-gradient(700px 500px at 85% 30%, rgba(70,217,196,0.07), transparent 60%),
-      var(--ink);
-  }
+html { scroll-behavior: smooth; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg-clean);
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Thai', sans-serif;
+  overflow-x: hidden;
+  background-image: 
+    linear-gradient(rgba(16, 185, 129, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 185, 129, 0.015) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
 
-  /* ---------- nav ---------- */
-  nav{
-    position:relative; z-index:10;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:28px 6vw;
-  }
-  .brand{ display:flex; align-items:center; gap:12px; }
-    .mark{
-    height:50px; display:flex; align-items:center; flex-shrink:0;
-    }
-    .mark img{
-    height:100%; width:auto; object-fit:contain; display:block;
-    }
-  .brand-text{ font-weight:700; font-size:16px; letter-spacing:0.14em; }
-  .brand-sub{ font-size:11px; color:var(--muted); letter-spacing:0.08em; margin-top:2px; }
-  .badge{
-    font-size:12px; color:var(--gold);
-    border:1px solid var(--gold-dim);
-    padding:7px 16px; border-radius:100px;
-    letter-spacing:0.04em;
-    background:rgba(245,184,64,0.06);
-  }
-  @media (max-width:640px){ .badge{ display:none; } }
+.glow-backdrop {
+  position: fixed; width: 800px; height: 800px; border-radius: 50%;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, transparent 70%);
+  pointer-events: none; z-index: 0; filter: blur(100px);
+  transition: background 1.2s ease;
+}
 
-  /* ---------- hero ---------- */
-  .hero{
-    position:relative; z-index:5;
-    min-height:82vh;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    text-align:center; padding:0 6vw 60px;
-  }
-  .hero-eyebrow{
-    font-size:13px; letter-spacing:0.3em; color:var(--cyan);
-    margin-bottom:22px; font-family:'Chakra Petch',sans-serif;
-  }
-  .hero h1{
-    font-size:clamp(42px, 8vw, 96px);
-    font-weight:700; line-height:1.02; letter-spacing:0.01em;
-    background:linear-gradient(180deg, #ffffff 0%, #cdd3e0 100%);
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-  }
-  .hero h2{
-    margin-top:20px;
-    font-size:clamp(20px, 3vw, 30px);
-    font-weight:400; color:var(--text); font-family:'Sarabun',sans-serif;
-  }
-  .hero p{
-    margin-top:18px; max-width:520px;
-    color:var(--muted); font-size:15px; line-height:1.8;
-  }
-  .scroll-cue{
-    margin-top:56px; display:flex; flex-direction:column; align-items:center; gap:10px;
-    color:var(--muted); font-size:12px; letter-spacing:0.15em;
-    text-decoration:none; cursor:pointer;
-  }
-  .scroll-cue .chev{
-    width:14px; height:14px; border-right:1.5px solid var(--muted); border-bottom:1.5px solid var(--muted);
-    transform:rotate(45deg);
-    animation:bob 1.8s ease-in-out infinite;
-  }
-  @keyframes bob{ 0%,100%{ transform:rotate(45deg) translate(0,0); opacity:.5;} 50%{ transform:rotate(45deg) translate(4px,4px); opacity:1;} }
+.navbar {
+  position: fixed; top: 0; left: 0; width: 100%; z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 50px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+}
+.brand { display: flex; align-items: center; gap: 15px; }
+.logo-icon {
+  width: 40px; height: 40px; background: linear-gradient(135deg, var(--eco-green), var(--eco-mint));
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: #fff; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
+}
+.brand-info h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; color: var(--text-main); }
+.brand-info p { font-size: 10px; color: var(--eco-mint); font-weight: 600; letter-spacing: 1.5px; }
 
-  /* waveform behind hero */
-  .waveform{ position:absolute; left:0; right:0; bottom:8%; z-index:0; opacity:0.5; }
-  .waveform path{ fill:none; stroke-width:1.4; }
-  .wf-gold{ stroke:var(--gold); }
-  .wf-cyan{ stroke:var(--cyan); }
+.nav-links { display: flex; gap: 30px; list-style: none; font-size: 13px; font-weight: 600; }
+.nav-links a { color: var(--text-muted); text-decoration: none; transition: 0.3s; }
+.nav-links a:hover, .nav-links a.active { color: var(--eco-mint); }
 
-  .particle{
-    position:absolute; border-radius:50%; pointer-events:none;
-    background:var(--gold); opacity:.5; filter:blur(0.5px);
-    animation:drift linear infinite;
-  }
-  @keyframes drift{
-    0%{ transform:translateY(0) translateX(0); opacity:0; }
-    10%{ opacity:.6; }
-    90%{ opacity:.4; }
-    100%{ transform:translateY(-140px) translateX(20px); opacity:0; }
-  }
+.reveal-block {
+  opacity: 0; transform: translateY(50px);
+  transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-block.in-view {
+  opacity: 1; transform: translateY(0);
+}
 
-  /* ---------- network / company section ---------- */
-  #network{
-    position:relative; z-index:5;
-    padding:100px 6vw 140px;
-    max-width:1200px; margin:0 auto;
-  }
-  .section-head{ text-align:center; margin-bottom:70px; }
-  .section-head .eyebrow{
-    font-size:12px; letter-spacing:0.25em; color:var(--gold);
-    font-family:'Chakra Petch',sans-serif; margin-bottom:14px;
-  }
-  .section-head h3{ font-size:clamp(26px,4vw,38px); font-weight:600; }
-  .section-head span{ color:var(--muted); }
-  .section-head p{ margin-top:14px; color:var(--muted); font-size:14px; }
+.section-hero {
+  min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+  padding: 140px 50px 50px 50px; max-width: 1440px; margin: 0 auto; position: relative; z-index: 10;
+}
+.hero-title h2 {
+  font-size: 52px; font-weight: 700; letter-spacing: -1px; line-height: 1.2;
+  color: var(--text-main);
+}
+.hero-title p { color: var(--text-muted); margin-top: 12px; font-size: 16px; max-width: 600px; }
 
-  .hub-wrap{ display:flex; justify-content:center; margin-bottom:8px; }
-  #hub{
-    position:relative; z-index:3;
-    width:120px; height:120px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center; flex-direction:column;
-    background:radial-gradient(circle at 30% 30%, #1c2740, #0c1424);
-    border:1px solid rgba(245,184,64,0.4);
-    box-shadow:0 0 0 1px rgba(255,255,255,0.02), 0 0 40px rgba(245,184,64,0.15);
-  }
-  #hub .hub-mark{ width:30px; height:30px; }
-  #hub .hub-label{ font-size:9px; letter-spacing:0.2em; color:var(--gold); margin-top:6px; }
-  #hub::after{
-    content:''; position:absolute; inset:-14px; border-radius:50%;
-    border:1px solid rgba(245,184,64,0.15);
-    animation:pulse-ring 3.4s ease-out infinite;
-  }
-  @keyframes pulse-ring{
-    0%{ transform:scale(0.9); opacity:.8; }
-    80%{ transform:scale(1.35); opacity:0; }
-    100%{ opacity:0; }
-  }
+.bento-container {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin: 50px 0;
+}
+.bento-item {
+  background: var(--panel-glass); border: 1px solid rgba(0, 0, 0, 0.05); border-radius: 24px;
+  padding: 35px; position: relative; overflow: hidden; backdrop-filter: blur(20px);
+  box-shadow: var(--card-shadow);
+  transform-style: preserve-3d; transition: all 0.4s ease; cursor: pointer;
+}
+.bento-item:hover { 
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 30px 50px rgba(15, 23, 42, 0.08);
+}
+.bento-item::before {
+  content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 4px;
+  opacity: 0; transition: opacity 0.3s;
+}
+.bento-item:hover::before { opacity: 1; }
 
-  #network-svg{ position:absolute; top:0; left:0; z-index:1; overflow:visible; }
-  #network-svg path.line{
-    fill:none; stroke:url(#lineGrad); stroke-width:1.2;
-    stroke-dasharray:4 6; opacity:0.55;
-    animation:flow 2.2s linear infinite;
-  }
-  @keyframes flow{ to{ stroke-dashoffset:-40; } }
+.b-all:hover::before { background: var(--clean-blue); }
+.b-supplier:hover::before { background: var(--gunkul-orange); }
+.b-pending:hover::before { background: #ef4444; }
+.b-success:hover::before { background: var(--eco-green); }
 
-  .grid{
-    position:relative; z-index:3;
-    margin-top:60px;
-    display:grid; grid-template-columns:repeat(4, 1fr); gap:20px;
-  }
-  @media (max-width:920px){ .grid{ grid-template-columns:repeat(2,1fr); } }
-  @media (max-width:520px){ .grid{ grid-template-columns:1fr; } }
+.item-label { font-size: 11px; color: var(--text-muted); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.item-value { font-family: 'Share Tech Mono', monospace; font-size: 64px; font-weight: 700; margin: 20px 0 10px 0; line-height: 1; color: var(--text-main); }
+.b-all .item-value { color: var(--clean-blue); }
+.b-supplier .item-value { color: var(--gunkul-orange); }
+.b-success .item-value { color: var(--eco-green); }
+.item-subtext { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
 
-  .company-card{
-    position:relative;
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:26px 22px;
-    text-decoration:none; color:var(--text);
-    display:flex; flex-direction:column; gap:16px;
-    overflow:hidden;
-    transition:transform .35s ease, border-color .35s ease, background .35s ease;
-  }
-  .company-card::before{
-    content:''; position:absolute; inset:0;
-    background:linear-gradient(120deg, transparent 30%, rgba(245,184,64,0.08) 50%, transparent 70%);
-    transform:translateX(-120%);
-    transition:transform .7s ease;
-  }
-  .company-card:hover::before{ transform:translateX(120%); }
-  .company-card:hover{
-    transform:translateY(-6px);
-    border-color:rgba(245,184,64,0.45);
-    background:var(--panel-light);
-  }
-  .company-card .icon{
-    width:30px; height:30px; color:var(--cyan);
-    stroke:currentColor; fill:none; stroke-width:1.4;
-  }
-  .company-card .code{
-    font-size:26px; font-weight:700; letter-spacing:0.03em;
-  }
-  .company-card .desc{
-    font-size:12.5px; color:var(--muted); line-height:1.6;
-  }
-  .company-card .enter{
-    margin-top:auto; display:flex; align-items:center; gap:8px;
-    font-size:12px; color:var(--gold); letter-spacing:0.05em;
-    opacity:0; transform:translateY(4px);
-    transition:opacity .3s ease, transform .3s ease;
-  }
-  .company-card:hover .enter{ opacity:1; transform:translateY(0); }
-  .company-card .enter svg{ width:13px; height:13px; transition:transform .3s ease; }
-  .company-card:hover .enter svg{ transform:translateX(3px); }
-  .company-card .node-dot{
-    position:absolute; top:-5px; left:50%; transform:translateX(-50%);
-    width:9px; height:9px; border-radius:50%;
-    background:var(--gold);
-    box-shadow:0 0 10px 2px rgba(245,184,64,0.6);
-  }
+.scroll-indicator {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  margin-top: auto; color: var(--text-muted); font-size: 12px; font-weight: 600;
+}
+.mouse {
+  width: 20px; height: 32px; border: 2px solid var(--text-muted); border-radius: 15px; position: relative;
+}
+.wheel {
+  width: 4px; height: 8px; background: var(--eco-green); border-radius: 2px;
+  position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+  animation: scroll 1.5s infinite;
+}
+@keyframes scroll { 0% { top: 6px; opacity: 1; } 100% { top: 16px; opacity: 0; } }
 
-  /* ---------- footer ---------- */
-  footer{
-    position:relative; z-index:5;
-    border-top:1px solid var(--line);
-    padding:34px 6vw; text-align:center;
-    color:var(--muted); font-size:12px; letter-spacing:0.03em;
-  }
-  footer .foot-brand{ color:var(--text); font-family:'Chakra Petch',sans-serif; letter-spacing:0.1em; margin-bottom:6px; font-size:13px;}
+.section-sustainability {
+  min-height: 100vh; padding: 120px 50px; max-width: 1440px; margin: 0 auto; position: relative; z-index: 10;
+}
+.section-header-center { text-align: center; margin-bottom: 70px; }
+.section-header-center span { color: var(--eco-mint); font-size: 13px; font-weight: 700; letter-spacing: 2px; }
+.section-header-center h3 { font-size: 38px; font-weight: 700; margin-top: 8px; color: var(--text-main); }
 
-  /* ---------- stats ---------- */
-  :root{
-    --green:#46d9a0;
-    --green-soft:rgba(70,217,160,0.12);
-    --gold-soft:rgba(245,184,64,0.12);
-    --cyan-soft:rgba(70,217,196,0.12);
-    --blue-soft:rgba(91,143,209,0.12);
-  }
-  .stats{
-    position:relative; z-index:5;
-    max-width:1200px; margin:0 auto;
-    padding:0 6vw 20px;
-    display:grid; grid-template-columns:repeat(4,1fr); gap:20px;
-  }
-  @media (max-width:920px){ .stats{ grid-template-columns:repeat(2,1fr); } }
-  @media (max-width:520px){ .stats{ grid-template-columns:1fr; } }
+.framework-layout { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+.framework-card {
+  background: var(--panel-glass); border: 1px solid rgba(0, 0, 0, 0.05); border-radius: 24px;
+  padding: 40px; backdrop-filter: blur(20px); box-shadow: var(--card-shadow); transition: 0.4s;
+}
+.framework-card:hover { transform: translateY(-8px); border-color: rgba(16, 185, 129, 0.25); box-shadow: 0 25px 45px rgba(15, 23, 42, 0.06); }
+.framework-card i { font-size: 36px; margin-bottom: 25px; display: block; }
 
-  .stat-card{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:26px 22px;
-    display:flex; flex-direction:column; gap:14px;
-    opacity:0; transform:translateY(16px);
-    animation:rise .7s ease forwards;
-    transition:transform .35s ease, border-color .35s ease;
-  }
-  .stat-card:hover{ transform:translateY(-4px); border-color:rgba(245,184,64,0.4); }
-  @keyframes rise{ to{ opacity:1; transform:translateY(0); } }
+.f-env i { color: var(--eco-green); }
+.f-soc i { color: var(--clean-blue); }
+.f-gov i { color: var(--gunkul-orange); }
 
-  .stat-card .icon{
-    width:44px; height:44px; border-radius:11px;
-    display:flex; align-items:center; justify-content:center;
-    background:var(--gold-soft) !important;
-  }
-  .stat-card:nth-child(1) .icon{ background:var(--cyan-soft) !important; }
-  .stat-card:nth-child(2) .icon{ background:var(--gold-soft) !important; }
-  .stat-card:nth-child(3) .icon{ background:var(--blue-soft) !important; }
-  .stat-card:nth-child(4) .icon{ background:var(--green-soft) !important; }
-  .stat-card .icon svg{ width:22px; height:22px; }
-  .stat-card:nth-child(1) .icon svg{ stroke:var(--cyan) !important; }
-  .stat-card:nth-child(2) .icon svg{ stroke:var(--gold) !important; }
-  .stat-card:nth-child(3) .icon svg{ stroke:#7c93e8 !important; }
-  .stat-card:nth-child(4) .icon svg{ stroke:var(--green) !important; }
+.framework-card h4 { font-size: 21px; font-weight: 700; margin-bottom: 15px; color: var(--text-main); }
+.framework-card p { color: var(--text-muted); font-size: 14px; line-height: 1.7; font-weight: 400; }
 
-  .stat-num{
-    font-family:'Chakra Petch',sans-serif;
-    font-size:36px; font-weight:700; letter-spacing:0.01em;
-    color:var(--text);
-  }
-  .stat-num small{ font-size:16px; color:var(--muted); font-weight:500; margin-left:2px; }
-  .stat-sub{
-    font-family:'Sarabun',sans-serif;
-    font-size:12px; font-weight:600; color:var(--gold);
-    letter-spacing:0.02em;
-  }
-  .stat-card:nth-child(1) .stat-sub{ color:var(--cyan); }
-  .stat-card:nth-child(3) .stat-sub{ color:#7c93e8; }
-  .stat-card:nth-child(4) .stat-sub{ color:var(--green); }
-  .stat-label{ font-size:12.5px; color:var(--muted); line-height:1.5; }
+/* SECTION 3: WE CARE SOCIAL & SDGs GRID MAP */
+.section-wecare {
+  min-height: 100vh; display: flex; align-items: center; padding: 120px 50px;
+  max-width: 1440px; margin: 0 auto; position: relative; z-index: 10;
+}
+.split-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 80px; align-items: center; width: 100%; }
 
-  @media (prefers-reduced-motion: reduce){
-    *{ animation:none !important; transition:none !important; }
-  }
+.media-container {
+  position: relative; border-radius: 32px; overflow: hidden;
+  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.1); border: 4px solid #fff;
+  aspect-ratio: 16/10;
+}
+.media-container img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s; }
+.media-container:hover img { transform: scale(1.04); }
+.badge-dot { position: absolute; top: 35px; left: 35px; width: 20px; height: 20px; background: var(--clean-blue); border-radius: 50%; box-shadow: 0 0 20px var(--clean-blue); }
+
+.info-container .tagline { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 6px; }
+.info-container .main-title { font-size: 48px; font-weight: 800; color: var(--clean-blue); letter-spacing: -0.5px; margin-bottom: 25px; }
+.info-container .body-text { font-size: 16px; color: var(--text-muted); line-height: 1.8; font-weight: 400; margin-bottom: 35px; }
+
+.sdg-box-wrapper { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 40px; }
+.sdg-block {
+  padding: 12px; border-radius: 12px; color: white; font-weight: 600;
+  display: flex; flex-direction: column; justify-content: space-between;
+  width: 80px; height: 80px; box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  transition: all 0.3s; cursor: pointer;
+}
+.sdg-block:hover { transform: translateY(-5px) scale(1.05); filter: brightness(1.1); }
+.sdg-block .num { font-size: 20px; font-family: 'Share Tech Mono', monospace; }
+.sdg-block .label { font-size: 9px; font-weight: 500; opacity: 0.95; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.action-link-btn {
+  background: #fff; color: var(--text-main); border: 1px solid rgba(0,0,0,0.08);
+  padding: 14px 30px; border-radius: 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 12px; transition: 0.3s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+.action-link-btn i {
+  width: 24px; height: 24px; background: var(--eco-green); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; transition: transform 0.3s;
+}
+.action-link-btn:hover { border-color: var(--eco-green); background: rgba(16,185,129,0.02); }
+.action-link-btn:hover i { transform: translateX(4px); }
+
+@media (max-width: 1100px) {
+  .bento-container, .framework-layout { grid-template-columns: repeat(2, 1fr); }
+  .split-grid { grid-template-columns: 1fr; gap: 50px; }
+  .section-hero, .section-sustainability, .section-wecare { padding: 100px 30px; }
+}
+@media (max-width: 650px) {
+  .bento-container, .framework-layout { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
 
-<div class="ambient"></div>
+<div class="glow-backdrop" id="bgGlow"></div>
 
-<nav>
+<nav class="navbar">
   <div class="brand">
-    <div class="mark">
-    <img src="./svg/logo-default.svg" alt="GUNKUL ENGINEERING">
+    <div class="logo-icon"><i class="ti ti-building-warehouse"></i></div>
+    <div class="brand-info">
+      <h1>GUNKUL ENGINEERING</h1>
+      <p>WAREHOUSE NOPAWONG</p>
     </div>
   </div>
-  <div class="badge">STOCK &amp; WAREHOUSE PORTAL</div>
+  <ul class="nav-links">
+    <li><a href="#dashboard" class="active" id="lnk-dash">Dashboard</a></li>
+    <li><a href="#framework" id="lnk-frame">EESG Framework</a></li>
+    <li><a href="#social" id="lnk-social">Social Commitment</a></li>
+  </ul>
 </nav>
 
-<section class="hero">
-  <svg class="waveform" viewBox="0 0 1200 140" preserveAspectRatio="none">
-    <path class="wf-cyan" d="M0,70 C150,10 300,130 450,70 C600,10 750,130 900,70 C1000,30 1100,110 1200,70">
-      <animate attributeName="d" dur="9s" repeatCount="indefinite"
-        values="M0,70 C150,10 300,130 450,70 C600,10 750,130 900,70 C1000,30 1100,110 1200,70;
-                M0,70 C150,130 300,10 450,70 C600,130 750,10 900,70 C1000,110 1100,30 1200,70;
-                M0,70 C150,10 300,130 450,70 C600,10 750,130 900,70 C1000,30 1100,110 1200,70"/>
-    </path>
-    <path class="wf-gold" d="M0,90 C150,50 300,130 450,90 C600,50 750,130 900,90 C1000,60 1100,120 1200,90" opacity="0.6">
-      <animate attributeName="d" dur="11s" repeatCount="indefinite"
-        values="M0,90 C150,50 300,130 450,90 C600,50 750,130 900,90 C1000,60 1100,120 1200,90;
-                M0,90 C150,130 300,50 450,90 C600,130 750,50 900,90 C1000,120 1100,60 1200,90;
-                M0,90 C150,50 300,130 450,90 C600,50 750,130 900,90 C1000,60 1100,120 1200,90"/>
-    </path>
-  </svg>
-
-  <div id="particles"></div>
-
-  <div class="hero-eyebrow">GUNKUL ENGINEERING PUBLIC COMPANY LIMITED</div>
-  <h1>WAREHOUSE<br>NOPPAWONG</h1>
-  <h2>ระบบคลังสินค้านพวงศ์กลุ่มบริษัทในเครือกันกุล</h2>
-  <p>ตรวจสอบเช็ค เบิก-จ่าย และติดตามสินค้าคงคลังภายใต้คลังสินค้านพวงศ์</p>
-
-  <a href="#network" class="scroll-cue">
-    <span>เลื่อน</span>
-    <span class="chev"></span>
-  </a>
-</section>
-
-<section class="stats" id="stats">
-  <div class="stat-card" style="animation-delay:.15s">
-    <div class="icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
-    </div>
-    <div class="stat-num" id="stat-total" data-target="0"><span class="count">0</span></div>
-    <div class="stat-sub" id="stat-sub-total">กำลังโหลด...</div>
-    <div class="stat-label">เอกสารทั้งหมดในระบบ</div>
+<section class="section-hero" id="dashboard">
+  <div class="hero-title reveal-block">
+    <h2>Green Intelligence Portal</h2>
+    <p>ระบบควบคุมข้อมูลคลังสินค้า มุ่งเน้นการประหยัดพลังงานและการจัดการห่วงโซ่อุปทานที่เป็นมิตรต่อสิ่งแวดล้อม</p>
   </div>
-  <div class="stat-card" style="animation-delay:.25s">
-    <div class="icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/></svg>
+
+  <div class="bento-container reveal-block">
+    <div class="bento-item b-all">
+      <div class="item-label">All Documents</div>
+      <div class="item-value">250</div>
+      <div class="item-subtext"><i class="ti ti-file-text"></i> เอกสารทั้งหมดในระบบคลัง</div>
     </div>
-    <div class="stat-num" id="stat-suppliers" data-target="0"><span class="count">0</span></div>
-    <div class="stat-sub" id="stat-sub-suppliers">กำลังโหลด...</div>
-    <div class="stat-label">คู่ค้าที่ลงทะเบียน (Suppliers)</div>
+    <div class="bento-item b-supplier">
+      <div class="item-label">Total Suppliers</div>
+      <div class="item-value">62</div>
+      <div class="item-subtext"><i class="ti ti-building-factory-2"></i> คู่ค้า</div>
+    </div>
+    <div class="bento-item b-pending">
+      <div class="item-label">Action Required</div>
+      <div class="item-value" style="color:#ef4444;">8</div>
+      <div class="item-subtext"><i class="ti ti-clock-bolt"></i> รายการงานที่ต้องเร่งดำเนินการ</div>
+    </div>
+    <div class="bento-item b-success">
+      <div class="item-label">In-Stock Success</div>
+      <div class="item-value">242</div>
+      <div class="item-subtext">
+        <span style="background:rgba(16,185,129,0.1); color:var(--eco-green); padding:2px 8px; border-radius:20px; font-size:11px; font-weight:700;">97%</span>
+        <span>รับเข้าคลังเรียบร้อย</span>
+      </div>
+    </div>
   </div>
-  <div class="stat-card" style="animation-delay:.35s">
-    <div class="icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>
-    </div>
-    <div class="stat-num" id="stat-pending" data-target="0"><span class="count">0</span></div>
-    <div class="stat-sub" id="stat-sub-pending">กำลังโหลด...</div>
-    <div class="stat-label">งานที่รอดำเนินการ</div>
-  </div>
-  <div class="stat-card" style="animation-delay:.45s">
-    <div class="icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-    </div>
-    <div class="stat-num" id="stat-received" data-target="0"><span class="count">0</span></div>
-    <div class="stat-sub" id="stat-sub-received">กำลังโหลด...</div>
-    <div class="stat-label">รับเข้าคลังแล้ว</div>
+
+  <div class="scroll-indicator">
+    <span>SCROLL DOWN</span>
+    <div class="mouse"><div class="wheel"></div></div>
   </div>
 </section>
 
-<section id="network">
-  <div class="section-head">
-    <div class="eyebrow">SUBSIDIARY NETWORK</div>
-    <h3>เครือข่ายบริษัท<span>ในคลังสินค้านพวงศ์</span></h3>
-    <p>ข้อมูลอาจมีการอัพเดท</p>
+<section class="section-sustainability" id="framework">
+  <div class="section-header-center reveal-block">
+    <span>SUSTAINABILITY STRATEGY</span>
+    <h3>กรอบการพัฒนาองค์กรสู่ความยั่งยืน</h3>
   </div>
 
-  <div class="hub-wrap">
-    <div id="hub">
-      <svg class="hub-mark" viewBox="0 0 40 40" fill="none">
-        <polygon points="20,3 35,12 35,28 20,37 5,28 5,12" stroke="#f5b840" stroke-width="1.4"/>
-        <path d="M20 12 L14 21 H20 L17 29 L26 18 H20 Z" fill="#f5b840"/>
-      </svg>
-      <div class="hub-label">GUNKUL</div>
+  <div class="framework-layout reveal-block">
+    <div class="framework-card f-env">
+      <i class="ti ti-seeding"></i>
+      <h4>Environmental (E)</h4>
+      <p>มุ่งเน้นพลังงานสะอาดและระบบโลจิสติกส์สีเขียว ลดปริมาณการปล่อยก๊าซคาร์บอนจากการจัดการคลังสินค้า เพื่อมุ่งสู่เป้าหมาย Net Zero ของเครือกันกุล</p>
     </div>
-  </div>
-
-  <svg id="network-svg">
-    <defs>
-      <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#f5b840"/>
-        <stop offset="100%" stop-color="#46d9c4"/>
-      </linearGradient>
-    </defs>
-    <g id="lines-group"></g>
-  </svg>
-
-  <div class="grid" id="grid">
-    <!-- cards injected by JS -->
+    <div class="framework-card f-soc">
+      <i class="ti ti-heart-handshake"></i>
+      <h4>Social (S)</h4>
+      <p>ใส่ใจความปลอดภัยของบุคลากรภายในคลังสินค้าอย่างสูงสุด พร้อมดำเนินกิจกรรมดูแลและสร้างคุณค่าร่วมกับชุมชนโดยรอบอย่างสม่ำเสมอ</p>
+    </div>
+    <div class="framework-card f-gov">
+      <i class="ti ti-shield-checkered"></i>
+      <h4>Governance (G)</h4>
+      <p>กำกับดูแลกระบวนการจัดซื้อจัดจ้างคู่ค้า (Suppliers) ทุกรายด้วยความโปร่งใส ยุติธรรม และตรวจสอบความถูกต้องของระบบเอกสารได้แบบเรียลไทม์</p>
+    </div>
   </div>
 </section>
 
-<footer>
-  <div class="foot-brand">GUNKUL ENGINEERING</div>
-  <div>© 2026 Gunkul Engineering Public Company Limited · ระบบคลังสินค้าภายในกลุ่มบริษัท (ใช้งานภายในองค์กรเท่านั้น)</div>
-</footer>
+<section class="section-wecare" id="social">
+  <div class="split-grid reveal-block">
+    <div class="media-container">
+      <div class="badge-dot"></div>
+      <img src="https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=1200&q=80" alt="Gunkul Wind Energy">
+    </div>
+
+    <div class="info-container">
+      <div class="tagline">WE CARE</div>
+      <div class="main-title">SOCIAL</div>
+      <p class="body-text">
+        ขับเคลื่อนการเปลี่ยนผ่านสู่เศรษฐกิจคาร์บอนต่ำและแก้ปัญหาด้านสิ่งแวดล้อมอย่างยั่งยืน 
+        ด้วย “พลังงานสะอาด” เพื่อสร้างสมดุลให้กับโลก
+      </p>
+
+      <div class="sdg-box-wrapper">
+        <div class="sdg-block" style="background:#26bde2;">
+          <span class="num">6</span><span class="label">น้ำสะอาดและการสุขาภิบาล</span>
+        </div>
+        <div class="sdg-block" style="background:#fcc30b; color:#000;">
+          <span class="num">7</span><span class="label">พลังงานสะอาดที่เข้าถึงได้</span>
+        </div>
+        <div class="sdg-block" style="background:#a21942;">
+          <span class="num">8</span><span class="label">งานที่มีคุณค่าและการเติบโต</span>
+        </div>
+        <div class="sdg-block" style="background:#fd9d24;">
+          <span class="num">11</span><span class="label">เมืองและชุมชนยั่งยืน</span>
+        </div>
+        <div class="sdg-block" style="background:#bf8d2c;">
+          <span class="num">12</span><span class="label">การผลิตและบริโภคที่รับผิดชอบ</span>
+        </div>
+        <div class="sdg-block" style="background:#3f7e44;">
+          <span class="num">13</span><span class="label">รับมือการเปลี่ยนสภาพภูมิอากาศ</span>
+        </div>
+        <div class="sdg-block" style="background:#56db26;">
+          <span class="num">15</span><span class="label">ระบบนิเวศบนบก</span>
+        </div>
+      </div>
+
+      <a href="https://www.gunkul.com/th/home" target="_blank" class="action-link-btn" style="text-decoration: none;">
+        ไปยังเว็บไซต์บริษัท <i class="ti ti-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
 
 <script>
-  const companies = [
-    { code:'GSC',  desc:'ระบบคลังสินค้า · พลังงานแสงอาทิตย์', icon:'solar' },
-    { code:'FNC',  desc:'ระบบคลังสินค้า · โรงงานและสาธารณูปโภค', icon:'plant' },
-    { code:'GDFF', desc:'ระบบคลังสินค้า · พลังงานลม', icon:'wind' },
-    { code:'GKE',  desc:'ระบบคลังสินค้า · งานวิศวกรรม', icon:'tower' },
-    { code:'GSP1', desc:'ระบบคลังสินค้า · โซลาร์ฟาร์ม', icon:'array' },
-    { code:'GUE',  desc:'ระบบคลังสินค้า · ระบบจำหน่ายไฟฟ้า', icon:'plug' },
-    { code:'SES',  desc:'ระบบคลังสินค้า · ระบบกักเก็บพลังงาน', icon:'battery' },
-  ];
+  const bentoItems = document.querySelectorAll('.bento-item');
+  bentoItems.forEach(item => {
+    item.addEventListener('mousemove', (e) => {
+      const bounds = item.getBoundingClientRect();
+      const x = e.clientX - bounds.left;
+      const y = e.clientY - bounds.top;
+      const calcX = -(y - bounds.height / 2) / 3;
+      const calcY = (x - bounds.width / 2) / 3;
+      item.style.transform = `perspective(1000px) rotateX(${calcX}deg) rotateY(${calcY}deg) scale(1.01)`;
+    });
+    item.addEventListener('mouseleave', () => {
+      item.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+      item.style.transition = 'all 0.5s ease';
+    });
+    item.addEventListener('mouseenter', () => { item.style.transition = 'none'; });
+  });
 
-  const icons = {
-    solar: `<rect x="2" y="4" width="20" height="14" rx="1.5"/><path d="M2 9h20M2 14h20M9 4v14M15 4v14"/>`,
-    plant: `<rect x="4" y="9" width="16" height="12"/><path d="M9 21v-6h6v6M4 9l8-6 8 6"/>`,
-    wind: `<path d="M12 21V9"/><circle cx="12" cy="9" r="1.2" fill="currentColor" stroke="none"/><path d="M12 9c0-4 3-6 6-5-1 3-3 5-6 5Z"/><path d="M12 9C8 8 6 5 7 2c3 1 5 3 5 7Z"/><path d="M12 9c3 2 3 6 1 8-2-2-2-5-1-8Z"/>`,
-    tower: `<path d="M12 2 5 20M12 2l7 18M9 8h6M7 13h10M5 20h14"/>`,
-    array: `<path d="M2 20h20"/><rect x="3" y="12" width="7" height="6" transform="skewX(-10)"/><rect x="12" y="12" width="7" height="6" transform="skewX(-10)"/>`,
-    plug: `<path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0V8Z"/><path d="M12 18v4"/>`,
-    battery: `<rect x="3" y="7" width="16" height="10" rx="1.5"/><path d="M19 10v4"/><path d="M7 11v2M11 11v2M15 11v2"/>`,
+  const blocks = document.querySelectorAll('.reveal-block');
+  const bgGlow = document.getElementById('bgGlow');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  const lightSectionGlows = {
+    'dashboard': 'radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 70%)',
+    'framework': 'radial-gradient(circle, rgba(2,132,199,0.05) 0%, transparent 70%)',
+    'social': 'radial-gradient(circle, rgba(5,150,105,0.07) 0%, transparent 70%)'
   };
 
-  const grid = document.getElementById('grid');
-  companies.forEach(c => {
-    const a = document.createElement('a');
-    a.className = 'company-card';
-    a.innerHTML = `
-      <div class="node-dot"></div>
-      <svg class="icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">${icons[c.icon]}</svg>
-      <div class="code">${c.code}</div>
-      <div class="desc">${c.desc}</div>
-    `;
-    grid.appendChild(a);
-  });
-
-  function drawNetwork(){
-    const section = document.getElementById('network');
-    const svg = document.getElementById('network-svg');
-    const linesGroup = document.getElementById('lines-group');
-    const hub = document.getElementById('hub');
-    const cards = document.querySelectorAll('.company-card');
-    const sRect = section.getBoundingClientRect();
-
-    svg.setAttribute('width', sRect.width);
-    svg.setAttribute('height', sRect.height);
-    svg.style.width = sRect.width + 'px';
-    svg.style.height = sRect.height + 'px';
-
-    const hRect = hub.getBoundingClientRect();
-    const hx = hRect.left + hRect.width/2 - sRect.left;
-    const hy = hRect.top + hRect.height/2 - sRect.top;
-
-    linesGroup.innerHTML = '';
-    cards.forEach((card, i) => {
-      const r = card.getBoundingClientRect();
-      const cx = r.left + r.width/2 - sRect.left;
-      const cy = r.top - sRect.top;
-      const midY = (hy + cy) / 2;
-      const d = `M ${hx} ${hy} C ${hx} ${midY}, ${cx} ${midY}, ${cx} ${cy}`;
-      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-      path.setAttribute('d', d);
-      path.setAttribute('class','line');
-      path.style.animationDelay = (i * 0.15) + 's';
-      linesGroup.appendChild(path);
-    });
-  }
-
-  function makeParticles(){
-    const wrap = document.getElementById('particles');
-    wrap.innerHTML = '';
-    const n = window.innerWidth < 640 ? 10 : 20;
-    for(let i=0;i<n;i++){
-      const p = document.createElement('div');
-      p.className = 'particle';
-      const size = 2 + Math.random()*3;
-      p.style.width = size+'px';
-      p.style.height = size+'px';
-      p.style.left = Math.random()*100+'%';
-      p.style.bottom = (Math.random()*20)+'%';
-      p.style.background = Math.random() > 0.5 ? 'var(--gold)' : 'var(--cyan)';
-      p.style.animationDuration = (6 + Math.random()*8)+'s';
-      p.style.animationDelay = (Math.random()*8)+'s';
-      wrap.appendChild(p);
-    }
-  }
-
-  /* ---------- stats: real data layer (Firestore) ---------- */
-  const STORAGE_KEY = 'gunkul_warehouse_documents';
-  const STATS_CACHE_KEY = 'gunkul_warehouse_stats_cache';
-  const CACHE_TTL_MS = 5 * 60 * 1000; // 5 นาที — ลด reads โดยไม่ทำให้ตัวเลขล้าสมัยเกินไป
-  const TARGET_RECIPIENT = 'บริษัท กันกุล โซลาร์ คอมมูนิตี้ จำกัด';
-
-  function readStatsCache(){
-    try{
-      const raw = localStorage.getItem(STATS_CACHE_KEY);
-      if(!raw) return null;
-      const parsed = JSON.parse(raw);
-      if(!parsed || typeof parsed.ts !== 'number') return null;
-      if(Date.now() - parsed.ts > CACHE_TTL_MS) return null; // หมดอายุ
-      return parsed.data;
-    }catch(e){ return null; }
-  }
-
-  function writeStatsCache(data){
-    try{
-      localStorage.setItem(STATS_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
-    }catch(e){ /* localStorage เต็มหรือถูกบล็อก — ข้ามไป ไม่ critical */ }
-  }
-
-  async function loadStats(){
-    // 1) ใช้ cache ก่อนถ้ายังไม่หมดอายุ — ไม่ยิง Firestore เลย = ประหยัด reads ทั้งหมด
-    const cached = readStatsCache();
-    if(cached) return cached;
-
-    try{
-      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
-      const {
-        getFirestore, collection, query, where,
-        getCountFromServer
-      } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyAkPFzgT7hLAxPVI129F-vRzA65MIx2VIs",
-        authDomain: "gunkul-my-task-system.firebaseapp.com",
-        projectId: "gunkul-my-task-system",
-        storageBucket: "gunkul-my-task-system.firebasestorage.app",
-        messagingSenderId: "877006770872",
-        appId: "1:877006770872:web:ec56ec0089512899811a4d"
-      };
-
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-      const col = collection(db, "warehouse_deliveries");
-
-      // 2) ใช้ getCountFromServer แทนการดึงเอกสารทั้งหมดมานับเอง
-      //    แต่ละ count query นับเป็นแค่ "1 read" ไม่ว่าจะมีเอกสารกี่พันชิ้นก็ตาม
-      //    (เทียบกับของเดิมที่ getDocs(limit(500)) กิน 500 reads ต่อการโหลด 1 ครั้ง)
-      const [totalSnap, pendingSnap, receivedSnap] = await Promise.all([
-        getCountFromServer(col),
-        getCountFromServer(query(col, where('status', '==', 'pending'))),
-        getCountFromServer(query(col, where('status', '==', 'received'))),
-      ]);
-
-      const t = totalSnap.data().count;
-      const p = pendingSnap.data().count;
-      const r = receivedSnap.data().count;
-
-      // จำนวนคู่ค้าไม่ซ้ำ (suppliers) ต้องอาศัยข้อมูลจริงของแต่ละเอกสาร ไม่สามารถนับด้วย count query ได้ตรงๆ
-      // ใช้ค่าที่แคชไว้จากครั้งก่อนถ้ามี ถ้าไม่มีเลยค่อย fallback ไปดึงตัวอย่างเอกสารจำนวนจำกัด (ไม่ใช่ทั้งหมด)
-      let suppliers = getCachedSupplierCount();
-      if(suppliers === null){
-        suppliers = await estimateSupplierCount(db, collection, query, col);
-      }
-
-      const data = { t, p, r, suppliers };
-      writeStatsCache(data);
-      setCachedSupplierCount(suppliers);
-      return data;
-    }catch(err){
-      console.warn('โหลดสถิติจาก Firestore ไม่สำเร็จ ใช้ข้อมูลสำรองแทน:', err);
-      const fallback = readStatsCache() || seedStats();
-      return fallback;
-    }
-  }
-
-  function getCachedSupplierCount(){
-    try{
-      const v = localStorage.getItem(STORAGE_KEY + '_suppliers');
-      return v === null ? null : parseInt(v, 10);
-    }catch(e){ return null; }
-  }
-
-  function setCachedSupplierCount(n){
-    try{ localStorage.setItem(STORAGE_KEY + '_suppliers', String(n)); }catch(e){}
-  }
-
-  // ดึงตัวอย่างเอกสารจำนวนจำกัด (ไม่ใช่ทั้งหมด) เฉพาะตอนที่ไม่เคยมีค่าคู่ค้าแคชไว้เลยเท่านั้น
-  async function estimateSupplierCount(db, collectionFn, queryFn, col){
-    try{
-      const { getDocs, limit, orderBy } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-      const sampleQ = queryFn(col, orderBy('createdAt', 'desc'), limit(100));
-      const snap = await getDocs(sampleQ);
-      const set = new Set();
-      snap.docs.forEach(d => { const s = d.data().sender; if(s) set.add(s); });
-      return set.size;
-    }catch(e){
-      return 0;
-    }
-  }
-
-  function seedStats(){
-    return { t: 130, p: 36, r: 94, suppliers: 8 };
-  }
-
-  function computeSubs(t, p, r){
-    return {
-      total: 'เอกสารทั้งหมด',
-      suppliers: 'คู่ค้าทั้งหมด',
-      pending: p > 0 ? 'ต้องดำเนินการ' : 'เรียบร้อย',
-      received: `${t > 0 ? Math.round(r / t * 100) : 0}% ของทั้งหมด`
-    };
-  }
-
-  async function initStats(){
-    const { t, p, r, suppliers } = await loadStats();
-    const subs = computeSubs(t, p, r);
-
-    document.getElementById('stat-total').dataset.target = t;
-    document.getElementById('stat-suppliers').dataset.target = suppliers;
-    document.getElementById('stat-pending').dataset.target = p;
-    document.getElementById('stat-received').dataset.target = r;
-
-    document.getElementById('stat-sub-total').textContent = subs.total;
-    document.getElementById('stat-sub-suppliers').textContent = subs.suppliers;
-    document.getElementById('stat-sub-pending').textContent = subs.pending;
-    document.getElementById('stat-sub-received').textContent = subs.received;
-
-    document.querySelectorAll('.stat-card').forEach(card => statObserver.observe(card));
-  }
-
-  function animateCount(el, target, duration=1600){
-    const start = performance.now();
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if(prefersReduced){ el.textContent = target.toLocaleString('en-US'); return; }
-    function tick(now){
-      const p = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic
-      const val = Math.round(target * eased);
-      el.textContent = val.toLocaleString('en-US');
-      if(p < 1){ requestAnimationFrame(tick); }
-    }
-    requestAnimationFrame(tick);
-  }
-
-  const statObserver = new IntersectionObserver((entries) => {
+  const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if(entry.isIntersecting){
-        const numEl = entry.target.querySelector('.stat-num');
-        const countEl = numEl.querySelector('.count');
-        const target = parseInt(numEl.dataset.target, 10);
-        animateCount(countEl, target);
-        statObserver.unobserve(entry.target);
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        
+        const section = entry.target.closest('section');
+        if (section) {
+          const id = section.id;
+          bgGlow.style.background = lightSectionGlows[id];
+          
+          navLinks.forEach(link => link.classList.remove('active'));
+          const targetLink = document.getElementById(`lnk-${id === 'framework' ? 'frame' : id}`);
+          if(targetLink) targetLink.classList.add('active');
+        }
       }
     });
-  }, { threshold: 0.4 });
+  }, { threshold: 0.2, rootMargin: "0px 0px -80px 0px" });
 
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(drawNetwork, 120);
-  });
-
-  window.addEventListener('load', () => {
-    makeParticles();
-    drawNetwork();
-    initStats();
-    if(document.fonts && document.fonts.ready){
-      document.fonts.ready.then(drawNetwork);
-    }
-  });
+  blocks.forEach(block => observer.observe(block));
 </script>
 
 </body>
