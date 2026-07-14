@@ -1,1 +1,542 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Warehouse Deliveries — Manifest Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#12161c; --panel:#1a2029; --panel-2:#212a35; --border:#2b3542;
+    --text:#e9edf2; --text-dim:#8b96a5;
+    --accent:#ff7a1a; --accent-soft:#ff7a1a22;
+    --ok:#3dd68c; --ok-soft:#3dd68c22;
+    --warn:#ffc145; --warn-soft:#ffc14522;
+    --bad:#ff5470; --bad-soft:#ff547022;
+    --blue:#5b9bf0; --purple:#b58bf0;
+    --mono:'IBM Plex Mono', monospace; --disp:'Oswald', sans-serif; --body:'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1200px 600px at 100% -10%, #ff7a1a0d, transparent), var(--bg);
+    color:var(--text); font-family:var(--body); min-height:100vh; padding:28px 20px 60px;
+  }
+  .wrap{max-width:1320px;margin:0 auto;}
 
+  .manifest{position:relative;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:22px 26px;margin-bottom:22px;}
+  .manifest-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;padding-bottom:18px;border-bottom:1px dashed #3a4451;}
+  .manifest-title-block .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin:0 0 6px;}
+  .manifest-title-block h1{font-family:var(--disp);font-weight:700;font-size:32px;margin:0;text-transform:uppercase;}
+  .manifest-title-block p{margin:6px 0 0;color:var(--text-dim);font-size:13.5px;}
+  .status-block{text-align:right;font-family:var(--mono);font-size:12px;color:var(--text-dim);min-width:200px;}
+  .status-pill{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:20px;background:var(--panel-2);border:1px solid var(--border);font-size:11.5px;margin-bottom:8px;}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--text-dim);}
+  .dot.live{background:var(--ok);animation:pulse 1.8s infinite;}
+  .dot.err{background:var(--bad);}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 #3dd68c55;}70%{box-shadow:0 0 0 8px #3dd68c00;}100%{box-shadow:0 0 0 0 #3dd68c00;}}
+  .manifest-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:14px;flex-wrap:wrap;gap:12px;}
+  .barcode{display:flex;align-items:flex-end;gap:2px;height:26px;opacity:.85;}
+  .barcode span{display:block;width:2px;background:var(--text-dim);}
+  .manifest-actions{display:flex;gap:10px;}
+  button.btn{font-family:var(--body);font-weight:600;font-size:13px;color:var(--text);background:var(--panel-2);border:1px solid var(--border);padding:9px 16px;border-radius:5px;cursor:pointer;transition:.15s;}
+  button.btn:hover{border-color:var(--accent);color:var(--accent);}
+  button.btn.primary{background:var(--accent);border-color:var(--accent);color:#1a1004;}
+  button.btn.primary:hover{filter:brightness(1.08);color:#1a1004;}
+
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:22px;}
+  @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr);}}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:16px 16px;}
+  .kpi .label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin:0 0 8px;}
+  .kpi .value{font-family:var(--disp);font-size:25px;font-weight:600;}
+  .kpi .sub{font-size:11px;color:var(--text-dim);margin-top:4px;font-family:var(--mono);}
+  .kpi.ok .value{color:var(--ok);} .kpi.warn .value{color:var(--warn);} .kpi.bad .value{color:var(--bad);} .kpi.accent .value{color:var(--accent);} .kpi.blue .value{color:var(--blue);}
+
+  .charts-row1{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px;}
+  .charts-row2{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+  @media(max-width:980px){.charts-row1,.charts-row2{grid-template-columns:1fr;}}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:18px 18px 14px;}
+  .panel h3{font-family:var(--disp);font-size:14px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;margin:0 0 12px;color:var(--text-dim);}
+  .chart-holder{height:230px;position:relative;}
+  .empty-note{color:var(--text-dim);font-size:12.5px;font-family:var(--mono);display:flex;align-items:center;justify-content:center;height:100%;text-align:center;padding:0 10px;}
+
+  .table-panel{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:18px 18px 8px;}
+  .table-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;}
+  .table-head h3{font-family:var(--disp);font-size:16px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;margin:0;}
+  .table-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  input.search{background:var(--panel-2);border:1px solid var(--border);border-radius:5px;padding:8px 12px;color:var(--text);font-family:var(--body);font-size:13px;min-width:220px;}
+  input.search:focus{outline:none;border-color:var(--accent);}
+  select.pagesize{background:var(--panel-2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:8px 10px;font-family:var(--body);font-size:13px;}
+  .table-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:5px;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;font-family:var(--mono);white-space:nowrap;}
+  thead th{background:var(--panel-2);text-align:left;padding:10px 14px;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;user-select:none;border-bottom:1px solid var(--border);position:sticky;top:0;}
+  thead th:hover{color:var(--accent);}
+  thead th .arrow{opacity:.5;margin-left:4px;}
+  tbody td{padding:9px 14px;border-bottom:1px solid #232c37;color:var(--text);}
+  tbody tr.main-row{cursor:pointer;}
+  tbody tr.main-row:hover{background:#1f2733;}
+  tbody tr.detail-row td{background:#161c24;white-space:normal;padding:0;}
+  .items-detail{padding:12px 20px;}
+  .items-detail table{font-size:11.5px;}
+  .items-detail th{background:transparent;position:static;padding:6px 10px;}
+  .items-detail td{padding:6px 10px;border-bottom:1px solid #1e2733;}
+  .status-tag{display:inline-block;padding:2px 9px;border-radius:11px;font-size:11px;font-weight:600;font-family:var(--body);}
+  .status-tag.ok{background:var(--ok-soft);color:var(--ok);}
+  .status-tag.warn{background:var(--warn-soft);color:var(--warn);}
+  .status-tag.bad{background:var(--bad-soft);color:var(--bad);}
+  .status-tag.neutral{background:#8b96a522;color:var(--text-dim);}
+  .sig-yes{color:var(--ok);} .sig-no{color:var(--text-dim);}
+  .chev{display:inline-block;transition:.15s;margin-right:6px;color:var(--text-dim);}
+  .chev.open{transform:rotate(90deg);}
+  .table-footer{display:flex;justify-content:space-between;align-items:center;padding:14px 4px;flex-wrap:wrap;gap:10px;font-family:var(--mono);font-size:12px;color:var(--text-dim);}
+  .pager{display:flex;gap:8px;align-items:center;}
+  .pager button{background:var(--panel-2);border:1px solid var(--border);color:var(--text);padding:6px 11px;border-radius:5px;cursor:pointer;font-family:var(--mono);font-size:12px;}
+  .pager button:disabled{opacity:.35;cursor:not-allowed;}
+  .pager button:hover:not(:disabled){border-color:var(--accent);color:var(--accent);}
+
+  .msg-box{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:40px 24px;text-align:center;color:var(--text-dim);font-family:var(--mono);font-size:13px;line-height:1.7;}
+  .msg-box strong{color:var(--bad);display:block;font-family:var(--disp);font-size:16px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.03em;}
+  .msg-box code{background:var(--panel-2);padding:2px 6px;border-radius:4px;color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="manifest">
+    <div class="manifest-top">
+      <div class="manifest-title-block">
+        <p class="eyebrow">Manifest / Warehouse Ops</p>
+        <h1>Warehouse Deliveries Report</h1>
+        <p>collection: <span style="color:var(--accent);font-family:var(--mono);">warehouse_deliveries</span> — ใบส่งของ / รายการรับ-ส่งสินค้าทั้งหมดจาก Firestore</p>
+      </div>
+      <div class="status-block">
+        <div class="status-pill"><span class="dot" id="statusDot"></span><span id="statusText">กำลังเชื่อมต่อ…</span></div>
+        <div>Last sync: <span id="lastSync">—</span></div>
+      </div>
+    </div>
+    <div class="manifest-bottom">
+      <div class="barcode" id="barcode"></div>
+      <div class="manifest-actions">
+        <button class="btn" id="exportBtn">⤓ Export CSV</button>
+        <button class="btn primary" id="refreshBtn">↻ Refresh</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="appBody">
+    <div class="msg-box" id="loadingBox"><strong>กำลังโหลดข้อมูล…</strong>กำลังดึงเอกสารทั้งหมดจาก collection <code>warehouse_deliveries</code></div>
+  </div>
+
+</div>
+
+<script type="module">
+/* ======================================================================
+   FIREBASE CONFIG — ใส่ค่าของโปรเจกต์ตัวเอง (Firebase Console > Project settings > General)
+====================================================================== */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+const COLLECTION_NAME = "warehouse_deliveries";
+const DATABASE_ID = ""; // ปล่อยว่างถ้าใช้ Firestore database "(default)" (ตามที่เห็นใน Console)
+/* ====================================================================== */
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+let app, db;
+let rawRows = [];      // normalized delivery records
+let sortState = { key:"date", dir:-1 };
+let searchTerm = "";
+let pageSize = 25;
+let currentPage = 1;
+let expandedRows = new Set();
+let charts = {};
+
+const $ = (sel) => document.querySelector(sel);
+const statusDot = $("#statusDot");
+const statusText = $("#statusText");
+const lastSync = $("#lastSync");
+const appBody = $("#appBody");
+
+function buildBarcode(){
+  const bc = $("#barcode"); bc.innerHTML = "";
+  for(let i=0;i<60;i++){
+    const b = document.createElement("span");
+    b.style.height = (Math.random()>0.7?22:(Math.random()>0.4?14:8))+"px";
+    b.style.opacity = Math.random()>0.5?"0.9":"0.4";
+    bc.appendChild(b);
+  }
+}
+buildBarcode();
+
+function setStatus(state, text){
+  statusDot.className = "dot" + (state==="live"?" live":state==="err"?" err":"");
+  statusText.textContent = text;
+}
+
+function toDate(val){
+  if(!val) return null;
+  if(val.toDate) return val.toDate();
+  if(val.seconds) return new Date(val.seconds*1000);
+  const d = new Date(val);
+  return isNaN(d.getTime()) ? null : d;
+}
+function fmtDateTime(d){ return d ? d.toLocaleString("th-TH",{ dateStyle:"medium", timeStyle:"short" }) : "—"; }
+function fmtDate(d){ return d ? d.toLocaleDateString("th-TH",{ year:"numeric", month:"short", day:"2-digit" }) : "—"; }
+
+function classifyStatus(val){
+  if(val==null || val==="") return "neutral";
+  const s = String(val).toLowerCase();
+  if(/(receiv|deliver|complete|success|ส่งแล้ว|สำเร็จ|เสร็จ|รับแล้ว)/.test(s)) return "ok";
+  if(/(pending|process|transit|กำลัง|รอ)/.test(s)) return "warn";
+  if(/(delay|cancel|fail|reject|ล่าช้า|ยกเลิก|ล้มเหลว)/.test(s)) return "bad";
+  return "neutral";
+}
+function esc(v){ return String(v ?? "").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ---------- fetch & normalize ---------- */
+async function loadData(){
+  setStatus("connecting","กำลังเชื่อมต่อ…");
+  appBody.innerHTML = `<div class="msg-box"><strong>กำลังโหลดข้อมูล…</strong>กำลังดึงเอกสารทั้งหมดจาก collection <code>${COLLECTION_NAME}</code></div>`;
+  try{
+    if(!app){ app = initializeApp(firebaseConfig); db = DATABASE_ID ? getFirestore(app, DATABASE_ID) : getFirestore(app); }
+    const snap = await getDocs(collection(db, COLLECTION_NAME));
+    console.log(`[warehouse_report] query returned ${snap.size} document(s)`, { projectId: firebaseConfig.projectId, databaseId: DATABASE_ID || "(default)" });
+
+    rawRows = [];
+    snap.forEach(doc=>{
+      const d = doc.data();
+      const items = Array.isArray(d.items) ? d.items : [];
+      const totalQty = items.reduce((s,it)=> s + (Number(it.qty)||0), 0);
+      rawRows.push({
+        id: doc.id,
+        invoice: d.invoice || "—",
+        dateStr: d.date || "",
+        dateObj: toDate(d.date) || toDate(d.createdAt),
+        createdAt: toDate(d.createdAt),
+        receivedAt: toDate(d.receivedAt),
+        receivedBy: d.receivedBy || "",
+        recipient: d.recipient || "",
+        sender: d.sender || "",
+        warehouse: d.warehouse || "",
+        status: d.status || "",
+        hasSignature: !!(d.signatureData && String(d.signatureData).length > 20),
+        items,
+        itemCount: items.length,
+        totalQty
+      });
+    });
+
+    if(rawRows.length === 0){
+      setStatus("live","เชื่อมต่อสำเร็จ");
+      lastSync.textContent = new Date().toLocaleTimeString("th-TH");
+      appBody.innerHTML = `<div class="msg-box"><strong>ไม่พบข้อมูล</strong>เชื่อมต่อ Firestore สำเร็จ แต่ query ได้ 0 เอกสารจาก <code>${COLLECTION_NAME}</code><br/><br/>เปิด Console (F12) ดู log <code>[warehouse_report]</code> เพื่อเทียบ projectId/databaseId กับ Firebase Console</div>`;
+      return;
+    }
+
+    setStatus("live", `เชื่อมต่อสำเร็จ · ${rawRows.length} รายการ`);
+    lastSync.textContent = new Date().toLocaleTimeString("th-TH");
+    renderApp();
+  }catch(err){
+    console.error(err);
+    setStatus("err","เชื่อมต่อไม่สำเร็จ");
+    appBody.innerHTML = `
+      <div class="msg-box">
+        <strong>เชื่อมต่อ Firebase ไม่สำเร็จ</strong>
+        ${esc(err.message || err)}<br/><br/>
+        ตรวจสอบ: 1) ค่า <code>firebaseConfig</code> ถูกต้อง 2) ชื่อ collection ตรงกับ <code>${COLLECTION_NAME}</code> 3) Firestore Security Rules อนุญาต <code>read/list</code>
+      </div>`;
+  }
+}
+
+/* ---------- render ---------- */
+function renderApp(){
+  appBody.innerHTML = `
+    <div class="kpis" id="kpis"></div>
+    <div class="charts-row1">
+      <div class="panel"><h3>ปริมาณการส่งตามช่วงเวลา</h3><div class="chart-holder"><canvas id="chartTime"></canvas></div></div>
+      <div class="panel"><h3>สัดส่วนสถานะ</h3><div class="chart-holder"><canvas id="chartStatus"></canvas></div></div>
+    </div>
+    <div class="charts-row2">
+      <div class="panel"><h3>สินค้ายอดนิยม (ตามจำนวน)</h3><div class="chart-holder"><canvas id="chartItems"></canvas></div></div>
+      <div class="panel"><h3>ผู้รับสินค้าสูงสุด</h3><div class="chart-holder"><canvas id="chartRecipient"></canvas></div></div>
+      <div class="panel"><h3>ผู้ส่งสินค้าสูงสุด</h3><div class="chart-holder"><canvas id="chartSender"></canvas></div></div>
+    </div>
+    <div class="table-panel">
+      <div class="table-head">
+        <h3>รายการทั้งหมด (${rawRows.length})</h3>
+        <div class="table-controls">
+          <input type="text" class="search" id="searchInput" placeholder="ค้นหา invoice, ผู้ส่ง, ผู้รับ, สถานะ…">
+          <select class="pagesize" id="pageSizeSelect">
+            <option value="25">25 / หน้า</option>
+            <option value="50">50 / หน้า</option>
+            <option value="100">100 / หน้า</option>
+            <option value="99999">ทั้งหมด</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-scroll"><table id="dataTable"><thead></thead><tbody></tbody></table></div>
+      <div class="table-footer">
+        <div id="footerInfo"></div>
+        <div class="pager">
+          <button id="prevPage">‹ ก่อนหน้า</button>
+          <span id="pageIndicator" style="min-width:70px;text-align:center;"></span>
+          <button id="nextPage">ถัดไป ›</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  renderKPIs();
+  renderCharts();
+  renderTableHead();
+  currentPage = 1;
+  renderTableBody();
+
+  $("#searchInput").addEventListener("input", (e)=>{ searchTerm = e.target.value.toLowerCase(); currentPage=1; renderTableBody(); });
+  $("#pageSizeSelect").addEventListener("change", (e)=>{ pageSize = parseInt(e.target.value); currentPage=1; renderTableBody(); });
+  $("#prevPage").addEventListener("click", ()=>{ if(currentPage>1){ currentPage--; renderTableBody(); } });
+  $("#nextPage").addEventListener("click", ()=>{ currentPage++; renderTableBody(); });
+}
+
+function renderKPIs(){
+  const total = rawRows.length;
+  let ok=0, warn=0, bad=0;
+  rawRows.forEach(r=>{ const c = classifyStatus(r.status); if(c==="ok") ok++; else if(c==="warn") warn++; else if(c==="bad") bad++; });
+  const totalQty = rawRows.reduce((s,r)=> s + r.totalQty, 0);
+  const uniqueRecipients = new Set(rawRows.map(r=>r.recipient).filter(Boolean)).size;
+  const withSig = rawRows.filter(r=>r.hasSignature).length;
+
+  const cards = [
+    { label:"Total Deliveries", value: total, sub:"เอกสารทั้งหมด", cls:"" },
+    { label:"Received / OK", value: ok, sub:`${((ok/total)*100||0).toFixed(0)}% ของทั้งหมด`, cls:"ok" },
+    { label:"Pending", value: warn, sub:"อยู่ระหว่างดำเนินการ", cls:"warn" },
+    { label:"Delayed / Cancelled", value: bad, sub:"ต้องติดตาม", cls:"bad" },
+    { label:"Total Qty Shipped", value: totalQty.toLocaleString(), sub:"รวมจากทุก item", cls:"accent" },
+    { label:"With Signature", value: `${withSig}/${total}`, sub:`ผู้รับ ${uniqueRecipients} ราย`, cls:"blue" },
+  ];
+  $("#kpis").innerHTML = cards.map(c=>`
+    <div class="kpi ${c.cls}">
+      <p class="label">${c.label}</p>
+      <div class="value">${c.value}</div>
+      <div class="sub">${c.sub}</div>
+    </div>`).join("");
+}
+
+function destroyChart(key){ if(charts[key]){ charts[key].destroy(); delete charts[key]; } }
+function topN(counts, n){ return Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,n); }
+function truncate(s, n){ s=String(s); return s.length>n ? s.slice(0,n-1)+"…" : s; }
+
+function renderCharts(){
+  Chart.defaults.color = "#8b96a5";
+  Chart.defaults.font.family = "IBM Plex Mono";
+  Chart.defaults.font.size = 11;
+
+  // 1) Deliveries over time (by date field)
+  destroyChart("time");
+  const timeCanvas = $("#chartTime");
+  const dated = rawRows.filter(r=>r.dateObj);
+  if(dated.length){
+    const counts = {};
+    dated.forEach(r=>{ const k = fmtDate(r.dateObj); counts[k] = (counts[k]||0)+1; });
+    const entries = Object.entries(counts).sort((a,b)=> new Date(a[0]) - new Date(b[0]));
+    charts.time = new Chart(timeCanvas, {
+      type:"bar",
+      data:{ labels: entries.map(e=>e[0]), datasets:[{ label:"จำนวนเอกสาร", data: entries.map(e=>e[1]), backgroundColor:"#ff7a1a", borderRadius:3, maxBarThickness:28 }]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:"#232c37"}, beginAtZero:true, ticks:{precision:0}} } }
+    });
+  } else {
+    timeCanvas.parentElement.innerHTML = `<div class="empty-note">ไม่พบฟิลด์ date ที่ใช้งานได้</div>`;
+  }
+
+  // 2) Status donut
+  destroyChart("status");
+  const statusCanvas = $("#chartStatus");
+  const scounts = {};
+  rawRows.forEach(r=>{ const v = r.status || "ไม่ระบุ"; scounts[v] = (scounts[v]||0)+1; });
+  const slabels = Object.keys(scounts);
+  const palette = { ok:"#3dd68c", warn:"#ffc145", bad:"#ff5470", neutral:"#8b96a5" };
+  charts.status = new Chart(statusCanvas, {
+    type:"doughnut",
+    data:{ labels: slabels, datasets:[{ data: slabels.map(l=>scounts[l]), backgroundColor: slabels.map(l=>palette[classifyStatus(l)]), borderColor:"#1a2029", borderWidth:2 }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:"bottom", labels:{ boxWidth:10, padding:10 } } }, cutout:"62%" }
+  });
+
+  // 3) Top items by qty
+  destroyChart("items");
+  const itemsCanvas = $("#chartItems");
+  const iCounts = {};
+  rawRows.forEach(r=> r.items.forEach(it=>{ const name = it.name || "ไม่ระบุ"; iCounts[name] = (iCounts[name]||0) + (Number(it.qty)||0); }));
+  const iTop = topN(iCounts, 8);
+  if(iTop.length){
+    charts.items = new Chart(itemsCanvas, {
+      type:"bar",
+      data:{ labels: iTop.map(e=>truncate(e[0], 26)), datasets:[{ data: iTop.map(e=>e[1]), backgroundColor:"#5b9bf0", borderRadius:3, maxBarThickness:16 }]},
+      options:{ indexAxis:"y", responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{color:"#232c37"}, beginAtZero:true, ticks:{precision:0}}, y:{grid:{display:false}} } }
+    });
+  } else {
+    itemsCanvas.parentElement.innerHTML = `<div class="empty-note">ไม่พบข้อมูล items</div>`;
+  }
+
+  // 4) Top recipients
+  destroyChart("recipient");
+  const recCanvas = $("#chartRecipient");
+  const rCounts = {};
+  rawRows.forEach(r=>{ if(r.recipient) rCounts[r.recipient] = (rCounts[r.recipient]||0)+1; });
+  const rTop = topN(rCounts, 8);
+  if(rTop.length){
+    charts.recipient = new Chart(recCanvas, {
+      type:"bar",
+      data:{ labels: rTop.map(e=>truncate(e[0], 22)), datasets:[{ data: rTop.map(e=>e[1]), backgroundColor:"#b58bf0", borderRadius:3, maxBarThickness:16 }]},
+      options:{ indexAxis:"y", responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{color:"#232c37"}, beginAtZero:true, ticks:{precision:0}}, y:{grid:{display:false}} } }
+    });
+  } else {
+    recCanvas.parentElement.innerHTML = `<div class="empty-note">ไม่พบฟิลด์ recipient</div>`;
+  }
+
+  // 5) Top senders
+  destroyChart("sender");
+  const sendCanvas = $("#chartSender");
+  const sdCounts = {};
+  rawRows.forEach(r=>{ if(r.sender) sdCounts[r.sender] = (sdCounts[r.sender]||0)+1; });
+  const sdTop = topN(sdCounts, 8);
+  if(sdTop.length){
+    charts.sender = new Chart(sendCanvas, {
+      type:"bar",
+      data:{ labels: sdTop.map(e=>truncate(e[0], 22)), datasets:[{ data: sdTop.map(e=>e[1]), backgroundColor:"#3dd68c", borderRadius:3, maxBarThickness:16 }]},
+      options:{ indexAxis:"y", responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{color:"#232c37"}, beginAtZero:true, ticks:{precision:0}}, y:{grid:{display:false}} } }
+    });
+  } else {
+    sendCanvas.parentElement.innerHTML = `<div class="empty-note">ไม่พบฟิลด์ sender</div>`;
+  }
+}
+
+const COLS = [
+  { key:"invoice", label:"Invoice" },
+  { key:"dateStr", label:"Date" },
+  { key:"sender", label:"Sender" },
+  { key:"recipient", label:"Recipient" },
+  { key:"warehouse", label:"Warehouse" },
+  { key:"status", label:"Status" },
+  { key:"receivedBy", label:"Received By" },
+  { key:"receivedAt", label:"Received At" },
+  { key:"itemCount", label:"Items" },
+  { key:"totalQty", label:"Total Qty" },
+  { key:"hasSignature", label:"Signature" },
+];
+
+function renderTableHead(){
+  const thead = document.querySelector("#dataTable thead");
+  thead.innerHTML = "<tr><th style='width:24px;'></th>" + COLS.map(c=>{
+    const arrow = sortState.key===c.key ? (sortState.dir===1?"↑":"↓") : "";
+    return `<th data-col="${c.key}">${c.label}<span class="arrow">${arrow}</span></th>`;
+  }).join("") + "</tr>";
+  thead.querySelectorAll("th[data-col]").forEach(th=>{
+    th.addEventListener("click", ()=>{
+      const col = th.dataset.col;
+      if(sortState.key===col) sortState.dir *= -1; else { sortState.key = col; sortState.dir = 1; }
+      renderTableHead(); renderTableBody();
+    });
+  });
+}
+
+function getFilteredSorted(){
+  let rows = rawRows;
+  if(searchTerm){
+    rows = rows.filter(r => [r.invoice, r.sender, r.recipient, r.warehouse, r.status, r.receivedBy].some(v => String(v||"").toLowerCase().includes(searchTerm)));
+  }
+  if(sortState.key){
+    rows = [...rows].sort((a,b)=>{
+      let av = a[sortState.key], bv = b[sortState.key];
+      if(av instanceof Date || bv instanceof Date){ av = av?av.getTime():0; bv = bv?bv.getTime():0; return (av-bv)*sortState.dir; }
+      if(typeof av === "number" && typeof bv === "number") return (av-bv)*sortState.dir;
+      if(typeof av === "boolean") return ((av===bv)?0:(av?1:-1))*sortState.dir;
+      av = String(av||""); bv = String(bv||"");
+      return av.localeCompare(bv,"th") * sortState.dir;
+    });
+  }
+  return rows;
+}
+
+function itemsDetailHTML(r){
+  if(!r.items.length) return `<div class="items-detail"><span style="color:var(--text-dim);font-family:var(--mono);font-size:12px;">ไม่มีรายการ item</span></div>`;
+  return `<div class="items-detail"><table><thead><tr><th>#</th><th>ชื่อสินค้า</th><th>จำนวน</th><th>หน่วย</th><th>เช็คแล้ว</th><th>หมายเหตุ</th></tr></thead><tbody>
+    ${r.items.map((it,i)=>`<tr><td>${i+1}</td><td>${esc(it.name)}</td><td>${esc(it.qty)}</td><td>${esc(it.unit)}</td><td>${it.checked?"✔":"—"}</td><td>${esc(it.note)||"—"}</td></tr>`).join("")}
+  </tbody></table></div>`;
+}
+
+function renderTableBody(){
+  const rows = getFilteredSorted();
+  const totalPages = Math.max(1, Math.ceil(rows.length/pageSize));
+  currentPage = Math.min(currentPage, totalPages);
+  const start = (currentPage-1)*pageSize;
+  const pageRows = rows.slice(start, start+pageSize);
+
+  const tbody = document.querySelector("#dataTable tbody");
+  tbody.innerHTML = pageRows.map(r=>{
+    const cls = classifyStatus(r.status);
+    const open = expandedRows.has(r.id);
+    const mainRow = `<tr class="main-row" data-id="${r.id}">
+      <td><span class="chev ${open?"open":""}">▶</span></td>
+      <td>${esc(r.invoice)}</td>
+      <td>${esc(r.dateStr) || fmtDate(r.dateObj)}</td>
+      <td>${esc(r.sender)||"—"}</td>
+      <td>${esc(r.recipient)||"—"}</td>
+      <td>${esc(r.warehouse)||"—"}</td>
+      <td><span class="status-tag ${cls}">${esc(r.status)||"ไม่ระบุ"}</span></td>
+      <td>${esc(r.receivedBy)||"—"}</td>
+      <td>${fmtDateTime(r.receivedAt)}</td>
+      <td>${r.itemCount}</td>
+      <td>${r.totalQty}</td>
+      <td class="${r.hasSignature?'sig-yes':'sig-no'}">${r.hasSignature?"มี":"ไม่มี"}</td>
+    </tr>`;
+    const detailRow = `<tr class="detail-row" data-detail-for="${r.id}" style="display:${open?"table-row":"none"};"><td colspan="${COLS.length+1}">${itemsDetailHTML(r)}</td></tr>`;
+    return mainRow + detailRow;
+  }).join("");
+
+  tbody.querySelectorAll("tr.main-row").forEach(tr=>{
+    tr.addEventListener("click", ()=>{
+      const id = tr.dataset.id;
+      if(expandedRows.has(id)) expandedRows.delete(id); else expandedRows.add(id);
+      renderTableBody();
+    });
+  });
+
+  $("#footerInfo").textContent = `แสดง ${rows.length===0?0:start+1}–${Math.min(start+pageSize,rows.length)} จาก ${rows.length} รายการ (ทั้งหมด ${rawRows.length})`;
+  $("#pageIndicator").textContent = `${currentPage} / ${totalPages}`;
+  $("#prevPage").disabled = currentPage<=1;
+  $("#nextPage").disabled = currentPage>=totalPages;
+}
+
+function exportCSV(){
+  if(rawRows.length===0) return;
+  const rows = getFilteredSorted();
+  const headers = [...COLS.map(c=>c.label), "Item Names"];
+  const escapeCsv = (v)=> `"${String(v??"").replace(/"/g,'""')}"`;
+  const lines = [ headers.map(escapeCsv).join(",") ];
+  rows.forEach(r=>{
+    const vals = [ r.invoice, r.dateStr||fmtDate(r.dateObj), r.sender, r.recipient, r.warehouse, r.status, r.receivedBy, fmtDateTime(r.receivedAt), r.itemCount, r.totalQty, r.hasSignature?"มี":"ไม่มี", r.items.map(it=>`${it.name} x${it.qty}${it.unit}`).join(" | ") ];
+    lines.push(vals.map(escapeCsv).join(","));
+  });
+  const blob = new Blob(["\uFEFF"+lines.join("\n")], { type:"text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `warehouse_deliveries_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+$("#refreshBtn").addEventListener("click", loadData);
+$("#exportBtn").addEventListener("click", exportCSV);
+
+loadData();
+</script>
+</body>
+</html>
