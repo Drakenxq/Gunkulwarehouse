@@ -336,6 +336,9 @@ const firebaseConfig = {
   appId: "YOUR_APP_ID"
 };
 const COLLECTION_NAME = "warehouse_deliveries";
+// ถ้า Firestore ของคุณสร้างเป็น "named database" (ไม่ใช่ default) ให้ใส่ database id ตรงนี้
+// ดูได้จาก Firebase Console > Firestore Database > ชื่อ database ที่แสดงอยู่บนสุด (ถ้าเห็นแค่ "(default)" ให้เว้นเป็น "" ไว้)
+const DATABASE_ID = ""; // เช่น "warehouse-db" ถ้ามี, ไม่งั้นปล่อยว่าง
 /* ====================================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -426,9 +429,10 @@ async function loadData(){
   try{
     if(!app){
       app = initializeApp(firebaseConfig);
-      db = getFirestore(app);
+      db = DATABASE_ID ? getFirestore(app, DATABASE_ID) : getFirestore(app);
     }
     const snap = await getDocs(collection(db, COLLECTION_NAME));
+    console.log(`[warehouse_report] query returned ${snap.size} document(s) from "${COLLECTION_NAME}"`, { projectId: firebaseConfig.projectId, databaseId: DATABASE_ID || "(default)" });
     rawRows = [];
     snap.forEach(doc=>{
       rawRows.push({ __id: doc.id, ...doc.data() });
@@ -437,7 +441,15 @@ async function loadData(){
     if(rawRows.length === 0){
       setStatus("live","เชื่อมต่อสำเร็จ");
       lastSync.textContent = new Date().toLocaleTimeString("th-TH");
-      appBody.innerHTML = `<div class="msg-box"><strong>ไม่พบข้อมูล</strong>เชื่อมต่อ Firestore สำเร็จ แต่ collection <code>${COLLECTION_NAME}</code> ยังไม่มีเอกสาร</div>`;
+      appBody.innerHTML = `
+        <div class="msg-box">
+          <strong>ไม่พบข้อมูล</strong>
+          เชื่อมต่อ Firestore สำเร็จ แต่ query ได้ 0 เอกสารจาก <code>${COLLECTION_NAME}</code><br/><br/>
+          ถ้าใน Firebase Console เห็นว่ามีเอกสารอยู่จริง สาเหตุที่พบบ่อยที่สุดคือ:<br/><br/>
+          1) <strong>Named database</strong> — ถ้า Firestore ของคุณไม่ใช่ database ชื่อ <code>(default)</code> ต้องใส่ชื่อ database ใน <code>DATABASE_ID</code> ที่ต้นไฟล์ (ดูชื่อได้จาก Firebase Console > Firestore Database ด้านบนสุดของหน้า)<br/><br/>
+          2) <strong>Security Rules ไม่อนุญาต list query</strong> — เปิด Console (F12) ดู log ที่ขึ้นต้นด้วย <code>[warehouse_report]</code> เพื่อดู projectId/databaseId ที่ใช้จริง แล้วเทียบกับที่เห็นใน Firebase Console<br/><br/>
+          3) ตรวจสอบว่า <code>projectId</code> ใน config ตรงกับโปรเจกต์ที่มี collection นี้จริง
+        </div>`;
       return;
     }
 
