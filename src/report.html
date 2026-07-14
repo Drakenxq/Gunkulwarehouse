@@ -8,17 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/*
-  Token system — "Loading Bay" minimal
-  ink:      #1f3570  (the brief's navy — used sparingly, as ink not wash)
-  paper:    #FFFFFF / #F6F7FA (surfaces — the warehouse is bright, not moody)
-  line:     #E2E5EE (hairline dividers only, no glow, no gradients)
-  received: #2E7D5B (muted safety green)
-  pending:  #B4472F (muted safety orange/rust — hazard-tape family)
-  other:    #B98A2E (muted amber)
-  Signature element: panels are labeled like rack bays — "BAY 01", "BAY 02" —
-  a real warehouse convention (shelf location codes), not decorative numbering.
-*/
+
 :root{
   --ink:        #1f3570;
   --ink-deep:   #16264F;
@@ -256,10 +246,10 @@ tbody tr:hover{background:var(--ink-tint);}
 
 <header class="topbar">
   <div class="topbar__brand">
-    <span class="topbar__mark">Warehouse</span>
+    <img alt="Gunkul" src="./src/svg/logo-default.svg" style="height: 20px; width: auto; flex-shrink: 0; filter: brightness(0) invert(1);">
     <div class="topbar__title">
       <h1>Report</h1>
-      <p>Warehouse Delivery Blueprint &mdash; live from Firestore</p>
+      <p>Warehouse/p>
     </div>
   </div>
   <div class="topbar__meta">
@@ -273,7 +263,6 @@ tbody tr:hover{background:var(--ink-tint);}
 
 <main class="wrap">
 
-  <!-- ================= FILTER BAR ================= -->
   <section class="filterbar" id="filterbar">
     <div class="field">
       <label for="fSearch">ค้นหา</label>
@@ -302,7 +291,6 @@ tbody tr:hover{background:var(--ink-tint);}
     <button id="fReset" class="btn-ghost" type="button">ล้างตัวกรอง</button>
   </section>
 
-  <!-- ================= KPI TICKETS ================= -->
   <section class="tickets" id="tickets" aria-label="สรุปภาพรวม">
     <div class="ticket" data-k="total">
       <div class="ticket__stub">
@@ -351,7 +339,6 @@ tbody tr:hover{background:var(--ink-tint);}
     </div>
   </section>
 
-  <!-- ================= CHARTS ================= -->
   <section class="chart-grid">
     <div class="panel panel--wide">
       <div class="panel__head">
@@ -408,7 +395,6 @@ tbody tr:hover{background:var(--ink-tint);}
     </div>
   </section>
 
-  <!-- ================= TABLE ================= -->
   <section class="panel panel--table">
     <div class="panel__head">
       <div>
@@ -437,12 +423,11 @@ tbody tr:hover{background:var(--ink-tint);}
   </section>
 
   <footer class="foot">
-    <span>gunkul-my-task-system · warehouse_deliveries</span>
+    <span></span></span>
     <span id="lastSync">อัปเดตล่าสุด: –</span>
   </footer>
 </main>
 
-<!-- ================= DETAIL MODAL ================= -->
 <div class="modal" id="modal" aria-hidden="true">
   <div class="modal__backdrop" id="modalBackdrop"></div>
   <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalInvoice">
