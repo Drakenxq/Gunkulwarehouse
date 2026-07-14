@@ -5,14 +5,18 @@
 <title>GUNKUL Warehouse — Noppawong</title>
 <style>
   :root{
-    --navy-top:#1f2e52;
-    --navy-bottom:#101a30;
-    --active-bg:#2b3c63;
+    --bg-sidebar-top:#2b3c63;
+    --bg-sidebar-bottom:#131316;
+    --bg-hover:rgba(255,255,255,0.055);
+    --bg-active:rgba(255,255,255,0.055);
     --gold:#d0a154;
-    --text-dim:#9aa7c2;
-    --text-bright:#ffffff;
-    --divider:rgba(255,255,255,0.08);
-    --sidebar-w:232px;
+    --navy:#28396200;
+    --navy-solid:#28305c;
+    --text-primary:#f4f4f6;
+    --text-secondary:#97979f;
+    --text-tertiary:#67676f;
+    --divider:rgba(255,255,255,0.07);
+    --sidebar-w:250px;
     --sidebar-w-collapsed:76px;
   }
 
@@ -23,7 +27,7 @@
   body{
     margin:0;
     font-family:"Segoe UI", "Noto Sans Thai", -apple-system, sans-serif;
-    background:#e9edf3; 
+    background:#e9edf3;
   }
 
   @keyframes sidebarSlideIn{
@@ -40,7 +44,7 @@
   }
   @keyframes logoGlow{
     0%,100%{ filter:drop-shadow(0 0 0 rgba(208,161,84,0)); }
-    50%{ filter:drop-shadow(0 0 6px rgba(208,161,84,.55)); }
+    50%{ filter:drop-shadow(0 0 6px rgba(208,161,84,.5)); }
   }
   @keyframes contentFadeIn{
     from{ opacity:0; transform:translateY(6px); }
@@ -59,7 +63,8 @@
     position:relative;
     width:var(--sidebar-w);
     height:100vh;
-    background:linear-gradient(180deg,var(--navy-top) 0%,var(--navy-bottom) 100%);
+    background:linear-gradient(180deg,var(--bg-sidebar-top) 0%,var(--bg-sidebar-bottom) 100%);
+    border-right:1px solid var(--divider);
     display:flex;
     flex-direction:column;
     transition:width .32s cubic-bezier(.4,0,.2,1);
@@ -69,127 +74,170 @@
   }
   .sidebar.collapsed{width:var(--sidebar-w-collapsed);}
 
-  /* ---- header / logo ---- */
+  /* ---- header ---- */
   .sidebar-header{
     display:flex;
     align-items:center;
+    justify-content:space-between;
     gap:10px;
-    padding:22px 20px 20px;
+    padding:18px 16px 16px;
     white-space:nowrap;
     opacity:0;
     animation:fadeSlideDown .55s ease .1s forwards;
   }
-  .logo-mark{
-    width:auto;height:auto;flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;
-    animation:logoGlow 3.2s ease-in-out infinite;
-    transition:transform .3s ease;
-  }
-  .sidebar-header:hover .logo-mark{ transform:scale(1.08) rotate(-6deg); }
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px; 
+  min-width: 0;    
+  overflow: hidden;
+}
+.logo-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
+
+.logo-mark img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+  .sidebar-header:hover .logo-mark{ transform:scale(1.06) rotate(-4deg); }
+  .logo-mark img{ height:18px; width:auto; }
   .brand{
     display:flex;
     flex-direction:column;
-    line-height:1.1;
+    line-height:1.15;
     overflow:hidden;
+    min-width:0;
   }
   .brand-bold{
-    font-size:16px;
-    font-weight:800;
-    color:var(--text-bright);
-    letter-spacing:.3px;
+    font-size:15px;
+    font-weight:700;
+    color:var(--text-primary);
+    letter-spacing:.2px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
   }
   .brand-light{
-    font-size:11.5px;
+    font-size:11px;
     font-weight:400;
-    color:var(--text-dim);
-    letter-spacing:.5px;
+    color:var(--text-secondary);
+    letter-spacing:.2px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
   }
+  .header-toggle{
+    width:26px;height:26px;flex-shrink:0;
+    border-radius:7px;
+    display:flex;align-items:center;justify-content:center;
+    background:transparent;
+    border:none;
+    cursor:pointer;
+    color:var(--text-tertiary);
+    transition:background .2s ease,color .2s ease;
+  }
+  .header-toggle:hover{ background:var(--bg-hover); color:var(--text-primary); }
+  .header-toggle:active{ transform:scale(.92); }
+  .header-toggle svg{
+    width:15px;height:15px;
+    stroke:currentColor;
+    transition:transform .35s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar.collapsed .header-toggle svg{ transform:rotate(180deg); }
 
   /* ---- nav ---- */
   .sidebar-nav{
-    margin-top:6px;
-    padding:0 12px;
+    margin-top:2px;
+    padding:0 10px;
     display:flex;
     flex-direction:column;
-    gap:2px;
     flex:1;
     overflow-y:auto;
   }
+  .nav-group{ margin-top:16px; }
+  .nav-group:first-child{ margin-top:2px; }
+  .sidebar.collapsed .nav-group{ margin-top:8px; }
+
+  .nav-group-label{
+    padding:4px 10px 8px;
+    font-size:11.5px;
+    font-weight:600;
+   color: #ffffff;
+    letter-spacing:.2px;
+    white-space:nowrap;
+    overflow:hidden;
+  }
+  .sidebar.collapsed .nav-group-label{ display:none; }
+
   .nav-item{
     display:flex;
     align-items:center;
-    gap:12px;
-    padding:11px 12px;
+    gap:10px;
+    padding:9px 10px;
     border-radius:8px;
     text-decoration:none;
-    color:var(--text-dim);
-    font-size:14px;
+    color:var(--text-secondary);
+    font-size:13.5px;
     font-weight:500;
     white-space:nowrap;
-    border-left:3px solid transparent;
     position:relative;
     opacity:0;
     animation:itemRiseIn .45s ease forwards;
-    transition:background .2s ease,color .2s ease,transform .2s ease,border-color .25s ease,padding-left .2s ease;
+    transition:background .2s ease,color .2s ease,transform .2s ease;
   }
   .nav-item svg{
-    width:19px;height:19px;flex-shrink:0;
+    width:18px;height:18px;flex-shrink:0;
     stroke:currentColor;
     transition:stroke .2s ease,transform .3s cubic-bezier(.34,1.56,.64,1);
   }
-  .nav-item:nth-child(1){animation-delay:.08s;}
-  .nav-item:nth-child(2){animation-delay:.13s;}
-  .nav-item:nth-child(3){animation-delay:.18s;}
-  .nav-item:nth-child(4){animation-delay:.23s;}
-  .nav-item:nth-child(5){animation-delay:.28s;}
-  .nav-item:nth-child(6){animation-delay:.33s;}
-  .nav-item:nth-child(7){animation-delay:.38s;}
-  .nav-item:nth-child(8){animation-delay:.43s;}
   .nav-item:hover{
-    background:rgba(255,255,255,0.06);
-    color:var(--text-bright);
-    transform:translateX(3px);
+    background:var(--bg-hover);
+    color:var(--text-primary);
+    transform:translateX(2px);
   }
-  .nav-item:hover svg{ transform:scale(1.1); }
-  .nav-item:active{ transform:translateX(3px) scale(.97); }
+  .nav-item:hover svg{ transform:scale(1.08); }
+  .nav-item:active{ transform:translateX(2px) scale(.97); }
   .nav-item.active{
-    background:var(--active-bg);
-    color:var(--text-bright);
-    font-weight:700;
-    border-left:3px solid var(--gold);
-    box-shadow:inset 0 0 0 1px rgba(208,161,84,.12), 0 4px 14px -6px rgba(0,0,0,.4);
+    background:var(--bg-active);
+    color:var(--text-primary);
+    font-weight:600;
   }
   .nav-item.active svg{ stroke:var(--gold); }
-  .nav-item.active::after{
+  .nav-item.active::before{
     content:"";
     position:absolute;
-    inset:0;
-    border-radius:8px;
-    background:linear-gradient(90deg, rgba(208,161,84,.16), transparent 60%);
-    pointer-events:none;
-    animation:fadeSlideDown .3s ease;
+    left:2px; top:8px; bottom:8px;
+    width:3px;
+    border-radius:2px;
+    background:var(--gold);
   }
 
   .nav-label{overflow:hidden;text-overflow:ellipsis;}
 
   /* ---- footer ---- */
   .sidebar-footer{
-    padding:14px 12px 18px;
+    padding:12px 10px 16px;
     border-top:1px solid var(--divider);
     display:flex;
     flex-direction:column;
     gap:4px;
-    position:relative;
   }
   .user-info{
-    padding:2px 12px 10px;
+    padding:4px 10px 8px;
     white-space:nowrap;
     overflow:hidden;
   }
   .user-name{
-    font-size:13px;
+    font-size:12.5px;
     font-weight:500;
-    color:var(--text-dim);
+    color:var(--text-secondary);
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
@@ -198,12 +246,12 @@
   .signout-item{
     display:flex;
     align-items:center;
-    gap:12px;
-    padding:10px 12px;
+    gap:10px;
+    padding:9px 10px;
     border-radius:8px;
     text-decoration:none;
-    color:var(--text-dim);
-    font-size:14px;
+    color:var(--text-secondary);
+    font-size:13.5px;
     font-weight:500;
     white-space:nowrap;
     transition:background .2s ease,color .2s ease,transform .2s ease;
@@ -211,33 +259,10 @@
   .signout-item:hover{
     background:rgba(220,80,80,0.12);
     color:#ff8a8a;
-    transform:translateX(3px);
+    transform:translateX(2px);
   }
   .signout-item:hover svg{ stroke:#ff8a8a; transform:translateX(2px); }
-  .signout-item svg{width:18px;height:18px;flex-shrink:0;stroke:currentColor;transition:stroke .2s ease,transform .2s ease;}
-
-  .collapse-btn{
-    position:absolute;
-    right:-14px;
-    top:-32px;
-    width:28px;height:28px;
-    border-radius:50%;
-    background:var(--gold);
-    border:3px solid var(--navy-bottom);
-    color:#20304f;
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;
-    font-size:14px;
-    line-height:1;
-    transition:transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease;
-  }
-  .collapse-btn:hover{
-    transform:scale(1.12);
-    box-shadow:0 0 0 5px rgba(208,161,84,.18);
-  }
-  .collapse-btn:active{ transform:scale(.92); }
-  .collapse-btn svg{width:14px;height:14px;stroke:#20304f;stroke-width:3;transition:transform .35s cubic-bezier(.4,0,.2,1);}
-  .sidebar.collapsed .collapse-btn svg{transform:rotate(180deg);}
+  .signout-item svg{width:17px;height:17px;flex-shrink:0;stroke:currentColor;transition:stroke .2s ease,transform .2s ease;}
 
   /* hide text labels when collapsed */
   .sidebar.collapsed .brand,
@@ -250,11 +275,15 @@
     justify-content:center;
     gap:0;
   }
-  .sidebar.collapsed .sidebar-header{
-    justify-content:center;
-    padding:22px 0 20px;
+.sidebar.collapsed .sidebar-header {
+  flex-direction: column;
+  padding: 20px 0 14px;
+  gap: 16px; /* เพิ่มระยะห่างแนวตั้งระหว่างโลโก้กับปุ่มเปิด-ปิด */
+}
+  .sidebar.collapsed .header-left{
+    flex-direction:column;
   }
-  
+
   .app{
     display:flex;
     height:100vh;
@@ -308,7 +337,7 @@
     }
   /* thin scrollbar for nav */
   .sidebar-nav::-webkit-scrollbar{width:4px;}
-  .sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px;}
+  .sidebar-nav::-webkit-scrollbar-thumb{background:rgba(148, 136, 136, 0.15);border-radius:2px;}
 </style>
 </head>
 <body>
@@ -316,44 +345,55 @@
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <div class="logo-mark">
-        <img alt="Gunkul" src="./src/svg/logo-default.svg" style="height: 20px; width: auto; flex-shrink: 0; filter: brightness(0) invert(1);">
+      <div class="header-left">
+        <div class="logo-mark">
+          <img alt="Gunkul" src="./src/svg/logo-default.svg" style="height: 20px; width: auto; flex-shrink: 0; filter: brightness(0) invert(1);">
+        </div>
+        <div class="brand">
+          <span class="brand-light">Warehouse — Noppawong</span>
+        </div>
       </div>
-      <div class="brand">
-        <span class="brand-light">Warehouse</span>
-         <span class="brand-light">Noppawong</span>
-      </div>
+      <button class="header-toggle" id="collapseBtn" aria-label="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9l5-5 5 5"/><path d="M7 15l5 5 5-5"/></svg>
+      </button>
     </div>
 
     <nav class="sidebar-nav">
-      <a class="nav-item" href="./src/home.html" target="contentFrame" data-page="home">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
-        <span class="nav-label">Home</span>
-      </a>
-      <a class="nav-item" href="./src/dashboard.html" target="contentFrame" data-page="dashboard">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        <span class="nav-label">Dashboard</span>
-      </a>
-      <a class="nav-item" href="./src/item-master.html" target="contentFrame" data-page="item-master">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
-        <span class="nav-label">Item Master</span>
-      </a>
-      <a class="nav-item" href="./src/report.html" target="contentFrame" data-page="vendor-directory">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M9 12h.01M15 12h.01M9 8h.01M15 8h.01"/></svg>
-        <span class="nav-label">Report</span>
-      </a>
-      <a class="nav-item" href="tracking-sheet.html" target="contentFrame" data-page="tracking-sheet">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a1 1 0 0 1 1 1v1H8V4a1 1 0 0 1 1-1Z"/><path d="M6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6Z"/><path d="M9 11h6M9 15h6"/></svg>
-        <span class="nav-label">Tracking Sheet</span>
-      </a>
-      <a class="nav-item" href="knowledge-base.html" target="contentFrame" data-page="knowledge-base">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v18H6.5A2.5 2.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5v-13Z"/></svg>
-        <span class="nav-label">Knowledge Base</span>
-      </a>
-      <a class="nav-item" href="org-chart.html" target="contentFrame" data-page="org-chart">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V12M12 12 6.5 17M12 12 17.5 17"/></svg>
-        <span class="nav-label">Organization Chart</span>
-      </a>
+      <div class="nav-group">
+        <div class="nav-group-label">เมนูหลัก</div>
+        <a class="nav-item" style="animation-delay:.06s" href="./src/home.html" target="contentFrame" data-page="home">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+          <span class="nav-label">Home</span>
+        </a>
+        <a class="nav-item" style="animation-delay:.11s" href="./src/dashboard.html" target="contentFrame" data-page="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span class="nav-label">Dashboard</span>
+        </a>
+        <a class="nav-item" style="animation-delay:.16s" href="./src/item-master.html" target="contentFrame" data-page="item-master">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+          <span class="nav-label">Item Master</span>
+        </a>
+        <a class="nav-item" style="animation-delay:.21s" href="./src/report.html" target="contentFrame" data-page="vendor-directory">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M9 12h.01M15 12h.01M9 8h.01M15 8h.01"/></svg>
+          <span class="nav-label">Report</span>
+        </a>
+        <a class="nav-item" style="animation-delay:.26s" href="tracking-sheet.html" target="contentFrame" data-page="tracking-sheet">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a1 1 0 0 1 1 1v1H8V4a1 1 0 0 1 1-1Z"/><path d="M6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6Z"/><path d="M9 11h6M9 15h6"/></svg>
+          <span class="nav-label">Tracking Sheet</span>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">ข้อมูลอ้างอิง</div>
+        <a class="nav-item" style="animation-delay:.31s" href="knowledge-base.html" target="contentFrame" data-page="knowledge-base">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v18H6.5A2.5 2.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5v-13Z"/></svg>
+          <span class="nav-label">Knowledge Base</span>
+        </a>
+        <a class="nav-item" style="animation-delay:.36s" href="org-chart.html" target="contentFrame" data-page="org-chart">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V12M12 12 6.5 17M12 12 17.5 17"/></svg>
+          <span class="nav-label">Organization Chart</span>
+        </a>
+      </div>
     </nav>
 
     <div class="sidebar-footer">
@@ -364,9 +404,6 @@
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
         <span>Sign out</span>
       </a>
-      <button class="collapse-btn" id="collapseBtn" aria-label="Toggle sidebar">
-        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
-      </button>
     </div>
   </aside>
 
