@@ -234,11 +234,17 @@ const esc = window._escHtml;
 const fmt = window._formatDate;
 
 let receipts = [];
-let processedItemsForExport = []; // ตัวแปรเก็บข้อมูลสินค้าที่ผ่าน Filter ปัจจุบันเพื่อทำ CSV
+let processedItemsForExport = [];
 let pollTimer = null;
+let idleTimer = null;
 let isFetching = false;
+let lastFetchAt = 0;
+let isIdlePaused = false;
 
-const REFRESH_MS = 4 * 60 * 1000;   // Polling ทุก 4 นาทีเพื่อประหยัด Firestore Reads
+const REFRESH_MS       = 15 * 60 * 1000;
+const MIN_REFETCH_GAP  = 2 * 60 * 1000;
+const IDLE_TIMEOUT_MS  = 20 * 60 * 1000; 
+const CACHE_KEY        = 'gunkul_item_master_cache_v1';
 const DOC_LIMIT = 150;
 
 const q = query(
@@ -247,15 +253,21 @@ const q = query(
   limit(DOC_LIMIT)
 );
 
-async function fetchReceipts() {
+async function fetchReceipts({ force = false } = {}) {
   if (isFetching) return;
+  if (!force && Date.now() - lastFetchAt < MIN_REFETCH_GAP) return;
+
   isFetching = true;
   setLiveState('loading');
   try {
     const snap = await getDocs(q);
     receipts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    lastFetchAt = Date.now();
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({ receipts, at: lastFetchAt }));
+    } catch (e) { /* เต็ม quota ของ sessionStorage ก็ไม่เป็นไร ข้ามแคชไป */ }
     renderItemSummary();
-    setLiveState('live');
+    setLiveState('live', lastFetchAt);
   } catch (err) {
     console.warn('โหลดข้อมูลไม่สำเร็จ:', err);
     setLiveState('error');
@@ -264,10 +276,12 @@ async function fetchReceipts() {
   }
 }
 
-function setLiveState(state) {
+function setLiveState(state, ts) {
   const dot = document.getElementById('liveDot');
   const label = document.getElementById('liveLabel');
-  const now = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const now = ts
+    ? new Date(ts).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    : new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   if (state === 'loading') {
     dot.className = 'live-dot live';
     label.textContent = 'กำลังอัปเดต...';
@@ -277,6 +291,9 @@ function setLiveState(state) {
   } else if (state === 'paused') {
     dot.className = 'live-dot paused';
     label.textContent = `หยุดชั่วคราว · ล่าสุด ${now}`;
+  } else if (state === 'idle') {
+    dot.className = 'live-dot paused';
+    label.textContent = `พักอัปเดต (ไม่มีการใช้งาน) · ล่าสุด ${now}`;
   } else if (state === 'error') {
     dot.className = 'live-dot paused';
     label.textContent = 'โหลดข้อมูลไม่สำเร็จ';
@@ -291,23 +308,41 @@ function stopPolling() {
   if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
 }
 
+function resetIdleTimer() {
+  if (idleTimer) clearTimeout(idleTimer);
+  if (isIdlePaused) {
+    isIdlePaused = false;
+    if (document.visibilityState === 'visible') {
+      fetchReceipts();
+      startPolling();
+    }
+  }
+  idleTimer = setTimeout(() => {
+    isIdlePaused = true;
+    stopPolling();
+    setLiveState('idle', lastFetchAt);
+  }, IDLE_TIMEOUT_MS);
+}
+['mousemove', 'keydown', 'click', 'touchstart', 'scroll'].forEach(evt =>
+  document.addEventListener(evt, resetIdleTimer, { passive: true })
+);
+
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') {
     stopPolling();
-    setLiveState('paused');
-  } else {
+    setLiveState('paused', lastFetchAt);
+  } else if (!isIdlePaused) {
     fetchReceipts();
     startPolling();
   }
 });
 
 window.manualRefresh = function () {
-  fetchReceipts();
+  fetchReceipts({ force: true });
+  isIdlePaused = false;
+  startPolling();
+  resetIdleTimer();
 };
-
-// รันครั้งแรกเมื่อโหลดหน้าเว็บ
-fetchReceipts();
-startPolling();
 
 /* ============ ITEM SUMMARY PROCESSING & RENDER ============ */
 window.renderItemSummary = function() {
@@ -364,7 +399,6 @@ window.renderItemSummary = function() {
     return 0;
   });
 
-  // บันทึกข้อมูลที่ผ่านการกรองลงตัวแปร Global เพื่อใช้ทำการ Export ลง Excel (CSV)
   processedItemsForExport = items;
 
   const totalQtyAll = items.reduce((s, x) => s + x.totalQty, 0);
@@ -452,12 +486,11 @@ window.exportCSV = function() {
     return;
   }
 
-  // ปรับคอลัมน์ Excel ให้สอดคล้องกับรายละเอียดของตัวสินค้า
   let csv = 'ชื่อสินค้า,เลขที่ Invoice,ผู้ส่ง,วันที่รับเอกสาร,คลังสินค้า,จำนวน,หน่วยนับ,การตรวจสอบโดย FG,สถานะใบรับ\n';
   
   processedItemsForExport.forEach(item => {
     item.invoices.forEach(inv => {
-      const cleanName = item.name.replace(/"/g, '""'); // ป้องกันเครื่องหมายฟันหนูในชื่อสินค้าทำ CSV รวน
+      const cleanName = item.name.replace(/"/g, '""');
       const checkStatus = inv.checked ? 'ตรวจแล้วโดย FG' : 'ยังไม่ตรวจ';
       const docStatus = inv.status === 'received' ? 'รับแล้ว' : 'รอดำเนินการ';
       
@@ -470,6 +503,21 @@ window.exportCSV = function() {
   a.download = `สรุปรายการสินค้า_ItemMaster_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
 };
+
+/* ============ INITIAL LOAD ============ */
+try {
+  const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) || 'null');
+  if (cached && Array.isArray(cached.receipts)) {
+    receipts = cached.receipts;
+    lastFetchAt = cached.at || 0;
+    window.renderItemSummary();
+    setLiveState('live', lastFetchAt);
+  }
+} catch (e) { /* เพิกเฉยถ้าแคชเสีย */ }
+
+fetchReceipts();
+startPolling();
+resetIdleTimer();
 </script>
 </body>
 </html>
