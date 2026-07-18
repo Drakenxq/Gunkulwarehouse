@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GUNKUL Warehouse | Vendor Delivery Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Sarabun:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-950:#060f1c;
+    --navy-900:#0a1929;
+    --navy-800:#0f2540;
+    --navy-700:#16324f;
+    --navy-600:#1d3f61;
+    --navy-500:#2a4f76;
+    --gold-300:#f0d896;
+    --gold-400:#e8c468;
+    --gold-600:#c89b3c;
+    --text-light:#eaf1f8;
+    --text-muted:#8fa3b8;
+    --text-dim:#5f7590;
+    --success:#34d399;
+    --success-dim:rgba(52,211,153,.14);
+    --warning:#fbbf24;
+    --warning-dim:rgba(251,191,36,.14);
+    --danger:#f87171;
+    --danger-dim:rgba(248,113,113,.14);
+    --info:#60a5fa;
+    --info-dim:rgba(96,165,250,.14);
+    --glass-bg:rgba(255,255,255,.035);
+    --glass-bg-hover:rgba(255,255,255,.06);
+    --glass-border:rgba(232,196,104,.14);
+    --radius:16px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Sarabun',sans-serif;
+    background:
+      radial-gradient(ellipse 900px 500px at 85% -10%, rgba(232,196,104,.08), transparent 60%),
+      radial-gradient(ellipse 700px 500px at -10% 110%, rgba(96,165,250,.05), transparent 60%),
+      linear-gradient(180deg, var(--navy-950), var(--navy-900) 40%, var(--navy-950));
+    color:var(--text-light);
+    min-height:100vh;
+    background-attachment:fixed;
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(232,196,104,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,196,104,.025) 1px, transparent 1px);
+    background-size:48px 48px;
+    pointer-events:none;
+    z-index:0;
+  }
+  .wrap{position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:0 24px 64px;}
+
+  /* header */
+  header{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:28px 0 24px; flex-wrap:wrap;
+  }
+  .brand{display:flex; align-items:center; gap:14px;}
+  .brand-mark{
+    width:44px; height:44px; border-radius:12px;
+    background:linear-gradient(135deg, var(--gold-300), var(--gold-600));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 0 1px rgba(232,196,104,.25), 0 8px 20px -6px rgba(232,196,104,.4);
+    flex-shrink:0;
+  }
+  .brand-mark svg{width:24px; height:24px;}
+  .brand h1{font-family:'Kanit',sans-serif; font-size:19px; font-weight:600; letter-spacing:.2px;}
+  .brand p{font-size:13px; color:var(--text-muted); margin-top:2px;}
+  .header-tag{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--gold-400);
+    background:var(--glass-bg); border:1px solid var(--glass-border);
+    padding:6px 12px; border-radius:999px; letter-spacing:.5px;
+  }
+
+  /* stats */
+  .stats{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px;
+    margin-bottom:28px;
+  }
+  .stat-card{
+    background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius);
+    padding:18px 20px; backdrop-filter:blur(12px);
+    opacity:0; transform:translateY(10px); animation:rise .5s ease forwards;
+  }
+  .stat-card .label{font-size:12.5px; color:var(--text-muted); margin-bottom:8px;}
+  .stat-card .value{font-family:'Kanit',sans-serif; font-size:30px; font-weight:600; color:var(--text-light);}
+  .stat-card .value span{font-size:15px; color:var(--text-dim); font-weight:500; margin-left:4px;}
+  .stat-card.gold .value{color:var(--gold-400);}
+  .stat-card.warn .value{color:var(--warning);}
+  .stat-card.danger .value{color:var(--danger);}
+
+  /* controls */
+  .controls{
+    display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:22px;
+  }
+  .search-box{
+    flex:1 1 260px; position:relative;
+  }
+  .search-box input{
+    width:100%; padding:12px 16px 12px 42px; border-radius:12px;
+    background:var(--glass-bg); border:1px solid var(--glass-border);
+    color:var(--text-light); font-family:'Sarabun',sans-serif; font-size:14.5px;
+    outline:none; transition:border-color .2s, background .2s;
+  }
+  .search-box input::placeholder{color:var(--text-dim);}
+  .search-box input:focus{border-color:var(--gold-400); background:var(--glass-bg-hover);}
+  .search-box svg{position:absolute; left:14px; top:50%; transform:translateY(-50%); width:16px; height:16px; stroke:var(--text-dim);}
+  .chips{display:flex; gap:8px; flex-wrap:wrap;}
+  .chip{
+    font-size:13px; padding:9px 15px; border-radius:999px; cursor:pointer;
+    background:var(--glass-bg); border:1px solid var(--glass-border); color:var(--text-muted);
+    transition:all .18s; white-space:nowrap;
+  }
+  .chip:hover{color:var(--text-light); border-color:rgba(232,196,104,.3);}
+  .chip:focus-visible, .search-box input:focus-visible, .vendor-card:focus-visible{
+    outline:2px solid var(--gold-400); outline-offset:2px;
+  }
+  .chip.active{
+    background:linear-gradient(135deg, var(--gold-300), var(--gold-600));
+    color:var(--navy-950); border-color:transparent; font-weight:600;
+  }
+
+  /* vendor grid */
+  .grid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:18px;
+    align-items:start;
+  }
+  .vendor-card{
+    background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius);
+    backdrop-filter:blur(12px); cursor:pointer; overflow:hidden;
+    transition:border-color .2s, background .2s, box-shadow .2s;
+    opacity:0; transform:translateY(14px); animation:rise .55s ease forwards;
+  }
+  .vendor-card:hover{background:var(--glass-bg-hover); border-color:rgba(232,196,104,.3);
+    box-shadow:0 12px 28px -14px rgba(0,0,0,.5);}
+  .vendor-head{display:flex; gap:14px; padding:20px 22px;}
+  .avatar{
+    width:48px; height:48px; border-radius:12px; flex-shrink:0;
+    background:linear-gradient(155deg, var(--navy-600), var(--navy-800));
+    border:1px solid var(--glass-border);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .avatar span{font-family:'Kanit',sans-serif; font-weight:600; font-size:15px; color:var(--gold-400);}
+  .vendor-info{flex:1; min-width:0;}
+  .vendor-info h3{font-family:'Kanit',sans-serif; font-size:15.5px; font-weight:600; line-height:1.35;}
+  .vendor-info .cat{font-size:12.5px; color:var(--text-muted); margin-top:3px; display:flex; align-items:center; gap:5px;}
+  .vendor-meta{display:flex; gap:16px; margin-top:12px; font-size:12.5px; color:var(--text-dim);}
+  .vendor-meta b{color:var(--text-light); font-weight:600;}
+  .chevron{width:16px; height:16px; stroke:var(--text-dim); transition:transform .25s; flex-shrink:0; margin-top:4px;}
+  .vendor-card.open .chevron{transform:rotate(180deg); stroke:var(--gold-400);}
+
+  .po-panel{max-height:0; overflow:hidden; transition:max-height .35s ease;}
+  .vendor-card.open .po-panel{max-height:2000px;}
+  .po-panel-inner{padding:0 22px 20px; border-top:1px solid var(--glass-border);}
+  .po-row{padding:16px 0; border-bottom:1px dashed rgba(232,196,104,.12);}
+  .po-row:last-child{border-bottom:none; padding-bottom:2px;}
+  .po-row-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;}
+  .po-num{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--gold-400); font-weight:500;}
+  .po-desc{font-size:13px; color:var(--text-light); margin-top:4px;}
+  .po-qty{font-size:12px; color:var(--text-dim); margin-top:3px; font-family:'IBM Plex Mono',monospace;}
+  .status-pill{
+    font-size:11.5px; padding:4px 10px; border-radius:999px; font-weight:600; white-space:nowrap;
+  }
+  .status-complete{background:var(--success-dim); color:var(--success);}
+  .status-partial{background:var(--warning-dim); color:var(--warning);}
+  .status-pending{background:var(--info-dim); color:var(--info);}
+  .status-late{background:var(--danger-dim); color:var(--danger);}
+
+  /* chart + table detail */
+  .po-detail{margin-top:14px;}
+  .po-chart{width:100%; margin-bottom:10px;}
+  .po-chart-svg{width:100%; height:auto; display:block; overflow:visible;}
+  .po-chart-svg .bar-delivered{fill:var(--gold-400);}
+  .po-chart-svg .bar-remaining{fill:none; stroke:var(--text-dim); stroke-width:1.3; stroke-dasharray:3 3;}
+  .po-chart-svg .bar-value{font-family:'IBM Plex Mono',monospace; font-size:8.5px; fill:var(--text-light);}
+  .po-chart-svg .bar-label{font-family:'Sarabun',sans-serif; font-size:8.5px; fill:var(--text-dim);}
+  .po-table-wrap{overflow-x:auto; border-radius:10px; border:1px solid var(--glass-border);}
+  table.po-table{width:100%; border-collapse:collapse; font-size:11.5px; min-width:380px;}
+  table.po-table thead th{
+    text-align:left; font-weight:600; color:var(--text-muted); padding:8px 10px;
+    background:rgba(255,255,255,.03); border-bottom:1px solid var(--glass-border); font-size:10.5px; white-space:nowrap;
+  }
+  table.po-table td{padding:7px 10px; border-bottom:1px solid rgba(232,196,104,.08); color:var(--text-light); white-space:nowrap;}
+  table.po-table tbody tr:last-child td{border-bottom:none;}
+  table.po-table td.date{font-family:'IBM Plex Mono',monospace; color:var(--text-muted);}
+  table.po-table td.num{font-family:'IBM Plex Mono',monospace; text-align:right;}
+  table.po-table tr.row-remaining td{color:var(--text-dim); font-style:italic;}
+  .po-empty{font-size:12px; color:var(--text-dim); padding:10px 2px;}
+
+  .empty{
+    text-align:center; padding:70px 20px; color:var(--text-muted);
+    grid-column:1/-1;
+  }
+  .empty svg{width:40px; height:40px; stroke:var(--text-dim); margin-bottom:14px;}
+
+  @keyframes rise{to{opacity:1; transform:translateY(0);}}
+
+  @media (max-width:640px){
+    header{padding:20px 0 18px;}
+    .wrap{padding:0 16px 48px;}
+    .grid{grid-template-columns:1fr;}
+    .vendor-meta{flex-wrap:wrap; gap:10px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" fill="#0a1929"/>
+        </svg>
+      </div>
+      <div>
+        <h1>GUNKUL Warehouse</h1>
+        <p>ติดตามผู้ขาย (Vendor) · PO · ประวัติการส่งของ</p>
+      </div>
+    </div>
+    <div class="header-tag">DEMO · ข้อมูลจำลอง</div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="controls">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="searchInput" type="text" placeholder="ค้นหาบริษัท, เลขที่ PO หรือรายการสินค้า...">
+    </div>
+    <div class="chips" id="statusChips"></div>
+  </div>
+
+  <div class="grid" id="vendorGrid"></div>
+
+</div>
+
+<script>
+const STATUS = {
+  complete: {label:'ส่งครบแล้ว', cls:'status-complete', dot:'#34d399'},
+  partial:  {label:'ส่งบางส่วน', cls:'status-partial', dot:'#fbbf24'},
+  pending:  {label:'รอดำเนินการ', cls:'status-pending', dot:'#60a5fa'},
+  late:     {label:'ล่าช้า', cls:'status-late', dot:'#f87171'}
+};
+
+const CATEGORY_ICON = {
+  solar:'M12 4V2M12 22v-2M4.9 4.9 3.5 3.5M20.5 20.5l-1.4-1.4M4.9 19.1l-1.4 1.4M20.5 3.5l-1.4 1.4M2 12H4M20 12h2M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z',
+  cable:'M4 12h3l2-5 3 10 2-5h6',
+  inverter:'M4 5h16v10H4z M8 19h8 M9 8h2v4H9z M13 9h2v3h-2z',
+  steel:'M3 20 12 4l9 16H3Z M8 20l4-8 4 8',
+  battery:'M7 8h9a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z M18 11v2 M4 8h1v8H4z',
+  electric:'M13 2 4 14h7l-1 8 9-12h-7l1-8Z'
+};
+
+const vendors = [
+  {
+    id:'v1', name:'บริษัท สยามโซล่าร์ เพาเวอร์ จำกัด', category:'แผงโซล่าเซลล์', icon:'solar', initials:'สพ',
+    pos:[
+      { poNumber:'PO-2026-0142', orderDate:'2026-05-10', itemDesc:'แผงโซล่าเซลล์ 550W (2,000 แผ่น)', qtyTotal:2000, unit:'แผ่น', status:'complete',
+        deliveries:[
+          {date:'2026-05-20', qty:800, receiver:'สมชาย', note:'งวด 1'},
+          {date:'2026-06-02', qty:700, receiver:'สมชาย', note:'งวด 2'},
+          {date:'2026-06-15', qty:500, receiver:'กมล', note:'งวด 3 ครบ'}
+        ]},
+      { poNumber:'PO-2026-0198', orderDate:'2026-06-20', itemDesc:'แผงโซล่าเซลล์ 600W (1,200 แผ่น)', qtyTotal:1200, unit:'แผ่น', status:'partial', eta:'กำหนดส่งงวดถัดไป 28 ก.ค. 2569',
+        deliveries:[
+          {date:'2026-07-01', qty:600, receiver:'สมชาย', note:'งวด 1'}
+        ]}
+    ]
+  },
+  {
+    id:'v2', name:'บริษัท ไทยเคเบิ้ล อินดัสตรี จำกัด', category:'สายไฟและเคเบิล', icon:'cable', initials:'ทค',
+    pos:[
+      { poNumber:'PO-2026-0110', orderDate:'2026-04-15', itemDesc:'สายไฟ DC 4mm² (15,000 ม.)', qtyTotal:15000, unit:'เมตร', status:'complete',
+        deliveries:[{date:'2026-04-25', qty:15000, receiver:'วิชัย', note:'ส่งครั้งเดียวครบ'}]},
+      { poNumber:'PO-2026-0205', orderDate:'2026-06-25', itemDesc:'สายไฟ AC 3x50mm² (8,000 ม.)', qtyTotal:8000, unit:'เมตร', status:'late', eta:'เลยกำหนดส่ง 10 ก.ค. 2569',
+        deliveries:[]}
+    ]
+  },
+  {
+    id:'v3', name:'บริษัท เอเชี่ยน อินเวอร์เตอร์ ซิสเต็มส์ จำกัด', category:'อินเวอร์เตอร์', icon:'inverter', initials:'ออ',
+    pos:[
+      { poNumber:'PO-2026-0088', orderDate:'2026-03-01', itemDesc:'อินเวอร์เตอร์ 1MW (8 เครื่อง)', qtyTotal:8, unit:'เครื่อง', status:'complete',
+        deliveries:[
+          {date:'2026-03-20', qty:4, receiver:'อรรถ', note:'งวด 1'},
+          {date:'2026-04-05', qty:4, receiver:'อรรถ', note:'งวด 2 ครบ'}
+        ]},
+      { poNumber:'PO-2026-0176', orderDate:'2026-06-05', itemDesc:'อินเวอร์เตอร์ 500kW (12 เครื่อง)', qtyTotal:12, unit:'เครื่อง', status:'partial', eta:'คงเหลือ 6 เครื่อง คาดส่ง ส.ค. 2569',
+        deliveries:[{date:'2026-06-28', qty:6, receiver:'กมล', note:'งวด 1'}]}
+    ]
+  },
+  {
+    id:'v4', name:'บริษัท กรุงเทพ สตีล เวิร์คส์ จำกัด', category:'โครงสร้างเหล็กติดตั้งแผง', icon:'steel', initials:'กส',
+    pos:[
+      { poNumber:'PO-2026-0130', orderDate:'2026-05-01', itemDesc:'โครงสร้างเหล็ก Mounting Structure (500 ชุด)', qtyTotal:500, unit:'ชุด', status:'complete',
+        deliveries:[
+          {date:'2026-05-18', qty:250, receiver:'วิชัย', note:'งวด 1'},
+          {date:'2026-05-30', qty:250, receiver:'วิชัย', note:'งวด 2 ครบ'}
+        ]},
+      { poNumber:'PO-2026-0220', orderDate:'2026-07-05', itemDesc:'โครงสร้าง Tracker Frame (150 ชุด)', qtyTotal:150, unit:'ชุด', status:'pending', eta:'กำหนดส่ง 25 ก.ค. 2569',
+        deliveries:[]}
+    ]
+  },
+  {
+    id:'v5', name:'บริษัท เนชั่นแนล แบตเตอรี่ ซัพพลาย จำกัด', category:'แบตเตอรี่กักเก็บพลังงาน (BESS)', icon:'battery', initials:'นบ',
+    pos:[
+      { poNumber:'PO-2026-0075', orderDate:'2026-02-10', itemDesc:'แบตเตอรี่สำรอง UPS (100 ลูก)', qtyTotal:100, unit:'ลูก', status:'complete',
+        deliveries:[{date:'2026-02-25', qty:100, receiver:'สมชาย', note:'ครบ'}]},
+      { poNumber:'PO-2026-0160', orderDate:'2026-06-01', itemDesc:'แบตเตอรี่ลิเธียม 2MWh (4 ตู้)', qtyTotal:4, unit:'ตู้', status:'partial', eta:'คงเหลือ 1 ตู้',
+        deliveries:[
+          {date:'2026-06-20', qty:2, receiver:'อรรถ', note:'งวด 1'},
+          {date:'2026-07-08', qty:1, receiver:'อรรถ', note:'งวด 2'}
+        ]}
+    ]
+  },
+  {
+    id:'v6', name:'บริษัท ไทย อีเลคทริค คอมโพเนนท์ จำกัด', category:'อุปกรณ์ไฟฟ้าและตู้ควบคุม', icon:'electric', initials:'ทอ',
+    pos:[
+      { poNumber:'PO-2026-0055', orderDate:'2026-01-15', itemDesc:'เบรกเกอร์และฟิวส์ (500 ชุด)', qtyTotal:500, unit:'ชุด', status:'complete',
+        deliveries:[{date:'2026-01-30', qty:500, receiver:'กมล', note:'ครบ'}]},
+      { poNumber:'PO-2026-0190', orderDate:'2026-06-15', itemDesc:'ตู้ควบคุมไฟฟ้า Switchgear (10 ตู้)', qtyTotal:10, unit:'ตู้', status:'complete',
+        deliveries:[{date:'2026-07-02', qty:10, receiver:'วิชัย', note:'ส่งครั้งเดียวครบ'}]}
+    ]
+  }
+];
+
+const fmtDate = iso => new Date(iso + 'T00:00:00').toLocaleDateString('th-TH', {day:'numeric', month:'short', year:'numeric'});
+const fmtShort = iso => new Date(iso + 'T00:00:00').toLocaleDateString('th-TH', {day:'numeric', month:'short'});
+const fmtNum = n => n.toLocaleString('th-TH');
+
+let statusFilter = 'all';
+let searchQuery = '';
+let openSet = new Set();
+
+function computeStats(){
+  let totalPO = 0, deliveriesThisMonth = 0, pendingPO = 0;
+  vendors.forEach(v => v.pos.forEach(po => {
+    totalPO++;
+    if(po.status !== 'complete') pendingPO++;
+    po.deliveries.forEach(d => { if(d.date.startsWith('2026-07')) deliveriesThisMonth++; });
+  }));
+  return { totalVendors: vendors.length, totalPO, deliveriesThisMonth, pendingPO };
+}
+
+function renderStats(){
+  const s = computeStats();
+  const cards = [
+    {label:'ผู้ขายทั้งหมด', value:s.totalVendors, unit:'บริษัท', cls:''},
+    {label:'PO ทั้งหมด', value:s.totalPO, unit:'รายการ', cls:'gold'},
+    {label:'ส่งของเดือนนี้', value:s.deliveriesThisMonth, unit:'ครั้ง', cls:''},
+    {label:'รอดำเนินการ / ค้างส่ง', value:s.pendingPO, unit:'PO', cls:'warn'}
+  ];
+  document.getElementById('stats').innerHTML = cards.map((c,i)=>`
+    <div class="stat-card ${c.cls}" style="animation-delay:${i*70}ms">
+      <div class="label">${c.label}</div>
+      <div class="value" data-target="${c.value}">0<span>${c.unit}</span></div>
+    </div>`).join('');
+  document.querySelectorAll('.stat-card .value').forEach(el=>{
+    const target = +el.dataset.target;
+    const unitHTML = el.querySelector('span').outerHTML;
+    let start = null;
+    const dur = 700;
+    function step(ts){
+      if(!start) start = ts;
+      const p = Math.min((ts-start)/dur, 1);
+      const eased = 1 - Math.pow(1-p, 3);
+      el.innerHTML = Math.round(eased*target) + unitHTML;
+      if(p<1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+function renderChips(){
+  const options = [['all','ทั้งหมด'], ['complete','ส่งครบแล้ว'], ['partial','ส่งบางส่วน'], ['pending','รอดำเนินการ'], ['late','ล่าช้า']];
+  document.getElementById('statusChips').innerHTML = options.map(([key,label])=>
+    `<button class="chip ${statusFilter===key?'active':''}" data-key="${key}">${label}</button>`
+  ).join('');
+  document.querySelectorAll('.chip').forEach(el=>{
+    el.addEventListener('click', ()=>{ statusFilter = el.dataset.key; renderGrid(); renderChips(); });
+  });
+}
+
+function chartSVG(po){
+  const bars = po.deliveries.map(d => ({label: fmtShort(d.date), qty: d.qty, type:'delivered'}));
+  const delivered = po.deliveries.reduce((a,d)=>a+d.qty,0);
+  const remaining = Math.max(po.qtyTotal - delivered, 0);
+  if(po.status !== 'complete' && remaining > 0){
+    bars.push({label:'คงเหลือ', qty: remaining, type:'remaining'});
+  }
+  const chartW = 320, chartH = 108, padTop = 20, padBottom = 24, padX = 10;
+  const innerW = chartW - padX*2, innerH = chartH - padTop - padBottom;
+  const maxVal = Math.max(...bars.map(b=>b.qty), 1);
+  const gap = 12;
+  const barW = Math.max((innerW - gap*(bars.length-1)) / bars.length, 8);
+  let svg = `<svg viewBox="0 0 ${chartW} ${chartH}" class="po-chart-svg" preserveAspectRatio="xMidYMid meet">`;
+  svg += `<line x1="${padX}" y1="${chartH-padBottom}" x2="${chartW-padX}" y2="${chartH-padBottom}" stroke="rgba(232,196,104,.15)" stroke-width="1"/>`;
+  bars.forEach((b,i)=>{
+    const bh = Math.max((b.qty/maxVal)*innerH, 3);
+    const x = padX + i*(barW+gap);
+    const y = chartH - padBottom - bh;
+    svg += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="4" class="${b.type==='remaining'?'bar-remaining':'bar-delivered'}"/>`;
+    svg += `<text x="${(x+barW/2).toFixed(1)}" y="${(y-6).toFixed(1)}" class="bar-value" text-anchor="middle">${fmtNum(b.qty)}</text>`;
+    svg += `<text x="${(x+barW/2).toFixed(1)}" y="${chartH-8}" class="bar-label" text-anchor="middle">${b.label}</text>`;
+  });
+  svg += `</svg>`;
+  return `<div class="po-chart">${svg}</div>`;
+}
+
+function tableHTML(po){
+  const rows = po.deliveries.map((d,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td class="date">${fmtDate(d.date)}</td>
+      <td class="num">${fmtNum(d.qty)} ${po.unit}</td>
+      <td>${d.receiver}</td>
+      <td>${d.note || '-'}</td>
+    </tr>`).join('');
+  const delivered = po.deliveries.reduce((a,d)=>a+d.qty,0);
+  const remaining = Math.max(po.qtyTotal - delivered, 0);
+  const remainingRow = (po.status !== 'complete' && remaining > 0)
+    ? `<tr class="row-remaining"><td>—</td><td class="date">—</td><td class="num">${fmtNum(remaining)} ${po.unit}</td><td colspan="2">คงเหลือรอส่ง${po.eta ? ' · ' + po.eta : ''}</td></tr>`
+    : '';
+  if(!rows && !remainingRow){
+    return `<div class="po-empty">ยังไม่มีข้อมูลการส่งของ</div>`;
+  }
+  return `
+    <div class="po-table-wrap">
+      <table class="po-table">
+        <thead><tr><th>#</th><th>วันที่ส่ง</th><th>จำนวน</th><th>ผู้รับของ</th><th>หมายเหตุ</th></tr></thead>
+        <tbody>${rows}${remainingRow}</tbody>
+      </table>
+    </div>`;
+}
+
+function poRowHTML(po){
+  const s = STATUS[po.status];
+  const delivered = po.deliveries.reduce((a,d)=>a+d.qty,0);
+  return `
+    <div class="po-row">
+      <div class="po-row-top">
+        <div>
+          <div class="po-num">${po.poNumber}</div>
+          <div class="po-desc">${po.itemDesc}</div>
+          <div class="po-qty">รับแล้ว ${fmtNum(delivered)} / ${fmtNum(po.qtyTotal)} ${po.unit} · สั่งเมื่อ ${fmtDate(po.orderDate)}${po.eta ? ' · ' + po.eta : ''}</div>
+        </div>
+        <span class="status-pill ${s.cls}">${s.label}</span>
+      </div>
+      <div class="po-detail">
+        ${chartSVG(po)}
+        ${tableHTML(po)}
+      </div>
+    </div>`;
+}
+
+function iconSVG(key){
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="${CATEGORY_ICON[key]||CATEGORY_ICON.electric}"/></svg>`;
+}
+
+function vendorCardHTML(v, idx){
+  const totalPO = v.pos.length;
+  const allDeliveries = v.pos.flatMap(po=>po.deliveries);
+  const lastDate = allDeliveries.length ? allDeliveries.map(d=>d.date).sort().slice(-1)[0] : null;
+  const isOpen = openSet.has(v.id);
+  return `
+    <div class="vendor-card ${isOpen?'open':''}" data-id="${v.id}" style="animation-delay:${idx*55}ms" tabindex="0">
+      <div class="vendor-head">
+        <div class="avatar"><span>${v.initials}</span></div>
+        <div class="vendor-info">
+          <h3>${v.name}</h3>
+          <div class="cat">${iconSVG(v.icon)} ${v.category}</div>
+          <div class="vendor-meta">
+            <span><b>${totalPO}</b> PO</span>
+            <span>ส่งล่าสุด <b>${lastDate ? fmtShort(lastDate) : '—'}</b></span>
+          </div>
+        </div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="po-panel"><div class="po-panel-inner">
+        ${v.pos.map(poRowHTML).join('')}
+      </div></div>
+    </div>`;
+}
+
+function getFiltered(){
+  const q = searchQuery.trim().toLowerCase();
+  return vendors.map(v=>{
+    const pos = v.pos.filter(po=>{
+      const statusOk = statusFilter==='all' || po.status===statusFilter;
+      const searchOk = !q || v.name.toLowerCase().includes(q) || po.poNumber.toLowerCase().includes(q) || po.itemDesc.toLowerCase().includes(q);
+      return statusOk && searchOk;
+    });
+    return {...v, pos};
+  }).filter(v=>v.pos.length>0);
+}
+
+function renderGrid(){
+  const filtered = getFiltered();
+  const grid = document.getElementById('vendorGrid');
+  if(!filtered.length){
+    grid.innerHTML = `<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <div>ไม่พบผู้ขายหรือ PO ที่ตรงกับเงื่อนไข</div>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map((v,i)=>vendorCardHTML(v,i)).join('');
+  grid.querySelectorAll('.vendor-card').forEach(card=>{
+    card.addEventListener('click', (e)=>{
+      const id = card.dataset.id;
+      if(openSet.has(id)) openSet.delete(id); else openSet.add(id);
+      renderGrid();
+    });
+    card.addEventListener('keydown', e=>{
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); card.click(); }
+    });
+  });
+}
+
+document.getElementById('searchInput').addEventListener('input', e=>{
+  searchQuery = e.target.value;
+  renderGrid();
+});
+
+renderStats();
+renderChips();
+renderGrid();
+</script>
+</body>
+</html>
