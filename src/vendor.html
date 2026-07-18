@@ -49,16 +49,6 @@
     min-height:100vh;
     background-attachment:fixed;
   }
-  body::before{
-    content:'';
-    position:fixed; inset:0;
-    background-image:
-      linear-gradient(rgba(232,196,104,.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(232,196,104,.025) 1px, transparent 1px);
-    background-size:48px 48px;
-    pointer-events:none;
-    z-index:0;
-  }
   .wrap{position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:0 24px 64px;}
 
   /* header */
@@ -68,7 +58,7 @@
   }
   .brand{display:flex; align-items:center; gap:14px;}
   .brand-mark{
-    width:44px; height:44px; border-radius:12px;
+    width:55px; height:50px; border-radius:12px;
     background:linear-gradient(135deg, var(--gold-300), var(--gold-600));
     display:flex; align-items:center; justify-content:center;
     box-shadow:0 0 0 1px rgba(232,196,104,.25), 0 8px 20px -6px rgba(232,196,104,.4);
@@ -82,6 +72,16 @@
     background:var(--glass-bg); border:1px solid var(--glass-border);
     padding:6px 12px; border-radius:999px; letter-spacing:.5px;
   }
+  .refresh-btn{
+    display:flex; align-items:center; gap:7px; font-family:'Sarabun',sans-serif; font-size:12.5px; font-weight:600;
+    color:var(--text-light); background:var(--glass-bg); border:1px solid var(--glass-border);
+    padding:7px 14px; border-radius:999px; cursor:pointer; transition:background .15s, border-color .15s, opacity .15s;
+  }
+  .refresh-btn:hover{background:var(--glass-bg-hover); border-color:rgba(232,196,104,.3);}
+  .refresh-btn:disabled{opacity:.55; cursor:default;}
+  .refresh-btn svg{width:14px; height:14px; stroke:var(--gold-400); flex-shrink:0;}
+  .refresh-btn.spinning svg{animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
 
   /* stats */
   .stats{
@@ -177,14 +177,34 @@
   .status-pending{background:var(--info-dim); color:var(--info);}
   .status-late{background:var(--danger-dim); color:var(--danger);}
 
-  /* chart + table detail */
+  /* progress bar + table detail */
   .po-detail{margin-top:14px;}
-  .po-chart{width:100%; margin-bottom:10px;}
-  .po-chart-svg{width:100%; height:auto; display:block; overflow:visible;}
-  .po-chart-svg .bar-delivered{fill:var(--gold-400);}
-  .po-chart-svg .bar-remaining{fill:none; stroke:var(--text-dim); stroke-width:1.3; stroke-dasharray:3 3;}
-  .po-chart-svg .bar-value{font-family:'IBM Plex Mono',monospace; font-size:8.5px; fill:var(--text-light);}
-  .po-chart-svg .bar-label{font-family:'Sarabun',sans-serif; font-size:8.5px; fill:var(--text-dim);}
+  .po-progress{width:100%; margin-bottom:14px;}
+  .po-progress-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:7px; gap:10px;}
+  .po-progress-total{font-family:'Kanit',sans-serif; font-weight:600; font-size:15.5px; color:var(--text-light); white-space:nowrap;}
+  .po-progress-total small{font-size:12px; color:var(--text-dim); font-weight:500; margin-left:3px;}
+  .po-progress-pct{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--gold-400); font-weight:600; white-space:nowrap;}
+  .po-progress-track{
+    width:100%; height:24px; border-radius:8px; background:rgba(255,255,255,.04);
+    border:1px solid var(--glass-border); overflow:hidden; display:flex;
+  }
+  .po-progress-seg{
+    height:100%; position:relative; min-width:3px;
+    transition:filter .15s;
+  }
+  .po-progress-seg:hover{filter:brightness(1.15);}
+  .po-progress-seg:not(:last-child){box-shadow:inset -1px 0 0 rgba(6,15,28,.55);}
+  .po-progress-remaining{
+    background:repeating-linear-gradient(45deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 5px, transparent 5px, transparent 10px);
+  }
+  .po-progress-legend{
+    display:flex; flex-wrap:wrap; column-gap:14px; row-gap:5px; margin-top:9px;
+    font-size:11.5px; color:var(--text-dim); font-family:'IBM Plex Mono',monospace;
+  }
+  .po-progress-legend .dot{
+    display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:5px; flex-shrink:0;
+  }
+  .po-progress-legend b{color:var(--text-light); font-weight:600;}
   .po-table-wrap{overflow-x:auto; border-radius:10px; border:1px solid var(--glass-border);}
   table.po-table{width:100%; border-collapse:collapse; font-size:11.5px; min-width:380px;}
   table.po-table thead th{
@@ -206,6 +226,91 @@
 
   @keyframes rise{to{opacity:1; transform:translateY(0);}}
 
+  /* vendor detail modal */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(4,10,18,.72); backdrop-filter:blur(3px);
+    display:none; align-items:flex-start; justify-content:center; z-index:50; padding:32px 16px; overflow-y:auto;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-panel{
+    width:100%; max-width:640px; background:var(--navy-900); border:1px solid var(--glass-border);
+    border-radius:20px; overflow:hidden; box-shadow:0 30px 80px -20px rgba(0,0,0,.6);
+    opacity:0; transform:translateY(16px) scale(.98); animation:modalIn .3s ease forwards;
+  }
+  @keyframes modalIn{to{opacity:1; transform:translateY(0) scale(1);}}
+  .modal-head{
+    position:relative; padding:24px 26px 20px;
+    background:linear-gradient(135deg, var(--navy-700), var(--navy-800));
+    border-bottom:1px solid var(--glass-border);
+  }
+  .modal-head .m-tag{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--gold-300); opacity:.85; letter-spacing:.4px;}
+  .modal-head h2{font-family:'Kanit',sans-serif; font-size:19px; font-weight:600; margin-top:6px; padding-right:34px; line-height:1.35;}
+  .modal-close{
+    position:absolute; top:18px; right:18px; width:32px; height:32px; border-radius:10px; border:none;
+    background:rgba(255,255,255,.08); color:var(--text-light); cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background .15s;
+  }
+  .modal-close:hover{background:rgba(255,255,255,.16);}
+  .modal-close svg{width:16px; height:16px;}
+  .status-badge{
+    display:inline-flex; align-items:center; gap:6px; margin-top:12px; font-size:12.5px; font-weight:600;
+    padding:6px 12px; border-radius:999px;
+  }
+  .status-badge.active{background:var(--success-dim); color:var(--success);}
+  .status-badge.inactive{background:rgba(255,255,255,.06); color:var(--text-dim);}
+  .status-badge .dot2{width:6px; height:6px; border-radius:50%; background:currentColor;}
+
+  .modal-body{padding:22px 26px 26px; max-height:74vh; overflow-y:auto;}
+  .m-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:22px;}
+  .m-stat{
+    background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:12px; padding:13px 14px; text-align:center;
+  }
+  .m-stat .m-label{font-size:11px; color:var(--text-muted); margin-bottom:6px;}
+  .m-stat .m-value{font-family:'Kanit',sans-serif; font-weight:600; font-size:17px; color:var(--gold-400);}
+
+  .m-charts{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; margin-bottom:22px;}
+  .m-panel{
+    background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:14px; padding:16px;
+    min-width:0;
+  }
+  .m-panel h4{font-size:12px; color:var(--text-muted); font-weight:600; margin-bottom:12px; overflow-wrap:break-word;}
+  .donut-legend{margin-top:10px; display:flex; flex-direction:column; gap:6px;}
+  .donut-legend div{display:flex; align-items:center; justify-content:space-between; font-size:11.5px; color:var(--text-muted); gap:8px;}
+  .donut-legend .dl-name{display:flex; align-items:center; gap:6px; color:var(--text-light); min-width:0;}
+  .donut-legend .dl-name span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .donut-legend .dl-dot{width:8px; height:8px; border-radius:2px; flex-shrink:0;}
+  .donut-legend b{color:var(--gold-400); font-family:'IBM Plex Mono',monospace; flex-shrink:0;}
+
+  .m-tags{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;}
+  .m-tag-chip{
+    font-size:12px; padding:6px 12px; border-radius:999px; background:var(--glass-bg);
+    border:1px solid var(--glass-border); color:var(--text-muted);
+  }
+
+  .m-section-title{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+  .m-section-title span{font-size:13px; font-weight:600; color:var(--text-light);}
+
+  .m-history{border:1px solid var(--glass-border); border-radius:14px; overflow:hidden;}
+  .m-history-row{border-bottom:1px solid rgba(232,196,104,.1);}
+  .m-history-row:last-child{border-bottom:none;}
+  .m-history-head{
+    display:flex; justify-content:space-between; align-items:center; gap:10px; padding:13px 16px; cursor:pointer;
+    transition:background .15s;
+  }
+  .m-history-head:hover{background:rgba(255,255,255,.03);}
+  .m-history-head .m-hnum{font-family:'IBM Plex Mono',monospace; color:var(--gold-400); font-size:13px;}
+  .m-history-head .m-hdate{font-size:11.5px; color:var(--text-dim); margin-top:2px;}
+  .m-history-head .m-hcount{font-size:12px; color:var(--text-muted); white-space:nowrap;}
+  .m-hchevron{width:14px; height:14px; stroke:var(--text-dim); transition:transform .2s; flex-shrink:0;}
+  .m-history-row.open .m-hchevron{transform:rotate(90deg); stroke:var(--gold-400);}
+  .m-history-body{max-height:0; overflow:hidden; transition:max-height .35s ease;}
+  .m-history-row.open .m-history-body{max-height:3000px;}
+  .m-history-body-inner{padding:4px 16px 16px; border-top:1px dashed rgba(232,196,104,.12);}
+
+  @media (max-width:560px){
+    .m-charts{grid-template-columns:1fr;}
+  }
+
   @media (max-width:640px){
     header{padding:20px 0 18px;}
     .wrap{padding:0 16px 48px;}
@@ -220,16 +325,20 @@
   <header>
     <div class="brand">
       <div class="brand-mark">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" fill="#0a1929"/>
-        </svg>
+        <img src="./svg/logo-default.svg" alt="Logo" style="width:50px; height:50px; object-fit:contain;">
       </div>
       <div>
         <h1>GUNKUL Warehouse</h1>
-        <p>ติดตามผู้ขาย (Vendor) · PO · ประวัติการส่งของ</p>
+        <p>รายการผู้ขาย (Ven/Supplier)</p>
       </div>
     </div>
-    <div class="header-tag" id="connTag">กำลังเชื่อมต่อ Firestore...</div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="header-tag" id="connTag">กำลังเชื่อมต่อ...</div>
+      <button class="refresh-btn" id="refreshBtn" type="button" title="ดึงข้อมูลล่าสุด">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 4v5h-5"/></svg>
+        รีเฟรช
+      </button>
+    </div>
   </header>
 
   <div class="stats" id="stats"></div>
@@ -246,9 +355,14 @@
 
 </div>
 
+<div class="modal-overlay" id="vendorModalOverlay">
+  <div class="modal-panel" id="vendorModalPanel"></div>
+</div>
+
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // same config as src/js/firebase.js
 const firebaseConfig = {
@@ -264,7 +378,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const STATUS = {
-  complete: {label:'ส่งครบแล้ว', cls:'status-complete', dot:'#34d399'},
+  complete: {label:'ทำรับสมบูรณ์', cls:'status-complete', dot:'#34d399'},
   partial:  {label:'ส่งบางส่วน', cls:'status-partial', dot:'#fbbf24'},
   pending:  {label:'รอดำเนินการ', cls:'status-pending', dot:'#60a5fa'},
   late:     {label:'ล่าช้า', cls:'status-late', dot:'#f87171'}
@@ -364,18 +478,31 @@ const fmtDate = iso => new Date(iso + 'T00:00:00').toLocaleDateString('th-TH', {
 const fmtShort = iso => new Date(iso + 'T00:00:00').toLocaleDateString('th-TH', {day:'numeric', month:'short'});
 const fmtNum = n => n.toLocaleString('th-TH');
 
+// groups a vendor's item-level po entries (one per invoice+item) into invoice-level rows
+function getInvoiceGroups(vendor){
+  const map = new Map();
+  vendor.pos.forEach(po=>{
+    if(!map.has(po.poNumber)) map.set(po.poNumber, { invoice: po.poNumber, items: [], date: po.orderDate });
+    const g = map.get(po.poNumber);
+    g.items.push(po);
+    if(po.orderDate && po.orderDate < g.date) g.date = po.orderDate;
+  });
+  return Array.from(map.values()).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+}
+
 let statusFilter = 'all';
 let searchQuery = '';
-let openSet = new Set();
 
 function computeStats(){
   const ym = new Date().toISOString().slice(0,7);
   let totalPO = 0, deliveriesThisMonth = 0, pendingPO = 0;
-  vendors.forEach(v => v.pos.forEach(po => {
-    totalPO++;
-    if(po.status !== 'complete') pendingPO++;
-    po.deliveries.forEach(d => { if((d.date||'').startsWith(ym)) deliveriesThisMonth++; });
-  }));
+  vendors.forEach(v => {
+    totalPO += getInvoiceGroups(v).length;
+    v.pos.forEach(po => {
+      if(po.status !== 'complete') pendingPO++;
+      po.deliveries.forEach(d => { if((d.date||'').startsWith(ym)) deliveriesThisMonth++; });
+    });
+  });
   return { totalVendors: vendors.length, totalPO, deliveriesThisMonth, pendingPO };
 }
 
@@ -409,7 +536,7 @@ function renderStats(){
 }
 
 function renderChips(){
-  const options = [['all','ทั้งหมด'], ['complete','ส่งครบแล้ว'], ['partial','ส่งบางส่วน'], ['pending','รอดำเนินการ'], ['late','ล่าช้า']];
+  const options = [['all','ทั้งหมด'], ['complete','ทำรับสมบูรณ์'], ['partial','ส่งบางส่วน'], ['pending','รอดำเนินการ'], ['late','ล่าช้า']];
   document.getElementById('statusChips').innerHTML = options.map(([key,label])=>
     `<button class="chip ${statusFilter===key?'active':''}" data-key="${key}">${label}</button>`
   ).join('');
@@ -418,30 +545,40 @@ function renderChips(){
   });
 }
 
-function chartSVG(po){
-  const bars = po.deliveries.map(d => ({label: fmtShort(d.date), qty: d.qty, type:'delivered'}));
+// shades of gold used to tell consecutive deliveries apart inside one bar
+const SEG_COLORS = ['#f0d896','#e8c468','#d4ac4e','#c89b3c','#b3872f','#9c7526'];
+function segColor(i){ return SEG_COLORS[i % SEG_COLORS.length]; }
+
+function progressBarHTML(po){
   const delivered = po.deliveries.reduce((a,d)=>a+d.qty,0);
-  const remaining = Math.max(po.qtyTotal - delivered, 0);
-  if(po.status !== 'complete' && remaining > 0){
-    bars.push({label:'คงเหลือ', qty: remaining, type:'remaining'});
-  }
-  const chartW = 320, chartH = 108, padTop = 20, padBottom = 24, padX = 10;
-  const innerW = chartW - padX*2, innerH = chartH - padTop - padBottom;
-  const maxVal = Math.max(...bars.map(b=>b.qty), 1);
-  const gap = 12;
-  const barW = Math.max((innerW - gap*(bars.length-1)) / bars.length, 8);
-  let svg = `<svg viewBox="0 0 ${chartW} ${chartH}" class="po-chart-svg" preserveAspectRatio="xMidYMid meet">`;
-  svg += `<line x1="${padX}" y1="${chartH-padBottom}" x2="${chartW-padX}" y2="${chartH-padBottom}" stroke="rgba(232,196,104,.15)" stroke-width="1"/>`;
-  bars.forEach((b,i)=>{
-    const bh = Math.max((b.qty/maxVal)*innerH, 3);
-    const x = padX + i*(barW+gap);
-    const y = chartH - padBottom - bh;
-    svg += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="4" class="${b.type==='remaining'?'bar-remaining':'bar-delivered'}"/>`;
-    svg += `<text x="${(x+barW/2).toFixed(1)}" y="${(y-6).toFixed(1)}" class="bar-value" text-anchor="middle">${fmtNum(b.qty)}</text>`;
-    svg += `<text x="${(x+barW/2).toFixed(1)}" y="${chartH-8}" class="bar-label" text-anchor="middle">${b.label}</text>`;
-  });
-  svg += `</svg>`;
-  return `<div class="po-chart">${svg}</div>`;
+  const total = Math.max(po.qtyTotal || delivered, delivered, 1);
+  const remaining = Math.max(total - delivered, 0);
+  const pct = Math.min(Math.round((delivered/total)*100), 100);
+
+  const segs = po.deliveries.map((d,i)=>{
+    const w = Math.max((d.qty/total)*100, 0.6);
+    return `<div class="po-progress-seg" style="width:${w.toFixed(2)}%;background:${segColor(i)}" title="${fmtShort(d.date)} · ${fmtNum(d.qty)} ${po.unit}"></div>`;
+  }).join('');
+  const remSeg = remaining > 0
+    ? `<div class="po-progress-seg po-progress-remaining" style="width:${((remaining/total)*100).toFixed(2)}%" title="คงเหลือ ${fmtNum(remaining)} ${po.unit}"></div>`
+    : '';
+
+  const legendItems = po.deliveries.map((d,i)=>
+    `<span><i class="dot" style="background:${segColor(i)}"></i>${fmtShort(d.date)} · <b>${fmtNum(d.qty)}</b> ${po.unit}</span>`
+  ).join('');
+  const remLegend = remaining > 0
+    ? `<span><i class="dot" style="background:rgba(255,255,255,.18)"></i>คงเหลือ <b>${fmtNum(remaining)}</b> ${po.unit}</span>`
+    : '';
+
+  return `
+    <div class="po-progress">
+      <div class="po-progress-head">
+        <span class="po-progress-total">${fmtNum(delivered)}<small> / ${fmtNum(total)} ${po.unit}</small></span>
+        <span class="po-progress-pct">${pct}%</span>
+      </div>
+      <div class="po-progress-track">${segs}${remSeg}</div>
+      <div class="po-progress-legend">${legendItems}${remLegend}</div>
+    </div>`;
 }
 
 function tableHTML(po){
@@ -484,7 +621,7 @@ function poRowHTML(po){
         <span class="status-pill ${s.cls}">${s.label}</span>
       </div>
       <div class="po-detail">
-        ${chartSVG(po)}
+        ${progressBarHTML(po)}
         ${tableHTML(po)}
       </div>
     </div>`;
@@ -494,13 +631,187 @@ function iconSVG(key){
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="${CATEGORY_ICON[key]||CATEGORY_ICON.electric}"/></svg>`;
 }
 
-function vendorCardHTML(v, idx){
-  const totalPO = v.pos.length;
+// --- vendor detail modal: donut of item mix, monthly delivery-count trend, tags ---
+function donutSVG(segments){
+  const total = segments.reduce((a,s)=>a+s.value,0) || 1;
+  const size=140, r=48, cx=size/2, cy=size/2, circ = 2*Math.PI*r;
+  let offset=0;
+  const rings = segments.map(s=>{
+    const frac = s.value/total;
+    const dash = frac*circ;
+    const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="18"
+      stroke-dasharray="${dash.toFixed(2)} ${(circ-dash).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    offset += dash;
+    return el;
+  }).join('');
+  return `<svg viewBox="0 0 ${size} ${size}" width="100%" style="max-width:150px; display:block; margin:0 auto;">
+    ${rings}
+    <circle cx="${cx}" cy="${cy}" r="${r-11}" fill="#0a1929"/>
+  </svg>`;
+}
+
+function vendorItemBreakdown(vendor){
+  const map = new Map();
+  vendor.pos.forEach(po=>{
+    map.set(po.itemDesc, (map.get(po.itemDesc)||0) + po.deliveries.length);
+  });
+  const entries = Array.from(map.entries()).sort((a,b)=>b[1]-a[1]);
+  const top = entries.slice(0,4);
+  const rest = entries.slice(4);
+  if(rest.length){
+    top.push(['อื่นๆ (' + rest.length + ' รายการ)', rest.reduce((a,[,v])=>a+v,0)]);
+  }
+  return top.map(([label,value],i)=>({label, value, color: segColor(i)}));
+}
+
+function vendorMonthlyCounts(vendor, monthsBack=6){
+  const counts = new Map();
+  vendor.pos.forEach(po=>po.deliveries.forEach(d=>{
+    const ym = (d.date||'').slice(0,7);
+    if(!ym) return;
+    counts.set(ym, (counts.get(ym)||0)+1);
+  }));
+  // always show a continuous window of recent months (zero-filled) so trends
+  // are visible even when a vendor only has one or two delivery records
+  const now = new Date();
+  const months = [];
+  for(let i=monthsBack-1; i>=0; i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const ym = d.toISOString().slice(0,7);
+    months.push({month: ym, count: counts.get(ym) || 0});
+  }
+  return months;
+}
+
+function monthlyBarSVG(data){
+  if(!data.length) return `<div class="po-empty" style="text-align:center;">ยังไม่มีข้อมูล</div>`;
+  const w=260, h=112, padT=18, padB=22, padX=12;
+  const innerW = w - padX*2, innerH = h - padT - padB;
+  const max = Math.max(...data.map(d=>d.count), 1);
+  const gap = 8;
+  const barW = (innerW - gap*(data.length-1)) / data.length;
+  const bars = data.map((d,i)=>{
+    const x = padX + i*(barW+gap);
+    const monthLabel = new Date(d.month+'-01').toLocaleDateString('th-TH',{month:'short', year:'2-digit'});
+    if(d.count === 0){
+      // zero month: a thin baseline tick instead of an invisible/misleading bar
+      const y = padT + innerH - 3;
+      return `
+        <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="3" rx="1.5" fill="rgba(255,255,255,.08)"/>
+        <text x="${(x+barW/2).toFixed(1)}" y="${h-7}" text-anchor="middle" font-size="8.5" fill="#5f7590" font-family="IBM Plex Mono, monospace">${monthLabel}</text>`;
+    }
+    const bh = Math.max((d.count/max)*innerH, 6);
+    const y = padT + innerH - bh;
+    return `
+      <text x="${(x+barW/2).toFixed(1)}" y="${(y-6).toFixed(1)}" text-anchor="middle" font-size="9.5" fill="#eaf1f8" font-weight="600" font-family="IBM Plex Mono, monospace">${d.count}</text>
+      <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="4" fill="#e8c468"/>
+      <text x="${(x+barW/2).toFixed(1)}" y="${h-7}" text-anchor="middle" font-size="8.5" fill="#8fa3b8" font-family="IBM Plex Mono, monospace">${monthLabel}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" style="display:block;">
+    <line x1="${padX}" y1="${padT+innerH}" x2="${w-padX}" y2="${padT+innerH}" stroke="rgba(232,196,104,.15)" stroke-width="1"/>
+    ${bars}
+  </svg>`;
+}
+
+function vendorTags(vendor){
+  const cats = new Set();
+  vendor.pos.forEach(po=> cats.add(CATEGORY_LABEL[guessIcon(po.itemDesc)]));
+  return Array.from(cats);
+}
+
+function openVendorModal(id){
+  const v = vendors.find(x=>x.id===id);
+  if(!v) return;
+  const groups = getInvoiceGroups(v);
   const allDeliveries = v.pos.flatMap(po=>po.deliveries);
   const lastDate = allDeliveries.length ? allDeliveries.map(d=>d.date).sort().slice(-1)[0] : null;
-  const isOpen = openSet.has(v.id);
+  const daysSince = lastDate ? Math.floor((Date.now() - new Date(lastDate+'T00:00:00').getTime())/86400000) : null;
+  const isActive = daysSince !== null && daysSince <= 90;
+  const breakdown = vendorItemBreakdown(v);
+  const monthly = vendorMonthlyCounts(v);
+  const tags = vendorTags(v);
+
+  const panel = document.getElementById('vendorModalPanel');
+  panel.innerHTML = `
+    <div class="modal-head">
+      <button class="modal-close" id="modalCloseBtn" aria-label="ปิด">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="m-tag">${v.id.toUpperCase()} · ${v.category}</div>
+      <h2>${v.name}</h2>
+      <div class="status-badge ${isActive?'active':'inactive'}">
+        <span class="dot2"></span> ${isActive ? 'Active' : (lastDate ? 'ไม่มีการส่งของช่วงหลัง' : 'ยังไม่มีประวัติ')}
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="m-stats">
+        <div class="m-stat"><div class="m-label">จำนวน PO</div><div class="m-value">${groups.length}</div></div>
+        <div class="m-stat"><div class="m-label">รายการสินค้า</div><div class="m-value">${v.pos.length}</div></div>
+        <div class="m-stat"><div class="m-label">รับล่าสุด</div><div class="m-value" style="font-size:13.5px;">${lastDate ? fmtShort(lastDate) : '—'}</div></div>
+      </div>
+
+      <div class="m-charts">
+        <div class="m-panel">
+          <h4>สัดส่วนรายการสินค้าที่รับ</h4>
+          ${donutSVG(breakdown)}
+          <div class="donut-legend">
+            ${breakdown.map(b=>`<div><span class="dl-name"><i class="dl-dot" style="background:${b.color}"></i><span>${b.label}</span></span><b>${b.value}</b></div>`).join('')}
+          </div>
+        </div>
+        <div class="m-panel">
+          <h4>จำนวนครั้งที่ส่งของรายเดือน</h4>
+          ${monthlyBarSVG(monthly)}
+        </div>
+      </div>
+
+      <div class="m-tags">${tags.map(t=>`<span class="m-tag-chip">${t}</span>`).join('')}</div>
+
+      <div class="m-section-title"><span>ประวัติการรับของ (${groups.length} PO)</span></div>
+      <div class="m-history">
+        ${groups.map((g,i)=>`
+          <div class="m-history-row" data-idx="${i}">
+            <div class="m-history-head">
+              <div>
+                <div class="m-hnum">${g.invoice}</div>
+                <div class="m-hdate">${fmtDate(g.date)}</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="m-hcount">${g.items.length} รายการ</span>
+                <svg class="m-hchevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>
+              </div>
+            </div>
+            <div class="m-history-body"><div class="m-history-body-inner">
+              ${g.items.map(poRowHTML).join('')}
+            </div></div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  panel.querySelector('#modalCloseBtn').addEventListener('click', closeVendorModal);
+  panel.querySelectorAll('.m-history-head').forEach(head=>{
+    head.addEventListener('click', ()=> head.closest('.m-history-row').classList.toggle('open'));
+  });
+
+  document.getElementById('vendorModalOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeVendorModal(){
+  document.getElementById('vendorModalOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('vendorModalOverlay').addEventListener('click', e=>{
+  if(e.target.id === 'vendorModalOverlay') closeVendorModal();
+});
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeVendorModal(); });
+
+function vendorCardHTML(v, idx){
+  const totalPO = getInvoiceGroups(v).length;
+  const allDeliveries = v.pos.flatMap(po=>po.deliveries);
+  const lastDate = allDeliveries.length ? allDeliveries.map(d=>d.date).sort().slice(-1)[0] : null;
   return `
-    <div class="vendor-card ${isOpen?'open':''}" data-id="${v.id}" style="animation-delay:${idx*55}ms" tabindex="0">
+    <div class="vendor-card" data-id="${v.id}" style="animation-delay:${idx*55}ms" tabindex="0">
       <div class="vendor-head">
         <div class="avatar"><span>${v.initials}</span></div>
         <div class="vendor-info">
@@ -511,11 +822,8 @@ function vendorCardHTML(v, idx){
             <span>ส่งล่าสุด <b>${lastDate ? fmtShort(lastDate) : '—'}</b></span>
           </div>
         </div>
-        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>
       </div>
-      <div class="po-panel"><div class="po-panel-inner">
-        ${v.pos.map(poRowHTML).join('')}
-      </div></div>
     </div>`;
 }
 
@@ -543,13 +851,9 @@ function renderGrid(){
   }
   grid.innerHTML = filtered.map((v,i)=>vendorCardHTML(v,i)).join('');
   grid.querySelectorAll('.vendor-card').forEach(card=>{
-    card.addEventListener('click', (e)=>{
-      const id = card.dataset.id;
-      if(openSet.has(id)) openSet.delete(id); else openSet.add(id);
-      renderGrid();
-    });
+    card.addEventListener('click', ()=> openVendorModal(card.dataset.id));
     card.addEventListener('keydown', e=>{
-      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); card.click(); }
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openVendorModal(card.dataset.id); }
     });
   });
 }
@@ -567,20 +871,41 @@ document.getElementById('vendorGrid').innerHTML = `<div class="empty">
 renderChips();
 
 const deliveriesRef = collection(db, 'warehouse_deliveries');
-onSnapshot(deliveriesRef, (snapshot) => {
-  const docsData = snapshot.docs.map(doc => doc.data());
-  vendors = buildVendorsFromDocs(docsData);
-  document.getElementById('connTag').textContent = `LIVE · ${docsData.length} รายการรับของ`;
-  renderStats();
-  renderGrid();
-}, (err) => {
-  console.error('Firestore error:', err);
-  document.getElementById('connTag').textContent = 'เชื่อมต่อ Firestore ไม่สำเร็จ';
-  document.getElementById('vendorGrid').innerHTML = `<div class="empty">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-    <div>ไม่สามารถโหลดข้อมูลได้: ${err.message}<br>ตรวจสอบ Firestore Security Rules และการเชื่อมต่อเครือข่าย</div>
-  </div>`;
-});
+const connTag = document.getElementById('connTag');
+const refreshBtn = document.getElementById('refreshBtn');
+
+function fmtTime(d){
+  return d.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
+}
+
+// one-time fetch — replaces the old onSnapshot real-time listener so the page
+// only reads from Firestore when it first loads or when the user explicitly
+// clicks "รีเฟรช", instead of on every keystroke/re-render/remote write.
+async function fetchData(){
+  refreshBtn.disabled = true;
+  refreshBtn.classList.add('spinning');
+  try{
+    const snapshot = await getDocs(deliveriesRef);
+    const docsData = snapshot.docs.map(doc => doc.data());
+    vendors = buildVendorsFromDocs(docsData);
+    connTag.textContent = `อัปเดตล่าสุด ${fmtTime(new Date())} · ${docsData.length} รายการรับของ`;
+    renderStats();
+    renderGrid();
+  }catch(err){
+    console.error('Firestore error:', err);
+    connTag.textContent = 'เชื่อมต่อ Firestore ไม่สำเร็จ';
+    document.getElementById('vendorGrid').innerHTML = `<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <div>ไม่สามารถโหลดข้อมูลได้: ${err.message}<br>ตรวจสอบ Firestore Security Rules และการเชื่อมต่อเครือข่าย</div>
+    </div>`;
+  }finally{
+    refreshBtn.disabled = false;
+    refreshBtn.classList.remove('spinning');
+  }
+}
+
+refreshBtn.addEventListener('click', fetchData);
+fetchData();
 </script>
 </body>
 </html>
