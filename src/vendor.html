@@ -229,7 +229,7 @@
         <p>ติดตามผู้ขาย (Vendor) · PO · ประวัติการส่งของ</p>
       </div>
     </div>
-    <div class="header-tag">DEMO · ข้อมูลจำลอง</div>
+    <div class="header-tag" id="connTag">กำลังเชื่อมต่อ Firestore...</div>
   </header>
 
   <div class="stats" id="stats"></div>
@@ -246,7 +246,23 @@
 
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// same config as src/js/firebase.js
+const firebaseConfig = {
+  apiKey: "AIzaSyAkPFzgT7hLAxPVI129F-vRzA65MIx2VIs",
+  authDomain: "gunkul-my-task-system.firebaseapp.com",
+  projectId: "gunkul-my-task-system",
+  storageBucket: "gunkul-my-task-system.firebasestorage.app",
+  messagingSenderId: "877006770872",
+  appId: "1:877006770872:web:ec56ec0089512899811a4d"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 const STATUS = {
   complete: {label:'ส่งครบแล้ว', cls:'status-complete', dot:'#34d399'},
   partial:  {label:'ส่งบางส่วน', cls:'status-partial', dot:'#fbbf24'},
@@ -263,77 +279,86 @@ const CATEGORY_ICON = {
   electric:'M13 2 4 14h7l-1 8 9-12h-7l1-8Z'
 };
 
-const vendors = [
-  {
-    id:'v1', name:'บริษัท สยามโซล่าร์ เพาเวอร์ จำกัด', category:'แผงโซล่าเซลล์', icon:'solar', initials:'สพ',
-    pos:[
-      { poNumber:'PO-2026-0142', orderDate:'2026-05-10', itemDesc:'แผงโซล่าเซลล์ 550W (2,000 แผ่น)', qtyTotal:2000, unit:'แผ่น', status:'complete',
-        deliveries:[
-          {date:'2026-05-20', qty:800, receiver:'สมชาย', note:'งวด 1'},
-          {date:'2026-06-02', qty:700, receiver:'สมชาย', note:'งวด 2'},
-          {date:'2026-06-15', qty:500, receiver:'กมล', note:'งวด 3 ครบ'}
-        ]},
-      { poNumber:'PO-2026-0198', orderDate:'2026-06-20', itemDesc:'แผงโซล่าเซลล์ 600W (1,200 แผ่น)', qtyTotal:1200, unit:'แผ่น', status:'partial', eta:'กำหนดส่งงวดถัดไป 28 ก.ค. 2569',
-        deliveries:[
-          {date:'2026-07-01', qty:600, receiver:'สมชาย', note:'งวด 1'}
-        ]}
-    ]
-  },
-  {
-    id:'v2', name:'บริษัท ไทยเคเบิ้ล อินดัสตรี จำกัด', category:'สายไฟและเคเบิล', icon:'cable', initials:'ทค',
-    pos:[
-      { poNumber:'PO-2026-0110', orderDate:'2026-04-15', itemDesc:'สายไฟ DC 4mm² (15,000 ม.)', qtyTotal:15000, unit:'เมตร', status:'complete',
-        deliveries:[{date:'2026-04-25', qty:15000, receiver:'วิชัย', note:'ส่งครั้งเดียวครบ'}]},
-      { poNumber:'PO-2026-0205', orderDate:'2026-06-25', itemDesc:'สายไฟ AC 3x50mm² (8,000 ม.)', qtyTotal:8000, unit:'เมตร', status:'late', eta:'เลยกำหนดส่ง 10 ก.ค. 2569',
-        deliveries:[]}
-    ]
-  },
-  {
-    id:'v3', name:'บริษัท เอเชี่ยน อินเวอร์เตอร์ ซิสเต็มส์ จำกัด', category:'อินเวอร์เตอร์', icon:'inverter', initials:'ออ',
-    pos:[
-      { poNumber:'PO-2026-0088', orderDate:'2026-03-01', itemDesc:'อินเวอร์เตอร์ 1MW (8 เครื่อง)', qtyTotal:8, unit:'เครื่อง', status:'complete',
-        deliveries:[
-          {date:'2026-03-20', qty:4, receiver:'อรรถ', note:'งวด 1'},
-          {date:'2026-04-05', qty:4, receiver:'อรรถ', note:'งวด 2 ครบ'}
-        ]},
-      { poNumber:'PO-2026-0176', orderDate:'2026-06-05', itemDesc:'อินเวอร์เตอร์ 500kW (12 เครื่อง)', qtyTotal:12, unit:'เครื่อง', status:'partial', eta:'คงเหลือ 6 เครื่อง คาดส่ง ส.ค. 2569',
-        deliveries:[{date:'2026-06-28', qty:6, receiver:'กมล', note:'งวด 1'}]}
-    ]
-  },
-  {
-    id:'v4', name:'บริษัท กรุงเทพ สตีล เวิร์คส์ จำกัด', category:'โครงสร้างเหล็กติดตั้งแผง', icon:'steel', initials:'กส',
-    pos:[
-      { poNumber:'PO-2026-0130', orderDate:'2026-05-01', itemDesc:'โครงสร้างเหล็ก Mounting Structure (500 ชุด)', qtyTotal:500, unit:'ชุด', status:'complete',
-        deliveries:[
-          {date:'2026-05-18', qty:250, receiver:'วิชัย', note:'งวด 1'},
-          {date:'2026-05-30', qty:250, receiver:'วิชัย', note:'งวด 2 ครบ'}
-        ]},
-      { poNumber:'PO-2026-0220', orderDate:'2026-07-05', itemDesc:'โครงสร้าง Tracker Frame (150 ชุด)', qtyTotal:150, unit:'ชุด', status:'pending', eta:'กำหนดส่ง 25 ก.ค. 2569',
-        deliveries:[]}
-    ]
-  },
-  {
-    id:'v5', name:'บริษัท เนชั่นแนล แบตเตอรี่ ซัพพลาย จำกัด', category:'แบตเตอรี่กักเก็บพลังงาน (BESS)', icon:'battery', initials:'นบ',
-    pos:[
-      { poNumber:'PO-2026-0075', orderDate:'2026-02-10', itemDesc:'แบตเตอรี่สำรอง UPS (100 ลูก)', qtyTotal:100, unit:'ลูก', status:'complete',
-        deliveries:[{date:'2026-02-25', qty:100, receiver:'สมชาย', note:'ครบ'}]},
-      { poNumber:'PO-2026-0160', orderDate:'2026-06-01', itemDesc:'แบตเตอรี่ลิเธียม 2MWh (4 ตู้)', qtyTotal:4, unit:'ตู้', status:'partial', eta:'คงเหลือ 1 ตู้',
-        deliveries:[
-          {date:'2026-06-20', qty:2, receiver:'อรรถ', note:'งวด 1'},
-          {date:'2026-07-08', qty:1, receiver:'อรรถ', note:'งวด 2'}
-        ]}
-    ]
-  },
-  {
-    id:'v6', name:'บริษัท ไทย อีเลคทริค คอมโพเนนท์ จำกัด', category:'อุปกรณ์ไฟฟ้าและตู้ควบคุม', icon:'electric', initials:'ทอ',
-    pos:[
-      { poNumber:'PO-2026-0055', orderDate:'2026-01-15', itemDesc:'เบรกเกอร์และฟิวส์ (500 ชุด)', qtyTotal:500, unit:'ชุด', status:'complete',
-        deliveries:[{date:'2026-01-30', qty:500, receiver:'กมล', note:'ครบ'}]},
-      { poNumber:'PO-2026-0190', orderDate:'2026-06-15', itemDesc:'ตู้ควบคุมไฟฟ้า Switchgear (10 ตู้)', qtyTotal:10, unit:'ตู้', status:'complete',
-        deliveries:[{date:'2026-07-02', qty:10, receiver:'วิชัย', note:'ส่งครั้งเดียวครบ'}]}
-    ]
+let vendors = [];
+
+// --- helpers: map a raw warehouse_deliveries doc into the vendor/PO shape the UI expects ---
+const CATEGORY_LABEL = {
+  solar:'แผงโซล่าเซลล์/อุปกรณ์', cable:'สายไฟและเคเบิล', inverter:'อินเวอร์เตอร์',
+  steel:'โครงสร้างเหล็ก', battery:'แบตเตอรี่กักเก็บพลังงาน', electric:'อุปกรณ์ไฟฟ้าทั่วไป'
+};
+function guessIcon(text){
+  const t = text.toLowerCase();
+  if(/panel|โซล่า|solar/.test(t)) return 'solar';
+  if(/cable|สายไฟ|wire/.test(t)) return 'cable';
+  if(/inverter|อินเวอร์เตอร์/.test(t)) return 'inverter';
+  if(/steel|เหล็ก|structure|mounting|tracker/.test(t)) return 'steel';
+  if(/battery|แบตเตอรี่|bess/.test(t)) return 'battery';
+  return 'electric';
+}
+function makeInitials(name){
+  let n = (name||'').replace(/บริษัท|บจก\.?|ห้างหุ้นส่วนจำกัด|หจก\.?|จำกัด\s*\(มหาชน\)|จำกัด/g,'').trim();
+  if(!n) n = name || '?';
+  return n.slice(0,2) || '?';
+}
+
+// Turns the flat list of warehouse_deliveries documents into vendors -> PO -> deliveries
+function buildVendorsFromDocs(docsData){
+  const vendorMap = new Map(); // sender -> Map(poKey -> po)
+
+  docsData.forEach(d=>{
+    const sender = d.sender || 'ไม่ระบุผู้ขาย/ผู้ส่ง';
+    if(!vendorMap.has(sender)) vendorMap.set(sender, new Map());
+    const poMap = vendorMap.get(sender);
+    const invoice = d.invoice || d.note || '(ไม่มีเลขที่)';
+
+    (d.items || []).forEach(item=>{
+      const key = invoice + '||' + item.name + '||' + (item.unit || '');
+      if(!poMap.has(key)){
+        poMap.set(key, {
+          poNumber: invoice,
+          itemDesc: item.name || '-',
+          unit: item.unit || '-',
+          qtyTotal: 0,
+          orderDate: d.date,
+          status: 'complete', // this dataset only records goods already received
+          deliveries: []
+        });
+      }
+      const po = poMap.get(key);
+      const qty = Number(item.qty) || 0;
+      po.qtyTotal += qty;
+      if(d.date && d.date < po.orderDate) po.orderDate = d.date;
+      po.deliveries.push({
+        date: d.date,
+        qty,
+        receiver: d.receivedBy || '-',
+        note: d.note || ''
+      });
+    });
+  });
+
+  const built = [];
+  let idx = 0;
+  for(const [sender, poMap] of vendorMap.entries()){
+    idx++;
+    const pos = Array.from(poMap.values()).map(po=>{
+      po.deliveries.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+      return po;
+    }).sort((a,b)=>(b.orderDate||'').localeCompare(a.orderDate||''));
+    const allText = pos.map(p=>p.itemDesc).join(' ');
+    const icon = guessIcon(allText);
+    built.push({
+      id: 'v'+idx,
+      name: sender,
+      category: CATEGORY_LABEL[icon],
+      icon,
+      initials: makeInitials(sender),
+      pos
+    });
   }
-];
+  built.sort((a,b)=>a.name.localeCompare(b.name,'th'));
+  return built;
+}
 
 const fmtDate = iso => new Date(iso + 'T00:00:00').toLocaleDateString('th-TH', {day:'numeric', month:'short', year:'numeric'});
 const fmtShort = iso => new Date(iso + 'T00:00:00').toLocaleDateString('th-TH', {day:'numeric', month:'short'});
@@ -344,11 +369,12 @@ let searchQuery = '';
 let openSet = new Set();
 
 function computeStats(){
+  const ym = new Date().toISOString().slice(0,7);
   let totalPO = 0, deliveriesThisMonth = 0, pendingPO = 0;
   vendors.forEach(v => v.pos.forEach(po => {
     totalPO++;
     if(po.status !== 'complete') pendingPO++;
-    po.deliveries.forEach(d => { if(d.date.startsWith('2026-07')) deliveriesThisMonth++; });
+    po.deliveries.forEach(d => { if((d.date||'').startsWith(ym)) deliveriesThisMonth++; });
   }));
   return { totalVendors: vendors.length, totalPO, deliveriesThisMonth, pendingPO };
 }
@@ -533,9 +559,28 @@ document.getElementById('searchInput').addEventListener('input', e=>{
   renderGrid();
 });
 
-renderStats();
+// initial loading state
+document.getElementById('vendorGrid').innerHTML = `<div class="empty">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+  <div>กำลังโหลดข้อมูลจาก Firestore (warehouse_deliveries)...</div>
+</div>`;
 renderChips();
-renderGrid();
+
+const deliveriesRef = collection(db, 'warehouse_deliveries');
+onSnapshot(deliveriesRef, (snapshot) => {
+  const docsData = snapshot.docs.map(doc => doc.data());
+  vendors = buildVendorsFromDocs(docsData);
+  document.getElementById('connTag').textContent = `LIVE · ${docsData.length} รายการรับของ`;
+  renderStats();
+  renderGrid();
+}, (err) => {
+  console.error('Firestore error:', err);
+  document.getElementById('connTag').textContent = 'เชื่อมต่อ Firestore ไม่สำเร็จ';
+  document.getElementById('vendorGrid').innerHTML = `<div class="empty">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <div>ไม่สามารถโหลดข้อมูลได้: ${err.message}<br>ตรวจสอบ Firestore Security Rules และการเชื่อมต่อเครือข่าย</div>
+  </div>`;
+});
 </script>
 </body>
 </html>
