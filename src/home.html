@@ -389,7 +389,7 @@ tbody tr:hover{ background:var(--surface-alt); }
 <div class="topbar fade-up">
   <div>
     <div class="eyebrow">GUNKUL WAREHOUSE · NOPPAWONG</div>
-    <h1 id="greetingTitle">สวัสดี 👋</h1>
+    <h1 id="greetingTitle">สวัสดี</h1>
     <div class="date-line"><i class="ti ti-calendar-event"></i><span id="todayDate">—</span></div>
   </div>
   <div class="topbar-actions">
@@ -691,7 +691,7 @@ onAuthStateChanged(auth, async (user) => {
       }
     } catch(e){ /* เงียบไว้ ใช้ค่า fallback */ }
   }
-  document.getElementById('greetingTitle').textContent = `${greetWord}, ${displayName} 👋`;
+  document.getElementById('greetingTitle').textContent = `${greetWord}, ${displayName}`;
   document.getElementById('userNameTop').textContent = displayName;
   document.getElementById('userAvatar').textContent = initials(displayName);
 });
