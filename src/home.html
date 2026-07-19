@@ -1,385 +1,1066 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GUNKUL Engineering - Green & Sustainable Supply Chain Hub</title>
+<title>หน้าหลัก — GUNKUL Warehouse</title>
 
-7<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<script>
+  /* ตั้งค่าธีมก่อนวาดหน้าจอ เพื่อไม่ให้เกิดการกระพริบสี */
+  (function(){
+    var saved = localStorage.getItem('gunkul_theme');
+    if (saved === 'dark') document.documentElement.setAttribute('data-theme','dark');
+  })();
+</script>
 
 <style>
-:root {
-  --bg-clean: #f8fafc;
-  --panel-glass: rgba(255, 255, 255, 0.8);
-  --border-subtle: rgba(16, 185, 129, 0.12);
-  
-  --gunkul-orange: #f97316;
-  --eco-green: #10b981;
-  --eco-mint: #059669;
-  --clean-blue: #0284c7;
-  
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --card-shadow: 0 20px 40px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+:root{
+  --bg:#eef0f5;
+  --bg-soft:#e5e8f0;
+  --surface:#ffffff;
+  --surface-alt:#f6f7fb;
+  --border:rgba(20,25,50,0.08);
+  --border-strong:rgba(20,25,50,0.14);
+  --ink:#161a2c;
+  --ink-soft:#5c6178;
+  --ink-faint:#9498ab;
+
+  --gold:#c1924a;
+  --gold-soft:rgba(193,146,74,0.14);
+  --navy:#28305c;
+  --navy-deep:#131316;
+
+  --success:#0f9d70;
+  --success-bg:rgba(15,157,112,0.12);
+  --warn:#c8790f;
+  --warn-bg:rgba(200,121,15,0.13);
+  --danger:#d64545;
+  --danger-bg:rgba(214,69,69,0.12);
+  --slate:#5b6b8c;
+  --slate-bg:rgba(91,107,140,0.12);
+
+  --shadow: 0 20px 44px -26px rgba(20,25,50,0.28), 0 2px 8px rgba(20,25,50,0.04);
+  --shadow-sm: 0 8px 20px -12px rgba(20,25,50,0.18);
+  --r-lg:20px; --r-md:14px; --r-sm:10px;
+  --font-ui:'Plus Jakarta Sans','IBM Plex Sans Thai',sans-serif;
+  --font-mono:'Share Tech Mono',monospace;
 }
 
-html { scroll-behavior: smooth; }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  background: var(--bg-clean);
-  color: var(--text-main);
-  font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Thai', sans-serif;
-  overflow-x: hidden;
-  background-image: 
-    linear-gradient(rgba(16, 185, 129, 0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(16, 185, 129, 0.015) 1px, transparent 1px);
-  background-size: 50px 50px;
+html[data-theme="dark"]{
+  --bg:#131317;
+  --bg-soft:#0e0f12;
+  --surface:#1b1c22;
+  --surface-alt:#212229;
+  --border:rgba(255,255,255,0.075);
+  --border-strong:rgba(255,255,255,0.13);
+  --ink:#f2f2f4;
+  --ink-soft:#97979f;
+  --ink-faint:#65656d;
+
+  --gold:#d0a154;
+  --gold-soft:rgba(208,161,84,0.16);
+  --success:#2fbf8f;
+  --success-bg:rgba(47,191,143,0.15);
+  --warn:#e0a43b;
+  --warn-bg:rgba(224,164,59,0.15);
+  --danger:#e8685f;
+  --danger-bg:rgba(232,104,95,0.15);
+  --slate:#8ea0c9;
+  --slate-bg:rgba(142,160,201,0.14);
+
+  --shadow: 0 24px 50px -24px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-sm: 0 10px 22px -14px rgba(0,0,0,0.5);
 }
 
-.glow-backdrop {
-  position: fixed; width: 800px; height: 800px; border-radius: 50%;
-  top: 50%; left: 50%; transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, transparent 70%);
-  pointer-events: none; z-index: 0; filter: blur(100px);
-  transition: background 1.2s ease;
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-ui);
+  padding:26px 30px 46px;
+  min-height:100vh;
+  transition:background .35s ease, color .35s ease;
+}
+a{color:inherit;}
+button{font-family:inherit;}
+::selection{background:var(--gold); color:#1a1200;}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important; transition-duration:.01ms !important;}
 }
 
-.navbar {
-  position: fixed; top: 0; left: 0; width: 100%; z-index: 100;
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 18px 50px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+/* ============ layout helpers ============ */
+.grid{display:grid; gap:20px;}
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);
+  transition:background .35s ease, border-color .35s ease, box-shadow .2s ease, transform .2s ease;
 }
-.brand { display: flex; align-items: center; gap: 15px; }
-.logo-icon {
-  width: 40px; height: 40px; background: linear-gradient(135deg, var(--eco-green), var(--eco-mint));
-  border-radius: 12px; display: flex; align-items: center; justify-content: center;
-  font-size: 20px; color: #fff; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
-}
-.brand-info h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; color: var(--text-main); }
-.brand-info p { font-size: 10px; color: var(--eco-mint); font-weight: 600; letter-spacing: 1.5px; }
+.card-pad{padding:22px 22px;}
+.card-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:16px;}
+.card-title{font-size:14.5px; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:8px;}
+.card-sub{font-size:11.5px; color:var(--ink-faint); margin-top:3px; font-weight:500;}
+.eyebrow{font-size:11px; font-weight:700; letter-spacing:1.4px; color:var(--gold); text-transform:uppercase;}
 
-.nav-links { display: flex; gap: 30px; list-style: none; font-size: 13px; font-weight: 600; }
-.nav-links a { color: var(--text-muted); text-decoration: none; transition: 0.3s; }
-.nav-links a:hover, .nav-links a.active { color: var(--eco-mint); }
+.fade-up{opacity:0; transform:translateY(10px); animation:fadeUp .5s ease forwards;}
+@keyframes fadeUp{to{opacity:1; transform:translateY(0);}}
 
-.reveal-block {
-  opacity: 0; transform: translateY(50px);
-  transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+/* skeleton */
+.skel{position:relative; overflow:hidden; background:var(--surface-alt); border-radius:8px; color:transparent !important;}
+.skel::after{
+  content:""; position:absolute; inset:0; transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);
+  animation:shimmer 1.4s infinite;
 }
-.reveal-block.in-view {
-  opacity: 1; transform: translateY(0);
+html[data-theme="dark"] .skel::after{ background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent); }
+@keyframes shimmer{100%{transform:translateX(100%);}}
+
+/* ============ topbar ============ */
+.topbar{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:20px;
+  flex-wrap:wrap; margin-bottom:26px;
+}
+.topbar h1{font-size:24px; font-weight:800; margin:4px 0 4px; letter-spacing:-0.3px;}
+.topbar .date-line{font-size:12.5px; color:var(--ink-soft); font-weight:500;}
+.date-line i{margin-right:5px;}
+
+.topbar-actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.search-box{
+  display:flex; align-items:center; gap:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:9px 14px; min-width:220px; box-shadow:var(--shadow-sm);
+}
+.search-box input{
+  border:none; outline:none; background:transparent; font-size:13px; color:var(--ink);
+  font-family:inherit; width:100%;
+}
+.search-box i{color:var(--ink-faint); font-size:16px;}
+.search-box input::placeholder{color:var(--ink-faint);}
+
+.icon-btn{
+  width:38px; height:38px; border-radius:11px; border:1px solid var(--border);
+  background:var(--surface); display:flex; align-items:center; justify-content:center;
+  cursor:pointer; position:relative; color:var(--ink-soft); box-shadow:var(--shadow-sm);
+  transition:transform .15s ease, color .2s ease, border-color .2s ease;
+}
+.icon-btn:hover{ color:var(--gold); transform:translateY(-1px); border-color:var(--gold-soft); }
+.icon-btn i{font-size:18px;}
+
+.theme-toggle{
+  display:flex; align-items:center; gap:6px; padding:5px; border-radius:999px;
+  background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm); cursor:pointer;
+}
+.theme-toggle .seg{
+  width:30px; height:28px; border-radius:999px; display:flex; align-items:center; justify-content:center;
+  color:var(--ink-faint); font-size:14px; transition:all .25s ease;
+}
+.theme-toggle .seg.active{ background:var(--navy); color:#fff; }
+html[data-theme="dark"] .theme-toggle .seg.active{ background:var(--gold); color:#1a1200; }
+
+.user-chip{
+  display:flex; align-items:center; gap:9px; background:var(--surface); border:1px solid var(--border);
+  border-radius:999px; padding:5px 14px 5px 5px; box-shadow:var(--shadow-sm);
+}
+.avatar{
+  width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,var(--navy),#3a4680);
+  color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12.5px;
+  flex-shrink:0;
+}
+.user-chip .u-name{font-size:12.5px; font-weight:700; line-height:1.2;}
+.user-chip .u-role{font-size:10px; color:var(--ink-faint); font-weight:600;}
+
+/* ============ KPI row ============ */
+.kpi-row{ grid-template-columns: repeat(4, 1fr); grid-auto-rows: auto; margin-bottom:20px; }
+.kpi-card{ padding:20px 20px 18px; display:flex; flex-direction:column; }
+.kpi-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
+.kpi-top{display:flex; align-items:center; justify-content:space-between;}
+.kpi-icon{
+  width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:18px;
+}
+.kpi-link{
+  width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+  color:var(--ink-faint); border:1px solid var(--border); font-size:12px; transition:.2s;
+}
+.kpi-link:hover{ color:var(--gold); border-color:var(--gold-soft); }
+.kpi-label{font-size:11.5px; font-weight:700; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.6px; margin-top:14px;}
+.kpi-value{font-family:var(--font-mono); font-size:38px; font-weight:700; line-height:1.05; margin:6px 0 10px;}
+.kpi-sub{font-size:12px; color:var(--ink-soft); display:flex; align-items:center; gap:6px; font-weight:500;}
+.kpi-pct{font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:20px;}
+.kpi-spark{display:flex; align-items:flex-end; gap:3px; height:24px; margin-top:auto; padding-top:12px;}
+.kpi-spark b{flex:1; border-radius:3px 3px 0 0; background:var(--border-strong); min-height:3px;}
+
+/* ============ ticket card ============ */
+.ticket{
+  grid-row: span 2;
+  background:linear-gradient(160deg, var(--navy) 0%, var(--navy-deep) 100%);
+  border-radius:var(--r-lg); color:#f4f4f7; padding:22px 22px 20px; position:relative; overflow:hidden;
+  display:flex; flex-direction:column; box-shadow:var(--shadow);
+  border:1px solid rgba(255,255,255,0.06);
+}
+.ticket::before{
+  content:""; position:absolute; top:-60px; right:-60px; width:180px; height:180px; border-radius:50%;
+  background:radial-gradient(circle, rgba(208,161,84,0.25), transparent 70%);
+}
+.ticket-head{display:flex; align-items:center; justify-content:space-between; position:relative; z-index:1;}
+.ticket-head .t-label{font-size:12px; font-weight:700; color:#d0a154; letter-spacing:.4px; display:flex; align-items:center; gap:7px;}
+.ticket-badge{
+  width:30px; height:30px; border-radius:9px; background:rgba(255,255,255,0.08); display:flex;
+  align-items:center; justify-content:center; font-size:15px; color:#d0a154;
+}
+.ticket-body{margin-top:18px; position:relative; z-index:1;}
+.ticket-vendor{display:flex; align-items:center; gap:11px;}
+.ticket-avatar{
+  width:42px; height:42px; border-radius:12px; background:rgba(255,255,255,0.09); display:flex;
+  align-items:center; justify-content:center; font-weight:800; font-size:15px; color:#fff; flex-shrink:0;
+}
+.ticket-vendor-name{font-size:15.5px; font-weight:700;}
+.ticket-vendor-meta{font-size:11.5px; color:#a9adc4; margin-top:2px;}
+.ticket-invoice{
+  margin-top:16px; font-family:var(--font-mono); font-size:13px; color:#e8d6b0;
+  background:rgba(255,255,255,0.06); border:1px dashed rgba(255,255,255,0.18); border-radius:10px;
+  padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+.ticket-wait{font-size:11px; color:#e0a43b; font-weight:700; margin-top:10px; display:flex; align-items:center; gap:5px;}
+
+.perforation{
+  position:relative; margin:18px -22px 14px; height:1px; border-top:1px dashed rgba(255,255,255,0.18); z-index:1;
+}
+.perforation::before,.perforation::after{
+  content:""; position:absolute; top:-8px; width:16px; height:16px; border-radius:50%; background:var(--bg);
+}
+html[data-theme="dark"] .perforation::before, html[data-theme="dark"] .perforation::after{ background:var(--bg); }
+.perforation::before{ left:-8px; }
+.perforation::after{ right:-8px; }
+
+.ticket-cta{
+  margin-top:auto; display:flex; align-items:center; justify-content:center; gap:8px;
+  background:var(--gold); color:#241a05; font-weight:800; font-size:13.5px; text-decoration:none;
+  padding:12px; border-radius:12px; position:relative; z-index:1; transition:filter .2s ease, transform .2s ease;
+}
+.ticket-cta:hover{ filter:brightness(1.08); transform:translateY(-1px); }
+.ticket-cta i{font-size:16px;}
+
+.ticket-next-label{font-size:10.5px; font-weight:700; color:#8489a3; letter-spacing:.5px; margin-bottom:8px; text-transform:uppercase; position:relative; z-index:1;}
+.ticket-next-item{
+  display:flex; align-items:center; gap:9px; padding:8px 0; font-size:12.5px; position:relative; z-index:1;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+.ticket-next-item .dot{width:6px; height:6px; border-radius:50%; background:#e0a43b; flex-shrink:0;}
+.ticket-next-item .n-name{font-weight:600; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.ticket-next-item .n-inv{color:#8489a3; font-family:var(--font-mono); font-size:11px;}
+.ticket-empty{ font-size:12.5px; color:#a9adc4; text-align:center; padding:20px 0; position:relative; z-index:1; }
+
+/* ============ overview row ============ */
+.overview-row{ grid-template-columns: 1.6fr 1fr 1fr; margin-bottom:20px; align-items:stretch; }
+
+.period-pills{display:flex; gap:6px; background:var(--surface-alt); padding:4px; border-radius:10px; border:1px solid var(--border);}
+.period-pill{
+  border:none; background:transparent; font-size:11.5px; font-weight:700; color:var(--ink-faint);
+  padding:6px 11px; border-radius:7px; cursor:pointer; transition:.2s;
+}
+.period-pill.active{ background:var(--surface); color:var(--navy); box-shadow:var(--shadow-sm); }
+html[data-theme="dark"] .period-pill.active{ color:var(--gold); }
+.chart-note{font-size:10.5px; color:var(--ink-faint); margin-top:10px;}
+.chart-wrap{height:230px; position:relative;}
+
+/* donut */
+.donut-card{display:flex; flex-direction:column; align-items:center;}
+.donut-wrap{position:relative; width:150px; height:150px; margin:6px auto 4px;}
+.donut-center{
+  position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.donut-center .d-num{font-family:var(--font-mono); font-size:26px; font-weight:700;}
+.donut-center .d-txt{font-size:10px; color:var(--ink-faint); font-weight:600; margin-top:2px;}
+.legend-row{display:flex; flex-direction:column; gap:10px; width:100%; margin-top:14px;}
+.legend-item{display:flex; align-items:center; gap:9px; font-size:12.5px;}
+.legend-dot{width:9px; height:9px; border-radius:3px; flex-shrink:0;}
+.legend-item .l-name{flex:1; color:var(--ink-soft); font-weight:600;}
+.legend-item .l-val{font-family:var(--font-mono); font-weight:700;}
+
+/* progress ring stack */
+.ring-stack{display:flex; flex-direction:column; gap:20px;}
+.ring-card{ display:flex; align-items:center; gap:16px; }
+.ring-svg{flex-shrink:0;}
+.ring-svg .track{stroke:var(--border-strong);}
+.ring-info .r-num{font-family:var(--font-mono); font-size:22px; font-weight:700;}
+.ring-info .r-label{font-size:12px; font-weight:700; margin-top:2px;}
+.ring-info .r-sub{font-size:11px; color:var(--ink-faint); margin-top:3px;}
+
+/* ============ lower row ============ */
+.lower-row{ grid-template-columns: 1.7fr 1fr; align-items:start; }
+
+table{width:100%; border-collapse:collapse; font-size:13px;}
+thead th{
+  text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-faint);
+  font-weight:700; padding:0 10px 10px; border-bottom:1px solid var(--border);
+}
+tbody td{ padding:12px 10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+tbody tr:last-child td{ border-bottom:none; }
+tbody tr{ transition:background .15s ease; }
+tbody tr:hover{ background:var(--surface-alt); }
+.row-sender{display:flex; align-items:center; gap:10px;}
+.mini-avatar{
+  width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:11.5px; color:#fff; flex-shrink:0;
+}
+.row-sender .s-name{font-weight:700; font-size:12.8px;}
+.row-sender .s-inv{font-size:11px; color:var(--ink-faint); font-family:var(--font-mono);}
+.badge{
+  display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:5px 10px; border-radius:20px;
+}
+.badge .bdot{width:6px; height:6px; border-radius:50%;}
+.badge-received{ background:var(--success-bg); color:var(--success); }
+.badge-received .bdot{ background:var(--success); }
+.badge-pending{ background:var(--warn-bg); color:var(--warn); }
+.badge-pending .bdot{ background:var(--warn); }
+.receipt-link{
+  display:flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:9px;
+  border:1px solid var(--border); color:var(--ink-faint); text-decoration:none; transition:.2s;
+}
+.receipt-link:hover{ color:var(--gold); border-color:var(--gold-soft); }
+.view-all-link{ font-size:12px; font-weight:700; color:var(--gold); text-decoration:none; display:flex; align-items:center; gap:4px; }
+.empty-row td{ text-align:center; padding:30px 10px; color:var(--ink-faint); font-size:12.5px; }
+
+.vendor-item{ display:flex; align-items:center; gap:11px; padding:11px 0; border-bottom:1px solid var(--border); }
+.vendor-item:last-child{ border-bottom:none; }
+.vendor-sq{
+  width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:13px; color:#fff; flex-shrink:0;
+}
+.vendor-info{flex:1; min-width:0;}
+.vendor-name{font-size:12.8px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.vendor-meta{font-size:10.5px; color:var(--ink-faint); margin:2px 0 6px; font-weight:600;}
+.vendor-bar-track{height:5px; border-radius:6px; background:var(--border-strong); overflow:hidden;}
+.vendor-bar-fill{height:100%; border-radius:6px; background:var(--success);}
+.vendor-pct{font-size:11px; font-weight:700; color:var(--ink-soft); flex-shrink:0; width:34px; text-align:right;}
+
+.shortcut-row{ display:grid; grid-template-columns:repeat(2,1fr); gap:9px; margin-top:16px; }
+.shortcut-btn{
+  display:flex; align-items:center; gap:8px; padding:10px 12px; border-radius:11px; border:1px solid var(--border);
+  background:var(--surface-alt); text-decoration:none; color:var(--ink); font-size:12px; font-weight:700; transition:.2s;
+}
+.shortcut-btn:hover{ border-color:var(--gold-soft); color:var(--gold); transform:translateY(-1px); }
+.shortcut-btn i{font-size:15px; color:var(--gold);}
+
+/* error state */
+.err-box{
+  display:flex; align-items:center; gap:10px; background:var(--danger-bg); color:var(--danger); border-radius:12px;
+  padding:12px 14px; font-size:12.5px; font-weight:600; margin-bottom:18px;
+}
+.err-box button{ margin-left:auto; background:var(--danger); color:#fff; border:none; border-radius:8px; padding:6px 12px; font-size:11.5px; font-weight:700; cursor:pointer; }
+
+/* cache badge */
+.cache-note{
+  font-size:10.5px; color:var(--ink-faint); display:flex; align-items:center; gap:5px; margin-bottom:14px;
+}
+.cache-note i{font-size:13px;}
+.cache-note button{
+  border:none; background:none; color:var(--gold); font-weight:700; font-size:10.5px; cursor:pointer;
+  text-decoration:underline; padding:0; font-family:inherit;
 }
 
-.section-hero {
-  min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
-  padding: 140px 50px 50px 50px; max-width: 1440px; margin: 0 auto; position: relative; z-index: 10;
+/* responsive */
+@media (max-width:1180px){
+  .kpi-row{ grid-template-columns: repeat(2,1fr); }
+  .ticket{ grid-row: span 1; }
+  .overview-row{ grid-template-columns: 1fr 1fr; }
 }
-.hero-title h2 {
-  font-size: 52px; font-weight: 700; letter-spacing: -1px; line-height: 1.2;
-  color: var(--text-main);
+@media (max-width:900px){
+  .lower-row{ grid-template-columns: 1fr; }
+  .overview-row{ grid-template-columns: 1fr; }
+  body{ padding:20px 16px 36px; }
+  table{ display:block; overflow-x:auto; white-space:nowrap; }
 }
-.hero-title p { color: var(--text-muted); margin-top: 12px; font-size: 16px; max-width: 600px; }
-
-.bento-container {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin: 50px 0;
-}
-.bento-item {
-  background: var(--panel-glass); border: 1px solid rgba(0, 0, 0, 0.05); border-radius: 24px;
-  padding: 35px; position: relative; overflow: hidden; backdrop-filter: blur(20px);
-  box-shadow: var(--card-shadow);
-  transform-style: preserve-3d; transition: all 0.4s ease; cursor: pointer;
-}
-.bento-item:hover { 
-  border-color: rgba(16, 185, 129, 0.3);
-  box-shadow: 0 30px 50px rgba(15, 23, 42, 0.08);
-}
-.bento-item::before {
-  content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 4px;
-  opacity: 0; transition: opacity 0.3s;
-}
-.bento-item:hover::before { opacity: 1; }
-
-.b-all:hover::before { background: var(--clean-blue); }
-.b-supplier:hover::before { background: var(--gunkul-orange); }
-.b-pending:hover::before { background: #ef4444; }
-.b-success:hover::before { background: var(--eco-green); }
-
-.item-label { font-size: 11px; color: var(--text-muted); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
-.item-value { font-family: 'Share Tech Mono', monospace; font-size: 64px; font-weight: 700; margin: 20px 0 10px 0; line-height: 1; color: var(--text-main); }
-.b-all .item-value { color: var(--clean-blue); }
-.b-supplier .item-value { color: var(--gunkul-orange); }
-.b-success .item-value { color: var(--eco-green); }
-.item-subtext { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
-
-.scroll-indicator {
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  margin-top: auto; color: var(--text-muted); font-size: 12px; font-weight: 600;
-}
-.mouse {
-  width: 20px; height: 32px; border: 2px solid var(--text-muted); border-radius: 15px; position: relative;
-}
-.wheel {
-  width: 4px; height: 8px; background: var(--eco-green); border-radius: 2px;
-  position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
-  animation: scroll 1.5s infinite;
-}
-@keyframes scroll { 0% { top: 6px; opacity: 1; } 100% { top: 16px; opacity: 0; } }
-
-.section-sustainability {
-  min-height: 100vh; padding: 120px 50px; max-width: 1440px; margin: 0 auto; position: relative; z-index: 10;
-}
-.section-header-center { text-align: center; margin-bottom: 70px; }
-.section-header-center span { color: var(--eco-mint); font-size: 13px; font-weight: 700; letter-spacing: 2px; }
-.section-header-center h3 { font-size: 38px; font-weight: 700; margin-top: 8px; color: var(--text-main); }
-
-.framework-layout { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-.framework-card {
-  background: var(--panel-glass); border: 1px solid rgba(0, 0, 0, 0.05); border-radius: 24px;
-  padding: 40px; backdrop-filter: blur(20px); box-shadow: var(--card-shadow); transition: 0.4s;
-}
-.framework-card:hover { transform: translateY(-8px); border-color: rgba(16, 185, 129, 0.25); box-shadow: 0 25px 45px rgba(15, 23, 42, 0.06); }
-.framework-card i { font-size: 36px; margin-bottom: 25px; display: block; }
-
-.f-env i { color: var(--eco-green); }
-.f-soc i { color: var(--clean-blue); }
-.f-gov i { color: var(--gunkul-orange); }
-
-.framework-card h4 { font-size: 21px; font-weight: 700; margin-bottom: 15px; color: var(--text-main); }
-.framework-card p { color: var(--text-muted); font-size: 14px; line-height: 1.7; font-weight: 400; }
-
-/* SECTION 3: WE CARE SOCIAL & SDGs GRID MAP */
-.section-wecare {
-  min-height: 100vh; display: flex; align-items: center; padding: 120px 50px;
-  max-width: 1440px; margin: 0 auto; position: relative; z-index: 10;
-}
-.split-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 80px; align-items: center; width: 100%; }
-
-.media-container {
-  position: relative; border-radius: 32px; overflow: hidden;
-  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.1); border: 4px solid #fff;
-  aspect-ratio: 16/10;
-}
-.media-container img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s; }
-.media-container:hover img { transform: scale(1.04); }
-.badge-dot { position: absolute; top: 35px; left: 35px; width: 20px; height: 20px; background: var(--clean-blue); border-radius: 50%; box-shadow: 0 0 20px var(--clean-blue); }
-
-.info-container .tagline { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 6px; }
-.info-container .main-title { font-size: 48px; font-weight: 800; color: var(--clean-blue); letter-spacing: -0.5px; margin-bottom: 25px; }
-.info-container .body-text { font-size: 16px; color: var(--text-muted); line-height: 1.8; font-weight: 400; margin-bottom: 35px; }
-
-.sdg-box-wrapper { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 40px; }
-.sdg-block {
-  padding: 12px; border-radius: 12px; color: white; font-weight: 600;
-  display: flex; flex-direction: column; justify-content: space-between;
-  width: 80px; height: 80px; box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  transition: all 0.3s; cursor: pointer;
-}
-.sdg-block:hover { transform: translateY(-5px) scale(1.05); filter: brightness(1.1); }
-.sdg-block .num { font-size: 20px; font-family: 'Share Tech Mono', monospace; }
-.sdg-block .label { font-size: 9px; font-weight: 500; opacity: 0.95; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
-.action-link-btn {
-  background: #fff; color: var(--text-main); border: 1px solid rgba(0,0,0,0.08);
-  padding: 14px 30px; border-radius: 16px; font-size: 14px; font-weight: 600; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 12px; transition: 0.3s;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-}
-.action-link-btn i {
-  width: 24px; height: 24px; background: var(--eco-green); border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; transition: transform 0.3s;
-}
-.action-link-btn:hover { border-color: var(--eco-green); background: rgba(16,185,129,0.02); }
-.action-link-btn:hover i { transform: translateX(4px); }
-
-@media (max-width: 1100px) {
-  .bento-container, .framework-layout { grid-template-columns: repeat(2, 1fr); }
-  .split-grid { grid-template-columns: 1fr; gap: 50px; }
-  .section-hero, .section-sustainability, .section-wecare { padding: 100px 30px; }
-}
-@media (max-width: 650px) {
-  .bento-container, .framework-layout { grid-template-columns: 1fr; }
+@media (max-width:560px){
+  .kpi-row{ grid-template-columns: 1fr; }
+  .search-box{ min-width:0; flex:1; }
 }
 </style>
 </head>
 <body>
 
-<div class="glow-backdrop" id="bgGlow"></div>
-
-<nav class="navbar">
-  <div class="brand">
-    <div class="logo-icon"><i class="ti ti-building-warehouse"></i></div>
-    <div class="brand-info">
-      <h1>GUNKUL ENGINEERING</h1>
-      <p>WAREHOUSE NOPAWONG</p>
-    </div>
+<div class="topbar fade-up">
+  <div>
+    <div class="eyebrow">GUNKUL WAREHOUSE · NOPPAWONG</div>
+    <h1 id="greetingTitle">สวัสดี 👋</h1>
+    <div class="date-line"><i class="ti ti-calendar-event"></i><span id="todayDate">—</span></div>
   </div>
-  <ul class="nav-links">
-    <li><a href="#dashboard" class="active" id="lnk-dash">Dashboard</a></li>
-    <li><a href="#framework" id="lnk-frame">EESG Framework</a></li>
-    <li><a href="#social" id="lnk-social">Social Commitment</a></li>
-  </ul>
-</nav>
-
-<section class="section-hero" id="dashboard">
-  <div class="hero-title reveal-block">
-    <h2>Green Intelligence Portal</h2>
-    <p>ระบบควบคุมข้อมูลคลังสินค้า มุ่งเน้นการประหยัดพลังงานและการจัดการห่วงโซ่อุปทานที่เป็นมิตรต่อสิ่งแวดล้อม</p>
-  </div>
-
-  <div class="bento-container reveal-block">
-    <div class="bento-item b-all">
-      <div class="item-label">All Documents</div>
-      <div class="item-value">250</div>
-      <div class="item-subtext"><i class="ti ti-file-text"></i> เอกสารทั้งหมดในระบบคลัง</div>
+  <div class="topbar-actions">
+    <div class="search-box">
+      <i class="ti ti-search"></i>
+      <input id="searchInput" type="text" placeholder="ค้นหาผู้ส่ง, เลขที่ใบนำเข้า...">
     </div>
-    <div class="bento-item b-supplier">
-      <div class="item-label">Total Suppliers</div>
-      <div class="item-value">62</div>
-      <div class="item-subtext"><i class="ti ti-building-factory-2"></i> คู่ค้า</div>
+    <div class="theme-toggle" id="themeToggle" title="สลับโหมดแสง">
+      <div class="seg" id="segLight"><i class="ti ti-sun"></i></div>
+      <div class="seg" id="segDark"><i class="ti ti-moon"></i></div>
     </div>
-    <div class="bento-item b-pending">
-      <div class="item-label">Action Required</div>
-      <div class="item-value" style="color:#ef4444;">8</div>
-      <div class="item-subtext"><i class="ti ti-clock-bolt"></i> รายการงานที่ต้องเร่งดำเนินการ</div>
-    </div>
-    <div class="bento-item b-success">
-      <div class="item-label">In-Stock Success</div>
-      <div class="item-value">242</div>
-      <div class="item-subtext">
-        <span style="background:rgba(16,185,129,0.1); color:var(--eco-green); padding:2px 8px; border-radius:20px; font-size:11px; font-weight:700;">97%</span>
-        <span>รับเข้าคลังเรียบร้อย</span>
+    <div class="user-chip">
+      <div class="avatar" id="userAvatar">?</div>
+      <div>
+        <div class="u-name" id="userNameTop">กำลังโหลด...</div>
+        <div class="u-role">Warehouse Staff</div>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="scroll-indicator">
-    <span>SCROLL DOWN</span>
-    <div class="mouse"><div class="wheel"></div></div>
+<div id="errorBox" style="display:none;" class="err-box">
+  <i class="ti ti-alert-triangle"></i>
+  <span id="errorMsg">โหลดข้อมูลไม่สำเร็จ</span>
+  <button onclick="window.gunkulReload(true)">ลองใหม่</button>
+</div>
+
+<div id="cacheNote" class="cache-note" style="display:none;">
+  <i class="ti ti-database"></i>
+  <span id="cacheNoteText">ใช้ข้อมูลที่แคชไว้</span>
+  <button onclick="window.gunkulReload(true)">โหลดข้อมูลล่าสุด</button>
+</div>
+
+<!-- KPI ROW -->
+<div class="grid kpi-row">
+  <div class="card kpi-card fade-up" style="animation-delay:.05s">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background:var(--slate-bg); color:var(--slate);"><i class="ti ti-package"></i></div>
+      <a class="kpi-link" href="dashboard.html" title="ดูทั้งหมด"><i class="ti ti-arrow-up-right"></i></a>
+    </div>
+    <div class="kpi-label">เอกสารทั้งหมด</div>
+    <div class="kpi-value skel" id="kpiTotal">000</div>
+    <div class="kpi-sub"><i class="ti ti-file-text"></i> ใบนำเข้าในระบบคลัง</div>
+    <div class="kpi-spark" id="sparkTotal"></div>
   </div>
-</section>
 
-<section class="section-sustainability" id="framework">
-  <div class="section-header-center reveal-block">
-    <span>SUSTAINABILITY STRATEGY</span>
-    <h3>กรอบการพัฒนาองค์กรสู่ความยั่งยืน</h3>
+  <div class="card kpi-card fade-up" style="animation-delay:.1s">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background:var(--warn-bg); color:var(--warn);"><i class="ti ti-clock-hour-4"></i></div>
+      <a class="kpi-link" href="dashboard.html" title="ดูรายการรอดำเนินการ"><i class="ti ti-arrow-up-right"></i></a>
+    </div>
+    <div class="kpi-label">รอดำเนินการ</div>
+    <div class="kpi-value skel" style="color:var(--warn);" id="kpiPending">000</div>
+    <div class="kpi-sub" id="kpiPendingSub"><i class="ti ti-hourglass"></i> รอการตรวจรับ</div>
+    <div class="kpi-spark" id="sparkPending"></div>
   </div>
 
-  <div class="framework-layout reveal-block">
-    <div class="framework-card f-env">
-      <i class="ti ti-seeding"></i>
-      <h4>Environmental (E)</h4>
-      <p>มุ่งเน้นพลังงานสะอาดและระบบโลจิสติกส์สีเขียว ลดปริมาณการปล่อยก๊าซคาร์บอนจากการจัดการคลังสินค้า เพื่อมุ่งสู่เป้าหมาย Net Zero ของเครือกันกุล</p>
+  <div class="card kpi-card fade-up" style="animation-delay:.15s">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background:var(--success-bg); color:var(--success);"><i class="ti ti-circle-check"></i></div>
+      <a class="kpi-link" href="dashboard.html" title="ดูรายการรับแล้ว"><i class="ti ti-arrow-up-right"></i></a>
     </div>
-    <div class="framework-card f-soc">
-      <i class="ti ti-heart-handshake"></i>
-      <h4>Social (S)</h4>
-      <p>ใส่ใจความปลอดภัยของบุคลากรภายในคลังสินค้าอย่างสูงสุด พร้อมดำเนินกิจกรรมดูแลและสร้างคุณค่าร่วมกับชุมชนโดยรอบอย่างสม่ำเสมอ</p>
+    <div class="kpi-label">รับเข้าคลังแล้ว</div>
+    <div class="kpi-value skel" style="color:var(--success);" id="kpiReceived">000</div>
+    <div class="kpi-sub">
+      <span class="kpi-pct" id="kpiReceivedPct" style="background:var(--success-bg); color:var(--success);">0%</span>
+      <span>ของเอกสารทั้งหมด</span>
     </div>
-    <div class="framework-card f-gov">
-      <i class="ti ti-shield-checkered"></i>
-      <h4>Governance (G)</h4>
-      <p>กำกับดูแลกระบวนการจัดซื้อจัดจ้างคู่ค้า (Suppliers) ทุกรายด้วยความโปร่งใส ยุติธรรม และตรวจสอบความถูกต้องของระบบเอกสารได้แบบเรียลไทม์</p>
+    <div class="kpi-spark" id="sparkReceived"></div>
+  </div>
+
+  <!-- ticket card -->
+  <div class="ticket fade-up" style="animation-delay:.2s">
+    <div class="ticket-head">
+      <div class="t-label"><i class="ti ti-ticket"></i> รายการรอตรวจรับ</div>
+      <div class="ticket-badge"><i class="ti ti-truck-delivery"></i></div>
+    </div>
+    <div id="ticketContent">
+      <div class="ticket-body">
+        <div class="ticket-vendor">
+          <div class="ticket-avatar skel">--</div>
+          <div>
+            <div class="ticket-vendor-name skel" style="width:110px;">กำลังโหลด</div>
+            <div class="ticket-vendor-meta skel" style="width:80px;">—</div>
+          </div>
+        </div>
+        <div class="ticket-invoice skel">รอข้อมูล...</div>
+      </div>
+    </div>
+    <div class="perforation"></div>
+    <div class="ticket-next-label">คิวถัดไป</div>
+    <div id="ticketNextList"></div>
+    <a href="#" id="ticketCta" class="ticket-cta"><i class="ti ti-clipboard-check"></i> เริ่มตรวจรับ</a>
+  </div>
+</div>
+
+<!-- OVERVIEW ROW -->
+<div class="grid overview-row">
+  <div class="card card-pad fade-up" style="animation-delay:.25s">
+    <div class="card-head">
+      <div>
+        <div class="card-title"><i class="ti ti-chart-bar" style="color:var(--gold);"></i> ภาพรวมการนำเข้าสินค้า</div>
+        <div class="card-sub">จำนวนใบนำเข้าคลังต่อเดือน</div>
+      </div>
+      <div class="period-pills">
+        <button class="period-pill active" id="pillMonth" onclick="window.gunkulSetPeriod('month')">6 เดือนล่าสุด</button>
+        <button class="period-pill" id="pillYear" onclick="window.gunkulSetPeriod('year')">ปีนี้</button>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="overviewChart"></canvas></div>
+    <div class="chart-note" id="chartNote">อ้างอิงจากเอกสารล่าสุดในระบบ (สูงสุด 50 รายการ)</div>
+  </div>
+
+  <div class="card card-pad donut-card fade-up" style="animation-delay:.3s">
+    <div class="card-head" style="width:100%;">
+      <div>
+        <div class="card-title"><i class="ti ti-chart-donut" style="color:var(--gold);"></i> สถานะเอกสาร</div>
+        <div class="card-sub">สัดส่วนรอดำเนินการ / รับแล้ว</div>
+      </div>
+    </div>
+    <div class="donut-wrap">
+      <canvas id="donutChart" width="150" height="150"></canvas>
+      <div class="donut-center">
+        <div class="d-num" id="donutTotal">0</div>
+        <div class="d-txt">รวมทั้งหมด</div>
+      </div>
+    </div>
+    <div class="legend-row">
+      <div class="legend-item"><span class="legend-dot" style="background:var(--success);"></span><span class="l-name">รับเข้าคลังแล้ว</span><span class="l-val" id="legendReceived">0</span></div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--warn);"></span><span class="l-name">รอดำเนินการ</span><span class="l-val" id="legendPending">0</span></div>
     </div>
   </div>
-</section>
 
-<section class="section-wecare" id="social">
-  <div class="split-grid reveal-block">
-    <div class="media-container">
-      <div class="badge-dot"></div>
-      <img src="https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=1200&q=80" alt="Gunkul Wind Energy">
+  <div class="card card-pad fade-up" style="animation-delay:.35s">
+    <div class="card-head">
+      <div>
+        <div class="card-title"><i class="ti ti-activity" style="color:var(--gold);"></i> สรุปสถานะ</div>
+        <div class="card-sub">เทียบกับเอกสารทั้งหมด</div>
+      </div>
     </div>
-
-    <div class="info-container">
-      <div class="tagline">WE CARE</div>
-      <div class="main-title">SOCIAL</div>
-      <p class="body-text">
-        ขับเคลื่อนการเปลี่ยนผ่านสู่เศรษฐกิจคาร์บอนต่ำและแก้ปัญหาด้านสิ่งแวดล้อมอย่างยั่งยืน 
-        ด้วย “พลังงานสะอาด” เพื่อสร้างสมดุลให้กับโลก
-      </p>
-
-      <div class="sdg-box-wrapper">
-        <div class="sdg-block" style="background:#26bde2;">
-          <span class="num">6</span><span class="label">น้ำสะอาดและการสุขาภิบาล</span>
-        </div>
-        <div class="sdg-block" style="background:#fcc30b; color:#000;">
-          <span class="num">7</span><span class="label">พลังงานสะอาดที่เข้าถึงได้</span>
-        </div>
-        <div class="sdg-block" style="background:#a21942;">
-          <span class="num">8</span><span class="label">งานที่มีคุณค่าและการเติบโต</span>
-        </div>
-        <div class="sdg-block" style="background:#fd9d24;">
-          <span class="num">11</span><span class="label">เมืองและชุมชนยั่งยืน</span>
-        </div>
-        <div class="sdg-block" style="background:#bf8d2c;">
-          <span class="num">12</span><span class="label">การผลิตและบริโภคที่รับผิดชอบ</span>
-        </div>
-        <div class="sdg-block" style="background:#3f7e44;">
-          <span class="num">13</span><span class="label">รับมือการเปลี่ยนสภาพภูมิอากาศ</span>
-        </div>
-        <div class="sdg-block" style="background:#56db26;">
-          <span class="num">15</span><span class="label">ระบบนิเวศบนบก</span>
+    <div class="ring-stack">
+      <div class="ring-card">
+        <svg class="ring-svg" width="66" height="66" viewBox="0 0 66 66">
+          <circle class="track" cx="33" cy="33" r="27" stroke-width="7" fill="none"/>
+          <circle id="ringPending" cx="33" cy="33" r="27" stroke-width="7" fill="none" stroke="var(--warn)"
+            stroke-linecap="round" stroke-dasharray="170" stroke-dashoffset="170" transform="rotate(-90 33 33)"/>
+        </svg>
+        <div class="ring-info">
+          <div class="r-num" id="ringPendingNum" style="color:var(--warn);">0%</div>
+          <div class="r-label">รอตรวจรับ</div>
+          <div class="r-sub" id="ringPendingSub">0 รายการ</div>
         </div>
       </div>
-
-      <a href="https://www.gunkul.com/th/home" target="_blank" class="action-link-btn" style="text-decoration: none;">
-        ไปยังเว็บไซต์บริษัท <i class="ti ti-arrow-right"></i>
-      </a>
+      <div class="ring-card">
+        <svg class="ring-svg" width="66" height="66" viewBox="0 0 66 66">
+          <circle class="track" cx="33" cy="33" r="27" stroke-width="7" fill="none"/>
+          <circle id="ringReceived" cx="33" cy="33" r="27" stroke-width="7" fill="none" stroke="var(--success)"
+            stroke-linecap="round" stroke-dasharray="170" stroke-dashoffset="170" transform="rotate(-90 33 33)"/>
+        </svg>
+        <div class="ring-info">
+          <div class="r-num" id="ringReceivedNum" style="color:var(--success);">0%</div>
+          <div class="r-label">เสร็จสมบูรณ์</div>
+          <div class="r-sub" id="ringReceivedSub">0 รายการ</div>
+        </div>
+      </div>
     </div>
   </div>
-</section>
+</div>
 
-<script>
-  const bentoItems = document.querySelectorAll('.bento-item');
-  bentoItems.forEach(item => {
-    item.addEventListener('mousemove', (e) => {
-      const bounds = item.getBoundingClientRect();
-      const x = e.clientX - bounds.left;
-      const y = e.clientY - bounds.top;
-      const calcX = -(y - bounds.height / 2) / 3;
-      const calcY = (x - bounds.width / 2) / 3;
-      item.style.transform = `perspective(1000px) rotateX(${calcX}deg) rotateY(${calcY}deg) scale(1.01)`;
-    });
-    item.addEventListener('mouseleave', () => {
-      item.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
-      item.style.transition = 'all 0.5s ease';
-    });
-    item.addEventListener('mouseenter', () => { item.style.transition = 'none'; });
+<!-- LOWER ROW -->
+<div class="grid lower-row">
+  <div class="card card-pad fade-up" style="animation-delay:.4s">
+    <div class="card-head">
+      <div>
+        <div class="card-title"><i class="ti ti-list-details" style="color:var(--gold);"></i> รายการล่าสุด</div>
+        <div class="card-sub">เอกสารนำเข้าคลังที่เพิ่งเกิดขึ้น</div>
+      </div>
+      <a class="view-all-link" href="dashboard.html">ดูทั้งหมด <i class="ti ti-arrow-right"></i></a>
+    </div>
+    <table>
+      <thead>
+        <tr><th>ผู้ส่ง / เลขที่</th><th>คลัง</th><th>วันที่</th><th>สถานะ</th><th></th></tr>
+      </thead>
+      <tbody id="recentTableBody">
+        <tr class="empty-row"><td colspan="5">กำลังโหลดข้อมูล...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card card-pad fade-up" style="animation-delay:.45s">
+    <div class="card-head">
+      <div>
+        <div class="card-title"><i class="ti ti-building-store" style="color:var(--gold);"></i> คู่ค้าที่ส่งมากที่สุด</div>
+        <div class="card-sub">จากเอกสารล่าสุดในระบบ</div>
+      </div>
+    </div>
+    <div id="vendorList">
+      <div class="empty-row" style="text-align:center; padding:20px 0; color:var(--ink-faint); font-size:12.5px;">กำลังโหลด...</div>
+    </div>
+
+    <div class="shortcut-row">
+      <a class="shortcut-btn" href="item-master.html"><i class="ti ti-box"></i> คลังสินค้า</a>
+      <a class="shortcut-btn" href="report.html"><i class="ti ti-file-analytics"></i> รายงาน</a>
+      <a class="shortcut-btn" href="receiver.html"><i class="ti ti-scan"></i> ตรวจรับ</a>
+      <a class="shortcut-btn" href="dashboard.html"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+/* ============ THEME ============ */
+const html = document.documentElement;
+function applyThemeUI(){
+  const dark = html.getAttribute('data-theme') === 'dark';
+  document.getElementById('segLight').classList.toggle('active', !dark);
+  document.getElementById('segDark').classList.toggle('active', dark);
+  window.gunkulRefreshChartColors && window.gunkulRefreshChartColors();
+}
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const dark = html.getAttribute('data-theme') === 'dark';
+  if (dark) { html.removeAttribute('data-theme'); localStorage.setItem('gunkul_theme','light'); }
+  else { html.setAttribute('data-theme','dark'); localStorage.setItem('gunkul_theme','dark'); }
+  applyThemeUI();
+});
+applyThemeUI();
+
+/* ============ helpers ============ */
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function initials(name){
+  const s = String(name||'?').trim();
+  if(!s) return '?';
+  const parts = s.split(/\s+/);
+  return parts.length>1 ? (parts[0][0]+parts[1][0]).toUpperCase() : s.slice(0,2).toUpperCase();
+}
+const PALETTE = ['#c1924a','#5b6b8c','#0f9d70','#8a5cd6','#c8790f','#2b8fc4','#d64545'];
+function colorFor(name){
+  let h=0; for(let i=0;i<String(name).length;i++) h = (h*31 + String(name).charCodeAt(i)) >>> 0;
+  return PALETTE[h % PALETTE.length];
+}
+function toDate(v){
+  if(!v) return null;
+  if (v.toDate) { try { return v.toDate(); } catch(e){} }
+  const d = new Date(v);
+  return isNaN(d) ? null : d;
+}
+function timeAgoTh(d){
+  if(!d) return '';
+  const mins = Math.max(0, Math.round((Date.now()-d.getTime())/60000));
+  if (mins < 60) return `รอมา ${mins} นาที`;
+  const hrs = Math.round(mins/60);
+  if (hrs < 24) return `รอมา ${hrs} ชม.`;
+  return `รอมา ${Math.round(hrs/24)} วัน`;
+}
+const THAI_MONTHS_SHORT = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+/* today's date */
+document.getElementById('todayDate').textContent =
+  new Date().toLocaleDateString('th-TH', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+const hour = new Date().getHours();
+const greetWord = hour < 11 ? 'สวัสดีตอนเช้า' : hour < 17 ? 'สวัสดีตอนบ่าย' : 'สวัสดีตอนเย็น';
+
+/* ============ FIREBASE ============ */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, collection, query, orderBy, limit, getDocs, getCountFromServer, where, doc, getDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAkPFzgT7hLAxPVI129F-vRzA65MIx2VIs",
+  authDomain: "gunkul-my-task-system.firebaseapp.com",
+  projectId: "gunkul-my-task-system",
+  storageBucket: "gunkul-my-task-system.firebasestorage.app",
+  messagingSenderId: "877006770872",
+  appId: "1:877006770872:web:ec56ec0089512899811a4d"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* greeting / user chip — cached separately (1 read, rarely changes) */
+const USER_CACHE_KEY = 'gunkul_user_cache_v1';
+const USER_CACHE_MS = 30 * 60 * 1000; // 30 นาที ชื่อผู้ใช้ไม่ค่อยเปลี่ยน
+
+onAuthStateChanged(auth, async (user) => {
+  let displayName = 'ผู้ใช้งาน';
+  if (user) {
+    displayName = user.displayName || (user.email ? user.email.split('@')[0] : displayName);
+    try {
+      const cacheKey = USER_CACHE_KEY + '_' + user.uid;
+      const cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
+      if (cached && (Date.now() - cached.t) < USER_CACHE_MS) {
+        displayName = cached.name;
+      } else {
+        const snap = await getDoc(doc(db,'users',user.uid));
+        if (snap.exists() && snap.data().name) displayName = snap.data().name;
+        sessionStorage.setItem(cacheKey, JSON.stringify({ name: displayName, t: Date.now() }));
+      }
+    } catch(e){ /* เงียบไว้ ใช้ค่า fallback */ }
+  }
+  document.getElementById('greetingTitle').textContent = `${greetWord}, ${displayName} 👋`;
+  document.getElementById('userNameTop').textContent = displayName;
+  document.getElementById('userAvatar').textContent = initials(displayName);
+});
+
+/* ============ DATA LOAD (quota-conscious) ============ */
+/*
+  ปรับจากเดิม (200 reads ทุกครั้งที่เปิดหน้า) เหลือ:
+  - limit(50) แทน limit(200) ลด read ต่อครั้งลง 4 เท่า
+  - cache ผลลัพธ์ทั้งชุดไว้ใน sessionStorage 2 นาที ถ้าเปิดหน้าซ้ำ/รีเฟรชในช่วงนี้ไม่ยิง query ใหม่
+  - ปุ่ม "โหลดข้อมูลล่าสุด" / "ลองใหม่" ใช้ forceRefresh=true เพื่อข้าม cache ตอนต้องการข้อมูลสดจริง ๆ
+*/
+const DOC_LIMIT = 50;
+const CACHE_KEY = 'gunkul_dashboard_cache_v1';
+const CACHE_TTL_MS = 2 * 60 * 1000; // 2 นาที
+
+let allDocs = [];
+let currentPeriod = 'month';
+let overviewChart = null, donutChart = null;
+
+function readCache(){
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || (Date.now() - parsed.t) > CACHE_TTL_MS) return null;
+    return parsed;
+  } catch(e){ return null; }
+}
+function writeCache(payload){
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ...payload, t: Date.now() }));
+  } catch(e){ /* sessionStorage เต็มหรือปิดใช้งาน ไม่เป็นไร ข้ามการแคช */ }
+}
+
+async function loadDashboard(forceRefresh){
+  document.getElementById('errorBox').style.display = 'none';
+
+  const cached = !forceRefresh ? readCache() : null;
+  if (cached) {
+    allDocs = cached.docs;
+    renderAll(cached.total, cached.pending, cached.received);
+    const mins = Math.max(1, Math.round((Date.now()-cached.t)/60000));
+    document.getElementById('cacheNoteText').textContent = `ใช้ข้อมูลที่แคชไว้ (อัปเดตล่าสุด ${mins} นาทีที่แล้ว) `;
+    document.getElementById('cacheNote').style.display = 'flex';
+    return;
+  }
+  document.getElementById('cacheNote').style.display = 'none';
+
+  try {
+    const base = collection(db, 'warehouse_deliveries');
+
+    let totalCount, pendingCount, receivedCount;
+    try {
+      const [t,p,r] = await Promise.all([
+        getCountFromServer(base),
+        getCountFromServer(query(base, where('status','==','pending'))),
+        getCountFromServer(query(base, where('status','==','received')))
+      ]);
+      totalCount = t.data().count; pendingCount = p.data().count; receivedCount = r.data().count;
+    } catch(e){ totalCount = pendingCount = receivedCount = null; }
+
+    const q = query(base, orderBy('createdAt','desc'), limit(DOC_LIMIT));
+    const snap = await getDocs(q);
+    allDocs = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+
+    if (totalCount === null) {
+      totalCount = allDocs.length;
+      pendingCount = allDocs.filter(d => (d.status||'pending') !== 'received').length;
+      receivedCount = allDocs.filter(d => d.status === 'received').length;
+    }
+
+    renderAll(totalCount, pendingCount, receivedCount);
+    writeCache({ docs: allDocs, total: totalCount, pending: pendingCount, received: receivedCount });
+  } catch(err){
+    console.error('โหลดข้อมูล dashboard ไม่สำเร็จ:', err);
+    document.getElementById('errorMsg').textContent = 'โหลดข้อมูลไม่สำเร็จ: ' + (err.message || 'unknown error');
+    document.getElementById('errorBox').style.display = 'flex';
+  }
+}
+window.gunkulReload = loadDashboard;
+
+function renderAll(totalCount, pendingCount, receivedCount){
+  renderKPIs(totalCount, pendingCount, receivedCount);
+  renderTicket();
+  renderOverviewChart();
+  renderDonut(pendingCount, receivedCount, totalCount);
+  renderRings(pendingCount, receivedCount, totalCount);
+  renderTable(allDocs);
+  renderVendors(allDocs);
+}
+
+function unskel(el){ el.classList.remove('skel'); }
+
+function renderKPIs(total, pending, received){
+  const kt = document.getElementById('kpiTotal'); unskel(kt); kt.textContent = total.toLocaleString();
+  const kp = document.getElementById('kpiPending'); unskel(kp); kp.textContent = pending.toLocaleString();
+  const kr = document.getElementById('kpiReceived'); unskel(kr); kr.textContent = received.toLocaleString();
+  document.getElementById('kpiPendingSub').innerHTML = pending>0
+    ? `<i class="ti ti-hourglass"></i> ต้องดำเนินการ`
+    : `<i class="ti ti-circle-check"></i> เรียบร้อยดี`;
+  const pct = total>0 ? Math.round(received/total*100) : 0;
+  document.getElementById('kpiReceivedPct').textContent = pct + '%';
+
+  ['sparkTotal','sparkPending','sparkReceived'].forEach(id=>{
+    const wrap = document.getElementById(id);
+    wrap.innerHTML='';
+    for(let i=0;i<10;i++){
+      const b=document.createElement('b');
+      b.style.height = (18 + Math.random()*70) + '%';
+      if(i===9) b.style.background = id==='sparkPending' ? 'var(--warn)' : id==='sparkReceived' ? 'var(--success)' : 'var(--gold)';
+      wrap.appendChild(b);
+    }
+  });
+}
+
+function renderTicket(){
+  const pending = allDocs.filter(d => (d.status||'pending') !== 'received');
+  pending.sort((a,b) => (toDate(a.createdAt)?.getTime()||0) - (toDate(b.createdAt)?.getTime()||0));
+
+  const box = document.getElementById('ticketContent');
+  const cta = document.getElementById('ticketCta');
+  const nextList = document.getElementById('ticketNextList');
+
+  if (pending.length === 0) {
+    box.innerHTML = `<div class="ticket-empty"><i class="ti ti-mood-smile" style="font-size:26px; display:block; margin-bottom:8px;"></i>ไม่มีรายการรอตรวจรับ 🎉</div>`;
+    cta.style.display = 'none';
+    nextList.innerHTML = '';
+    document.querySelector('.ticket-next-label').style.display = 'none';
+    return;
+  }
+
+  const first = pending[0];
+  const sender = first.sender || 'ไม่ระบุผู้ส่ง';
+  const created = toDate(first.createdAt);
+  box.innerHTML = `
+    <div class="ticket-body">
+      <div class="ticket-vendor">
+        <div class="ticket-avatar" style="background:${colorFor(sender)}33; color:#fff;">${esc(initials(sender))}</div>
+        <div>
+          <div class="ticket-vendor-name">${esc(sender)}</div>
+          <div class="ticket-vendor-meta">${esc(first.warehouse || 'ไม่ระบุคลัง')}</div>
+        </div>
+      </div>
+      <div class="ticket-invoice">
+        <span>เลขที่ ${esc(first.invoice || '—')}</span>
+        <i class="ti ti-receipt"></i>
+      </div>
+      <div class="ticket-wait"><i class="ti ti-alarm"></i> ${esc(timeAgoTh(created))}</div>
+    </div>`;
+  cta.href = `receiver.html?id=${encodeURIComponent(first.id)}`;
+
+  const rest = pending.slice(1,4);
+  nextList.innerHTML = rest.length ? rest.map(d => `
+    <div class="ticket-next-item">
+      <span class="dot"></span>
+      <span class="n-name">${esc(d.sender || 'ไม่ระบุผู้ส่ง')}</span>
+      <span class="n-inv">${esc(d.invoice || '—')}</span>
+    </div>`).join('') : `<div style="font-size:11.5px; color:#8489a3; position:relative; z-index:1; padding:4px 0;">ไม่มีรายการคิวถัดไป</div>`;
+}
+
+/* ============ overview chart ============ */
+function monthBuckets(period){
+  const now = new Date();
+  const buckets = [];
+  if (period === 'year') {
+    for (let m=0; m<=now.getMonth(); m++){
+      buckets.push({ key:`${now.getFullYear()}-${m}`, label: THAI_MONTHS_SHORT[m] });
+    }
+  } else {
+    for (let i=5;i>=0;i--){
+      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+      buckets.push({ key:`${d.getFullYear()}-${d.getMonth()}`, label: THAI_MONTHS_SHORT[d.getMonth()] });
+    }
+  }
+  return buckets;
+}
+
+function renderOverviewChart(){
+  const buckets = monthBuckets(currentPeriod);
+  const map = new Map(buckets.map(b => [b.key, {pending:0, received:0}]));
+
+  allDocs.forEach(d => {
+    const dt = toDate(d.date) || toDate(d.createdAt);
+    if(!dt) return;
+    const key = `${dt.getFullYear()}-${dt.getMonth()}`;
+    if(!map.has(key)) return;
+    const entry = map.get(key);
+    if (d.status === 'received') entry.received++; else entry.pending++;
   });
 
-  const blocks = document.querySelectorAll('.reveal-block');
-  const bgGlow = document.getElementById('bgGlow');
-  const navLinks = document.querySelectorAll('.nav-links a');
+  const labels = buckets.map(b=>b.label);
+  const receivedData = buckets.map(b=>map.get(b.key).received);
+  const pendingData = buckets.map(b=>map.get(b.key).pending);
 
-  const lightSectionGlows = {
-    'dashboard': 'radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 70%)',
-    'framework': 'radial-gradient(circle, rgba(2,132,199,0.05) 0%, transparent 70%)',
-    'social': 'radial-gradient(circle, rgba(5,150,105,0.07) 0%, transparent 70%)'
-  };
+  const css = getComputedStyle(html);
+  const ink = css.getPropertyValue('--ink-faint').trim();
+  const border = css.getPropertyValue('--border').trim();
+  const success = css.getPropertyValue('--success').trim();
+  const warn = css.getPropertyValue('--warn').trim();
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('in-view');
-        
-        const section = entry.target.closest('section');
-        if (section) {
-          const id = section.id;
-          bgGlow.style.background = lightSectionGlows[id];
-          
-          navLinks.forEach(link => link.classList.remove('active'));
-          const targetLink = document.getElementById(`lnk-${id === 'framework' ? 'frame' : id}`);
-          if(targetLink) targetLink.classList.add('active');
-        }
+  const ctx = document.getElementById('overviewChart');
+  if (overviewChart) overviewChart.destroy();
+  overviewChart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        { label:'รับแล้ว', data:receivedData, backgroundColor: success, borderRadius:6, maxBarThickness:34, stack:'s' },
+        { label:'รอดำเนินการ', data:pendingData, backgroundColor: warn, borderRadius:6, maxBarThickness:34, stack:'s' }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:true, position:'bottom', labels:{ color: ink, boxWidth:10, boxHeight:10, font:{ family:"'Plus Jakarta Sans'", size:11 }, usePointStyle:true, pointStyle:'circle' } } },
+      scales:{
+        x:{ stacked:true, grid:{ display:false }, ticks:{ color: ink, font:{ family:"'Plus Jakarta Sans'", size:11 } } },
+        y:{ stacked:true, beginAtZero:true, grid:{ color: border }, ticks:{ color: ink, precision:0, font:{ family:"'Share Tech Mono'", size:10 } } }
       }
-    });
-  }, { threshold: 0.2, rootMargin: "0px 0px -80px 0px" });
+    }
+  });
 
-  blocks.forEach(block => observer.observe(block));
+  const note = document.getElementById('chartNote');
+  if (note) {
+    note.textContent = allDocs.length >= DOC_LIMIT
+      ? `อ้างอิงจากเอกสารล่าสุด ${DOC_LIMIT} รายการ — เดือนที่เก่ากว่านี้อาจแสดงจำนวนไม่ครบ`
+      : `อ้างอิงจากเอกสารล่าสุดในระบบ (${allDocs.length} รายการ)`;
+  }
+}
+window.gunkulSetPeriod = function(p){
+  currentPeriod = p;
+  document.getElementById('pillMonth').classList.toggle('active', p==='month');
+  document.getElementById('pillYear').classList.toggle('active', p==='year');
+  renderOverviewChart();
+};
+
+/* ============ donut ============ */
+function renderDonut(pending, received, total){
+  document.getElementById('donutTotal').textContent = total.toLocaleString();
+  document.getElementById('legendReceived').textContent = received.toLocaleString();
+  document.getElementById('legendPending').textContent = pending.toLocaleString();
+
+  const css = getComputedStyle(html);
+  const success = css.getPropertyValue('--success').trim();
+  const warn = css.getPropertyValue('--warn').trim();
+  const track = css.getPropertyValue('--border-strong').trim();
+
+  const ctx = document.getElementById('donutChart');
+  if (donutChart) donutChart.destroy();
+  const data = total>0 ? [received, pending] : [1];
+  const colors = total>0 ? [success, warn] : [track];
+  donutChart = new Chart(ctx, {
+    type:'doughnut',
+    data:{ datasets:[{ data, backgroundColor: colors, borderWidth:0, hoverOffset:2 }] },
+    options:{
+      cutout:'74%', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false }, tooltip:{ enabled:true } }
+    }
+  });
+}
+
+/* ============ rings ============ */
+function setRing(circleEl, pct){
+  const r = 27, circ = 2*Math.PI*r;
+  circleEl.setAttribute('stroke-dasharray', circ.toFixed(1));
+  circleEl.style.transition = 'stroke-dashoffset .8s cubic-bezier(.4,0,.2,1)';
+  requestAnimationFrame(()=>{
+    circleEl.style.strokeDashoffset = (circ * (1 - pct/100)).toFixed(1);
+  });
+}
+function renderRings(pending, received, total){
+  const pPct = total>0 ? Math.round(pending/total*100) : 0;
+  const rPct = total>0 ? Math.round(received/total*100) : 0;
+  setRing(document.getElementById('ringPending'), pPct);
+  setRing(document.getElementById('ringReceived'), rPct);
+  document.getElementById('ringPendingNum').textContent = pPct+'%';
+  document.getElementById('ringReceivedNum').textContent = rPct+'%';
+  document.getElementById('ringPendingSub').textContent = pending.toLocaleString()+' รายการ';
+  document.getElementById('ringReceivedSub').textContent = received.toLocaleString()+' รายการ';
+}
+
+/* ============ table ============ */
+function renderTable(docsArr){
+  const tbody = document.getElementById('recentTableBody');
+  const term = (document.getElementById('searchInput').value||'').toLowerCase().trim();
+
+  let rows = docsArr;
+  if (term) {
+    rows = rows.filter(d =>
+      String(d.sender||'').toLowerCase().includes(term) ||
+      String(d.invoice||'').toLowerCase().includes(term) ||
+      String(d.warehouse||'').toLowerCase().includes(term)
+    );
+  }
+  rows = rows.slice(0,8);
+
+  if (rows.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5"><i class="ti ti-inbox" style="font-size:20px; display:block; margin-bottom:6px;"></i>ไม่พบรายการที่ตรงกับการค้นหา</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(d=>{
+    const dt = toDate(d.date) || toDate(d.createdAt);
+    const dateStr = dt ? dt.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'2-digit'}) : '—';
+    const isReceived = d.status === 'received';
+    const sender = d.sender || 'ไม่ระบุผู้ส่ง';
+    return `
+      <tr>
+        <td>
+          <div class="row-sender">
+            <div class="mini-avatar" style="background:${colorFor(sender)};">${esc(initials(sender))}</div>
+            <div>
+              <div class="s-name">${esc(sender)}</div>
+              <div class="s-inv">${esc(d.invoice || '—')}</div>
+            </div>
+          </div>
+        </td>
+        <td>${esc(d.warehouse || '—')}</td>
+        <td>${dateStr}</td>
+        <td>${isReceived
+          ? `<span class="badge badge-received"><span class="bdot"></span>รับแล้ว</span>`
+          : `<span class="badge badge-pending"><span class="bdot"></span>รอรับ</span>`}</td>
+        <td><a class="receipt-link" href="receiver.html?id=${encodeURIComponent(d.id)}" title="ดูใบรับสินค้า"><i class="ti ti-receipt-2"></i></a></td>
+      </tr>`;
+  }).join('');
+}
+document.getElementById('searchInput').addEventListener('input', ()=>{
+  renderTable(allDocs);
+  renderVendors(allDocs);
+});
+
+/* ============ vendor list ============ */
+function renderVendors(docsArr){
+  const term = (document.getElementById('searchInput').value||'').toLowerCase().trim();
+  const map = new Map();
+  docsArr.forEach(d=>{
+    const name = (d.sender || 'ไม่ระบุผู้ส่ง').trim() || 'ไม่ระบุผู้ส่ง';
+    if (term && !name.toLowerCase().includes(term)) return;
+    if(!map.has(name)) map.set(name, {name, total:0, received:0});
+    const e = map.get(name);
+    e.total++;
+    if (d.status==='received') e.received++;
+  });
+  let vendors = Array.from(map.values()).sort((a,b)=>b.total-a.total).slice(0,5);
+
+  const el = document.getElementById('vendorList');
+  if (vendors.length===0){
+    el.innerHTML = `<div style="text-align:center; padding:20px 0; color:var(--ink-faint); font-size:12.5px;">ไม่พบข้อมูลคู่ค้า</div>`;
+    return;
+  }
+  el.innerHTML = vendors.map(v=>{
+    const pct = v.total>0 ? Math.round(v.received/v.total*100) : 0;
+    return `
+      <div class="vendor-item">
+        <div class="vendor-sq" style="background:${colorFor(v.name)};">${esc(initials(v.name))}</div>
+        <div class="vendor-info">
+          <div class="vendor-name">${esc(v.name)}</div>
+          <div class="vendor-meta">${v.total} ใบนำเข้า · รับแล้ว ${v.received}</div>
+          <div class="vendor-bar-track"><div class="vendor-bar-fill" style="width:${pct}%;"></div></div>
+        </div>
+        <div class="vendor-pct">${pct}%</div>
+      </div>`;
+  }).join('');
+}
+
+window.gunkulRefreshChartColors = function(){
+  if (allDocs.length) { renderOverviewChart(); }
+};
+
+loadDashboard(false);
 </script>
 
 </body>
