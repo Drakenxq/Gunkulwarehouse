@@ -93,21 +93,23 @@
     overflow: hidden;
   }
   
+  /* ปรับปรุงกล่องครอบโลโก้ให้ยืดหยุ่นตามสัดส่วนจริง */
   .logo-mark {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 26px;
-    width: auto; 
+    height: 26px; /* กำหนดความสูงมาตรฐานที่ดูลงตัวกับตัวหนังสือ */
+    width: auto;  /* ปล่อยให้ความกว้างขยายตามสัดส่วนจริงของภาพ */
     flex-shrink: 0;
     transition: transform 0.2s ease;
   }
   
+  /* ปรับการควบคุมรูปภาพโลโก้ให้สมสัดส่วน ไม่บีบอัด */
   .logo-mark img {
     height: 100%;
     width: auto;
     object-fit: contain;
-    filter: brightness(0) invert(1);
+    filter: brightness(0) invert(1); /* ย้าย Effect ย้อมสีขาวมาไว้ใน CSS */
   }
   
   .sidebar-header:hover .logo-mark{ transform:scale(1.04) rotate(-2deg); }
@@ -280,6 +282,7 @@
     gap:0;
   }
   
+  /* จัดตำแหน่งโลโก้ตอนพับ Sidebar ให้บาลานซ์ตรงกลางพอดี */
   .sidebar.collapsed .sidebar-header {
     flex-direction: column;
     padding: 20px 8px 14px;
@@ -293,7 +296,7 @@
   }
   .sidebar.collapsed .logo-mark {
     width: 100%;
-    height: 22px;
+    height: 22px; /* ย่อขนาดลงเล็กน้อยตอนพับเพื่อให้รับกับขนาดแถบ */
   }
 
   .app{
@@ -361,9 +364,6 @@
         <div class="logo-mark">
           <img alt="Gunkul" src="./src/svg/logo-default.svg">
         </div>
-        <div class="brand">
-          <span class="brand-light">Warehouse — Noppawong</span>
-        </div>
       </div>
       <button class="header-toggle" id="collapseBtn" aria-label="Toggle sidebar">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9l5-5 5 5"/><path d="M7 15l5 5 5-5"/></svg>
@@ -385,13 +385,13 @@
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
           <span class="nav-label">Item Master</span>
         </a>
-        <a class="nav-item" style="animation-delay:.26s" href="./src/vendor.html" target="contentFrame" data-page="vendor-directory">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a1 1 0 0 1 1 1v1H8V4a1 1 0 0 1 1-1Z"/><path d="M6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6Z"/><path d="M9 11h6M9 15h6"/></svg>
-          <span class="nav-label">Vendor</span>
-        </a>
-        <a class="nav-item" style="animation-delay:.21s" href="./src/report.html" target="contentFrame" data-page="report-directory">
+        <a class="nav-item" style="animation-delay:.21s" href="./src/report.html" target="contentFrame" data-page="vendor-directory">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M9 12h.01M15 12h.01M9 8h.01M15 8h.01"/></svg>
           <span class="nav-label">Report</span>
+        </a>
+        <a class="nav-item" style="animation-delay:.26s" href="tracking-sheet.html" target="contentFrame" data-page="tracking-sheet">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a1 1 0 0 1 1 1v1H8V4a1 1 0 0 1 1-1Z"/><path d="M6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6Z"/><path d="M9 11h6M9 15h6"/></svg>
+          <span class="nav-label">Tracking Sheet</span>
         </a>
       </div>
 
