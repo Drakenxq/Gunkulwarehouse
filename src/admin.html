@@ -101,6 +101,48 @@
   }
   .field input::placeholder { color: var(--muted); }
 
+  /* Status selector */
+  .status-toggle {
+    display: flex;
+    gap: 8px;
+  }
+  .status-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 14px;
+    transition: all 0.15s;
+  }
+  .status-btn:hover { border-color: var(--accent); color: var(--text); }
+  .status-btn .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.15s;
+  }
+  .status-btn.active[data-status="pending"] {
+    background: rgba(247,169,79,0.1);
+    border-color: var(--warn);
+    color: var(--warn);
+  }
+  .status-btn.active[data-status="pending"] .dot { background: var(--warn); }
+  .status-btn.active[data-status="received"] {
+    background: rgba(45,212,160,0.1);
+    border-color: var(--success);
+    color: var(--success);
+  }
+  .status-btn.active[data-status="received"] .dot { background: var(--success); }
+
   /* Items table */
   .items-header {
     display: grid;
@@ -268,7 +310,7 @@
 
 <div class="topbar">
   <div class="topbar-icon">📦</div>
-  <h1>Warehouse — Admin Panel</h1>
+  <h1>Warehouse — Create Panel</h1>
   <span id="today-date"></span>
 </div>
 
@@ -305,6 +347,19 @@
       <div class="field">
         <label>หมายเหตุ</label>
         <input type="text" id="note" placeholder="ข้อมูลเพิ่มเติม (ถ้ามี)">
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="field">
+        <label>สถานะ</label>
+        <div class="status-toggle" id="status-toggle">
+          <button type="button" class="status-btn" data-status="pending" onclick="setStatus('pending')">
+            <span class="dot"></span> ยังไม่รับ
+          </button>
+          <button type="button" class="status-btn" data-status="received" onclick="setStatus('received')">
+            <span class="dot"></span> รับแล้ว
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -386,6 +441,16 @@ const today = new Date();
 document.getElementById('delivery-date').value = today.toISOString().split('T')[0];
 document.getElementById('today-date').textContent = today.toLocaleDateString('th-TH', { weekday:'short', year:'numeric', month:'long', day:'numeric' });
 
+// Status state
+window.selectedStatus = 'pending';
+window.setStatus = function(status) {
+  window.selectedStatus = status;
+  document.querySelectorAll('.status-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.status === status);
+  });
+};
+setStatus('pending');
+
 // Init items
 window.itemCount = 0;
 window.addItem = function() {
@@ -420,6 +485,7 @@ window.saveAndGenQR = async function() {
   const warehouse = document.getElementById('warehouse').value.trim();
   const recipient = document.getElementById('recipient').value.trim();
   const note = document.getElementById('note').value.trim();
+  const status = window.selectedStatus || 'pending';
 
   if (!date || !sender) {
     showToast('⚠️ กรุณากรอกวันที่และผู้ส่งสินค้า', true);
@@ -432,7 +498,7 @@ window.saveAndGenQR = async function() {
     const name = r.querySelector('.item-name').value.trim();
     const qty = r.querySelector('.item-qty').value;
     const unit = r.querySelector('.item-unit') ? r.querySelector('.item-unit').value.trim() : '';
-    if (name) items.push({ name, qty: Number(qty) || 0, unit: unit || 'ชิ้น', checked: false });
+    if (name) items.push({ name, qty: Number(qty) || 0, unit: unit || 'ชิ้น', checked: status === 'received' });
   });
 
   if (items.length === 0) {
@@ -452,10 +518,10 @@ window.saveAndGenQR = async function() {
       recipient: recipient || '',
       note: note || '',
       items,
-      status: 'pending',
+      status,
       createdAt: new Date().toISOString(),
       signatureData: null,
-      receivedAt: null,
+      receivedAt: status === 'received' ? new Date().toISOString() : null,
       receivedBy: null,
     });
 
@@ -519,6 +585,7 @@ window.resetForm = function() {
   document.getElementById('items-container').innerHTML = '';
   document.getElementById('qr-section').style.display = 'none';
   window.itemCount = 0;
+  setStatus('pending');
   addItem(); addItem(); addItem();
 };
 
