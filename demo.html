@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StockFlow — Warehouse Analytics</title>
+<title>NewStockFlow — Warehouse Analytics</title>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Caveat:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -190,12 +190,13 @@ html[data-theme="dark"] .skel::after{ background:linear-gradient(90deg,transpare
 .kpi-top{ display:flex; align-items:center; justify-content:space-between; }
 .kpi-icon{ width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:19px; }
 .kpi-label{ font-size:12px; font-weight:700; color:var(--ink-soft); margin-top:14px; }
-.kpi-value{ font-family:var(--font-mono); font-size:30px; font-weight:700; line-height:1.05; margin:6px 0 8px; }
+.kpi-value{ font-family:var(--font-mono); font-size:32px; font-weight:700; line-height:1.05; margin:6px 0 8px; }
 .kpi-sub{ font-size:12px; color:var(--ink-faint); display:flex; align-items:center; gap:6px; font-weight:600; }
 .kpi-trend{ font-size:11px; font-weight:800; display:flex; align-items:center; gap:2px; padding:2px 7px; border-radius:20px; }
 .kpi-trend.up-bad{ color:var(--danger); background:var(--danger-bg); }
 .kpi-trend.down-good{ color:var(--success); background:var(--success-bg); }
 .kpi-trend.neutral{ color:var(--primary); background:var(--primary-soft); }
+.kpi-pct{ font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:20px; }
 .kpi-mini-bars{ display:flex; align-items:flex-end; gap:3px; height:22px; margin-top:auto; padding-top:10px; }
 .kpi-mini-bars b{ flex:1; border-radius:3px 3px 0 0; background:var(--primary-soft); min-height:3px; }
 
@@ -205,6 +206,7 @@ html[data-theme="dark"] .skel::after{ background:linear-gradient(90deg,transpare
 .period-pill{ border:none; background:transparent; font-size:11.5px; font-weight:700; color:var(--ink-faint); padding:6px 11px; border-radius:7px; cursor:pointer; transition:.2s; }
 .period-pill.active{ background:var(--surface); color:var(--primary); box-shadow:var(--shadow-sm); }
 .chart-wrap{ height:230px; position:relative; }
+.chart-note{ font-size:10.5px; color:var(--ink-faint); margin-top:10px; }
 .chart-legend-row{ display:flex; flex-wrap:wrap; gap:14px; margin-top:14px; }
 .chart-legend-item{ display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-soft); font-weight:600; }
 .chart-legend-dot{ width:9px; height:9px; border-radius:3px; flex-shrink:0; }
@@ -212,13 +214,13 @@ html[data-theme="dark"] .skel::after{ background:linear-gradient(90deg,transpare
 .donut-card{ display:flex; flex-direction:column; }
 .donut-wrap{ position:relative; width:150px; height:150px; margin:6px auto 4px; }
 .donut-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-.donut-center .d-num{ font-family:var(--font-mono); font-size:22px; font-weight:700; }
+.donut-center .d-num{ font-family:var(--font-mono); font-size:24px; font-weight:700; }
 .donut-center .d-txt{ font-size:10px; color:var(--ink-faint); font-weight:600; margin-top:2px; }
 .reason-legend{ display:flex; flex-direction:column; gap:9px; width:100%; margin-top:16px; }
-.reason-item{ display:flex; align-items:center; gap:9px; font-size:12px; }
-.reason-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
-.reason-item .rn-name{ flex:1; color:var(--ink-soft); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.reason-item .rn-val{ font-family:var(--font-mono); font-weight:700; color:var(--ink); flex-shrink:0; }
+.reason-item{ display:flex; align-items:center; gap:9px; font-size:12.5px; }
+.reason-dot{ width:9px; height:9px; border-radius:3px; flex-shrink:0; }
+.reason-item .rn-name{ flex:1; color:var(--ink-soft); font-weight:600; }
+.reason-item .rn-val{ font-family:var(--font-mono); font-weight:700; color:var(--ink); }
 
 /* ============ trend + ranking row ============ */
 .trend-row{ grid-template-columns: 1.5fr 1fr; margin-bottom:18px; align-items:stretch; }
@@ -245,17 +247,15 @@ tbody tr:hover{ background:var(--surface-alt); }
 .row-order{ display:flex; align-items:center; gap:10px; }
 .mini-avatar{ width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; color:#fff; flex-shrink:0; }
 .row-order .o-inv{ font-weight:700; font-size:12.8px; }
-.row-order .o-sub{ font-size:11px; color:var(--ink-faint); }
+.row-order .o-sub{ font-size:11px; color:var(--ink-faint); font-family:var(--font-mono); }
 .badge{ display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:5px 10px; border-radius:20px; }
 .badge .bdot{ width:6px; height:6px; border-radius:50%; }
 .badge-ok{ background:var(--success-bg); color:var(--success); }
 .badge-ok .bdot{ background:var(--success); }
 .badge-over{ background:var(--warn-bg); color:var(--warn); }
 .badge-over .bdot{ background:var(--warn); }
-.badge-in{ background:var(--success-bg); color:var(--success); }
-.badge-in .bdot{ background:var(--success); }
-.badge-out{ background:var(--danger-bg); color:var(--danger); }
-.badge-out .bdot{ background:var(--danger); }
+.receipt-link{ display:flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:9px; border:1px solid var(--border); color:var(--ink-faint); text-decoration:none; transition:.2s; }
+.receipt-link:hover{ color:var(--primary); border-color:var(--primary-soft); }
 .view-all-link{ font-size:12px; font-weight:700; color:var(--primary); text-decoration:none; display:flex; align-items:center; gap:4px; }
 .empty-row td{ text-align:center; padding:30px 10px; color:var(--ink-faint); font-size:12.5px; }
 
@@ -320,7 +320,7 @@ tbody tr:hover{ background:var(--surface-alt); }
 <div class="topbar fade-in">
   <div class="search-box">
     <i class="ti ti-search"></i>
-    <input id="searchInput" type="text" placeholder="ค้นหาสินค้า, รหัส, คลัง...">
+    <input id="searchInput" type="text" placeholder="ค้นหาผู้ส่ง, เลขที่ใบนำเข้า...">
   </div>
   <div class="topbar-actions">
     <div class="theme-toggle" id="themeToggle" title="สลับโหมดแสง">
@@ -349,9 +349,9 @@ tbody tr:hover{ background:var(--surface-alt); }
         <span class="logo">Stock<span>Flow</span></span>
         <span class="sub">Warehouse Analytics</span>
       </div>
-      <div class="hero-tag">บริหารคลังสินค้า มองเห็นทุกความเคลื่อนไหว เพิ่มความแม่นยำในการจัดเก็บ</div>
+      <div class="hero-tag">ติดตามการรับเข้าสินค้าคลัง มองเห็นสถานะทุกใบนำเข้าแบบเรียลไทม์</div>
     </div>
-    <div class="hero-script">Smart Stock<br>Zero Stockout<small>Every item tracked, every move counted</small></div>
+    <div class="hero-script">Fast Receiving<br>Zero Delays<small>Every delivery tracked, every status clear</small></div>
   </div>
 </div>
 
@@ -370,41 +370,42 @@ tbody tr:hover{ background:var(--surface-alt); }
 <div class="grid kpi-row">
   <div class="card kpi-card fade-in" style="animation-delay:.1s">
     <div class="kpi-top">
-      <div class="kpi-icon" style="background:var(--primary-soft); color:var(--primary);"><i class="ti ti-boxes"></i></div>
-      <span class="kpi-trend neutral skel" id="kpiStockTrend">0%</span>
+      <div class="kpi-icon" style="background:var(--primary-soft); color:var(--primary);"><i class="ti ti-package"></i></div>
     </div>
-    <div class="kpi-label">สินค้าคงคลังทั้งหมด</div>
-    <div class="kpi-value skel" id="kpiStock">0</div>
-    <div class="kpi-sub" id="kpiStockSub">หน่วย · จากสัปดาห์ก่อน</div>
+    <div class="kpi-label">เอกสารทั้งหมด</div>
+    <div class="kpi-value skel" id="kpiTotal">0</div>
+    <div class="kpi-sub"><i class="ti ti-file-text"></i> ใบนำเข้าในระบบคลัง</div>
   </div>
 
   <div class="card kpi-card fade-in" style="animation-delay:.15s">
     <div class="kpi-top">
-      <div class="kpi-icon" style="background:var(--success-bg); color:var(--success);"><i class="ti ti-coin"></i></div>
+      <div class="kpi-icon" style="background:var(--warn-bg); color:var(--warn);"><i class="ti ti-clock-hour-4"></i></div>
     </div>
-    <div class="kpi-label">มูลค่าสินค้าคงคลัง</div>
-    <div class="kpi-value skel" style="color:var(--success); font-size:24px;" id="kpiValue">฿0</div>
-    <div class="kpi-sub">รวมทุกคลัง</div>
+    <div class="kpi-label">รอดำเนินการ</div>
+    <div class="kpi-value skel" style="color:var(--warn);" id="kpiPending">0</div>
+    <div class="kpi-sub" id="kpiPendingSub"><i class="ti ti-hourglass"></i> รอการตรวจรับ</div>
   </div>
 
   <div class="card kpi-card fade-in" style="animation-delay:.2s">
     <div class="kpi-top">
-      <div class="kpi-icon" style="background:var(--purple-bg); color:var(--purple);"><i class="ti ti-truck-loading"></i></div>
+      <div class="kpi-icon" style="background:var(--success-bg); color:var(--success);"><i class="ti ti-circle-check"></i></div>
     </div>
-    <div class="kpi-label">รับเข้าวันนี้</div>
-    <div class="kpi-value skel" id="kpiInbound">0</div>
-    <div class="kpi-sub">หน่วย</div>
-    <div class="kpi-mini-bars" id="sparkInbound"></div>
+    <div class="kpi-label">รับเข้าคลังแล้ว</div>
+    <div class="kpi-value skel" style="color:var(--success);" id="kpiReceived">0</div>
+    <div class="kpi-sub">
+      <span class="kpi-pct" id="kpiReceivedPct" style="background:var(--success-bg); color:var(--success);">0%</span>
+      <span>ของเอกสารทั้งหมด</span>
+    </div>
   </div>
 
   <div class="card kpi-card fade-in" style="animation-delay:.25s">
     <div class="kpi-top">
-      <div class="kpi-icon" style="background:var(--danger-bg); color:var(--danger);"><i class="ti ti-alert-triangle"></i></div>
-      <span class="kpi-trend up-bad skel" id="kpiOutOfStock" style="display:none;">0</span>
+      <div class="kpi-icon" style="background:var(--purple-bg); color:var(--purple);"><i class="ti ti-truck-delivery"></i></div>
     </div>
-    <div class="kpi-label">สินค้าใกล้หมด</div>
-    <div class="kpi-value skel" style="color:var(--danger);" id="kpiLowStock">0</div>
-    <div class="kpi-sub">รายการที่ต้องเติมสต็อก</div>
+    <div class="kpi-label">รับเข้าวันนี้</div>
+    <div class="kpi-value skel" id="kpiToday">0</div>
+    <div class="kpi-sub">ใบนำเข้า</div>
+    <div class="kpi-mini-bars" id="sparkToday"></div>
   </div>
 </div>
 
@@ -413,33 +414,36 @@ tbody tr:hover{ background:var(--surface-alt); }
   <div class="card card-pad fade-in" style="animation-delay:.3s">
     <div class="card-head">
       <div>
-        <div class="card-title"><i class="ti ti-chart-bar" style="color:var(--primary);"></i> การเคลื่อนไหวสินค้าตามคลัง</div>
-        <div class="card-sub">รับเข้า / นำออก แยกตามคลัง</div>
+        <div class="card-title"><i class="ti ti-chart-bar" style="color:var(--primary);"></i> ภาพรวมการรับเข้าสินค้า</div>
+        <div class="card-sub">จำนวนใบนำเข้าคลังต่อเดือน</div>
       </div>
       <div class="period-pills">
-        <button class="period-pill active" id="pillWeek" onclick="window.sfSetPeriod('week')">7 วัน</button>
-        <button class="period-pill" id="pillMonth" onclick="window.sfSetPeriod('month')">30 วัน</button>
+        <button class="period-pill active" id="pillMonth" onclick="window.sfSetPeriod('month')">6 เดือนล่าสุด</button>
+        <button class="period-pill" id="pillYear" onclick="window.sfSetPeriod('year')">ปีนี้</button>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="breakdownChart"></canvas></div>
-    <div class="chart-legend-row" id="breakdownLegend"></div>
+    <div class="chart-wrap"><canvas id="overviewChart"></canvas></div>
+    <div class="chart-note" id="chartNote">อ้างอิงจากเอกสารล่าสุดในระบบ (สูงสุด 50 รายการ)</div>
   </div>
 
   <div class="card card-pad donut-card fade-in" style="animation-delay:.35s">
     <div class="card-head" style="width:100%;">
       <div>
-        <div class="card-title"><i class="ti ti-chart-donut" style="color:var(--primary);"></i> สัดส่วนตามหมวดหมู่</div>
-        <div class="card-sub">สินค้าคงคลังปัจจุบัน</div>
+        <div class="card-title"><i class="ti ti-chart-donut" style="color:var(--primary);"></i> สถานะเอกสาร</div>
+        <div class="card-sub">สัดส่วนรอดำเนินการ / รับแล้ว</div>
       </div>
     </div>
     <div class="donut-wrap">
       <canvas id="donutChart" width="150" height="150"></canvas>
       <div class="donut-center">
         <div class="d-num" id="donutTotal">0</div>
-        <div class="d-txt">หน่วยรวม</div>
+        <div class="d-txt">รวมทั้งหมด</div>
       </div>
     </div>
-    <div class="reason-legend" id="reasonLegend"></div>
+    <div class="reason-legend">
+      <div class="reason-item"><span class="reason-dot" style="background:var(--success);"></span><span class="rn-name">รับเข้าคลังแล้ว</span><span class="rn-val" id="legendReceived">0</span></div>
+      <div class="reason-item"><span class="reason-dot" style="background:var(--warn);"></span><span class="rn-name">รอดำเนินการ</span><span class="rn-val" id="legendPending">0</span></div>
+    </div>
   </div>
 </div>
 
@@ -448,12 +452,12 @@ tbody tr:hover{ background:var(--surface-alt); }
   <div class="card card-pad fade-in" style="animation-delay:.4s">
     <div class="card-head">
       <div>
-        <div class="card-title"><i class="ti ti-chart-line" style="color:var(--primary);"></i> แนวโน้มการรับ-จ่ายสินค้า</div>
-        <div class="card-sub">7 วันล่าสุด</div>
+        <div class="card-title"><i class="ti ti-chart-line" style="color:var(--primary);"></i> แนวโน้มการรับเข้าสินค้า</div>
+        <div class="card-sub">จำนวนใบนำเข้ารายวัน 7 วันล่าสุด</div>
       </div>
       <div class="trend-legend">
-        <div class="tl-item"><span class="tl-swatch" style="background:var(--success);"></span>รับเข้า</div>
-        <div class="tl-item"><span class="tl-swatch" style="background:var(--danger);"></span>นำออก</div>
+        <div class="tl-item"><span class="tl-swatch" style="background:var(--success);"></span>รับแล้ว</div>
+        <div class="tl-item"><span class="tl-swatch" style="background:var(--warn);"></span>รอดำเนินการ</div>
       </div>
     </div>
     <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
@@ -463,8 +467,8 @@ tbody tr:hover{ background:var(--surface-alt); }
   <div class="card card-pad fade-in" style="animation-delay:.45s">
     <div class="card-head">
       <div>
-        <div class="card-title"><i class="ti ti-stack-2" style="color:var(--primary);"></i> สินค้าที่เคลื่อนไหวมากที่สุด</div>
-        <div class="card-sub">รวมรับเข้า + นำออก</div>
+        <div class="card-title"><i class="ti ti-building-store" style="color:var(--primary);"></i> คู่ค้าที่ส่งมากที่สุด</div>
+        <div class="card-sub">จากเอกสารล่าสุดในระบบ</div>
       </div>
     </div>
     <div class="rank-list" id="rankList"></div>
@@ -475,17 +479,17 @@ tbody tr:hover{ background:var(--surface-alt); }
 <div class="card card-pad fade-in" style="animation-delay:.5s; margin-bottom:20px;">
   <div class="card-head">
     <div>
-      <div class="card-title"><i class="ti ti-list-details" style="color:var(--primary);"></i> รายการเคลื่อนไหวล่าสุด</div>
-      <div class="card-sub">ประวัติการรับเข้า-นำออกสินค้าคลัง</div>
+      <div class="card-title"><i class="ti ti-list-details" style="color:var(--primary);"></i> ข้อมูลล่าสุด</div>
+      <div class="card-sub">เอกสารนำเข้าคลังที่เพิ่งเกิดขึ้น</div>
     </div>
     <a class="view-all-link" href="dashboard.html">ดูทั้งหมด <i class="ti ti-arrow-right"></i></a>
   </div>
   <table>
     <thead>
-      <tr><th>วันที่</th><th>รหัส/ชื่อสินค้า</th><th>คลัง</th><th>ประเภท</th><th>จำนวน</th><th>สถานะสต็อก</th></tr>
+      <tr><th>ผู้ส่ง / เลขที่</th><th>คลัง</th><th>วันที่</th><th>สถานะ</th><th></th></tr>
     </thead>
     <tbody id="recentTableBody">
-      <tr class="empty-row"><td colspan="6">กำลังโหลดข้อมูล...</td></tr>
+      <tr class="empty-row"><td colspan="5">กำลังโหลดข้อมูล...</td></tr>
     </tbody>
   </table>
 </div>
@@ -494,21 +498,21 @@ tbody tr:hover{ background:var(--surface-alt); }
 <div class="quick-menu fade-in" style="animation-delay:.55s">
   <div class="quick-title"><i class="ti ti-bolt" style="color:var(--primary);"></i> เมนูใช้งานด่วน</div>
   <div class="quick-grid">
-    <a class="quick-btn" href="stock-in.html">
-      <div class="q-icon" style="background:var(--primary);"><i class="ti ti-package-import"></i></div>
-      <div class="q-label">รับสินค้าเข้าคลัง<br><span style="font-weight:500; color:var(--ink-faint); font-size:11px;">บันทึกสินค้ารับเข้า</span></div>
+    <a class="quick-btn" href="receiver.html">
+      <div class="q-icon" style="background:var(--primary);"><i class="ti ti-scan"></i></div>
+      <div class="q-label">ตรวจรับสินค้า<br><span style="font-weight:500; color:var(--ink-faint); font-size:11px;">บันทึกการรับเข้าคลัง</span></div>
     </a>
-    <a class="quick-btn" href="stock-out.html">
-      <div class="q-icon" style="background:var(--orange);"><i class="ti ti-package-export"></i></div>
-      <div class="q-label">เบิกสินค้าออก<br><span style="font-weight:500; color:var(--ink-faint); font-size:11px;">บันทึกสินค้าเบิกจ่าย</span></div>
+    <a class="quick-btn" href="dashboard.html">
+      <div class="q-icon" style="background:var(--success);"><i class="ti ti-list-search"></i></div>
+      <div class="q-label">ดูข้อมูลล่าสุด<br><span style="font-weight:500; color:var(--ink-faint); font-size:11px;">ค้นหา / ตรวจสอบ</span></div>
     </a>
-    <a class="quick-btn" href="stock-count.html">
-      <div class="q-icon" style="background:var(--purple);"><i class="ti ti-clipboard-check"></i></div>
-      <div class="q-label">ตรวจนับสต็อก<br><span style="font-weight:500; color:var(--ink-faint); font-size:11px;">Stock Take / Cycle Count</span></div>
+    <a class="quick-btn" href="item-master.html">
+      <div class="q-icon" style="background:var(--purple);"><i class="ti ti-box"></i></div>
+      <div class="q-label">คลังสินค้า<br><span style="font-weight:500; color:var(--ink-faint); font-size:11px;">รายการสินค้าในระบบ</span></div>
     </a>
     <a class="quick-btn" href="report.html">
-      <div class="q-icon" style="background:var(--success);"><i class="ti ti-file-analytics"></i></div>
-      <div class="q-label">รายงานคลังสินค้า<br><span style="font-weight:500; color:var(--ink-faint); font-size:11px;">Export Excel / PDF</span></div>
+      <div class="q-icon" style="background:var(--orange);"><i class="ti ti-file-analytics"></i></div>
+      <div class="q-label">ออกรายงาน<br><span style="font-weight:500; color:var(--ink-faint); font-size:11px;">Export Excel / PDF</span></div>
     </a>
   </div>
 </div>
@@ -517,11 +521,11 @@ tbody tr:hover{ background:var(--surface-alt); }
 <div class="footer-quote fade-in" style="animation-delay:.6s">
   <div class="fq-text">
     <i class="ti ti-quote"></i>
-    <div class="fq-main">"ทุกชิ้นที่นับถูกต้อง คือรากฐานของคลังที่แม่นยำ"</div>
+    <div class="fq-main">"ทุกใบนำเข้าที่บันทึกถูกต้อง คือความแม่นยำของคลังสินค้า"</div>
   </div>
   <div class="fq-right">
     <div class="fq-r1">Smart Warehouse</div>
-    <div class="fq-r2">Every Item Counted · Every Movement Tracked</div>
+    <div class="fq-r2">Every Delivery Counted · Every Status Clear</div>
   </div>
 </div>
 
@@ -566,18 +570,12 @@ function toDate(v){
 function isSameDay(a,b){ return a && b && a.toDateString()===b.toDateString(); }
 const THAI_MONTHS_SHORT = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 function fmtDayLabel(d){ return `${d.getDate()} ${THAI_MONTHS_SHORT[d.getMonth()]}`; }
-function fmtFullDate(d){ return d.toLocaleDateString('th-TH',{ day:'numeric', month:'short', year:'numeric' }); }
-function fmtBaht(n){
-  if (n >= 1000000) return '฿' + (n/1000000).toFixed(2) + 'M';
-  if (n >= 1000) return '฿' + (n/1000).toFixed(1) + 'K';
-  return '฿' + Math.round(n).toLocaleString();
-}
 
 /* ============ FIREBASE ============ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
-  getFirestore, collection, query, orderBy, limit, getDocs, getCountFromServer, doc, getDoc
+  getFirestore, collection, query, orderBy, limit, getDocs, getCountFromServer, where, doc, getDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -618,20 +616,19 @@ onAuthStateChanged(auth, async (user) => {
 
 /* ============ DATA LOAD (quota-conscious) ============ */
 /*
-  ใช้ 2 collections:
-  - warehouse_items    : สต็อกปัจจุบันของสินค้าแต่ละรายการ (ใช้คำนวณ KPI สต็อก/มูลค่า/หมวดหมู่/ใกล้หมด)
-  - stock_movements    : ประวัติการรับเข้า-นำออก (ใช้คำนวณกราฟแนวโน้ม/ตาราง/อันดับสินค้าเคลื่อนไหว)
-  ผลลัพธ์ถูกแคชรวมกันไว้ใน sessionStorage 2 นาที เพื่อลด read
+  ใช้ collection เดียวเหมือนโค้ดต้นฉบับ: warehouse_deliveries
+  fields: sender, invoice, warehouse, status ('pending'|'received'), date, createdAt
+  - นับยอดรวม/รอ/รับแล้ว ด้วย getCountFromServer (แม่นยำ ไม่ต้องโหลดทุก doc)
+  - ดึงเอกสารล่าสุด limit(50) มาใช้กับกราฟ/ตาราง/อันดับคู่ค้า
+  - แคชผลรวมไว้ใน sessionStorage 2 นาที ลด read เวลาเปิดหน้าซ้ำ
 */
-const ITEMS_LIMIT = 500;
-const MOVES_LIMIT = 200;
+const DOC_LIMIT = 50;
 const CACHE_KEY = 'sf_dashboard_cache_v1';
 const CACHE_TTL_MS = 2 * 60 * 1000;
 
-let allItems = [];
-let allMoves = [];
-let currentPeriod = 'week';
-let breakdownChart = null, donutChart = null, trendChart = null;
+let allDocs = [];
+let currentPeriod = 'month';
+let overviewChart = null, donutChart = null, trendChart = null;
 
 function readCache(){
   try {
@@ -652,9 +649,8 @@ async function loadDashboard(forceRefresh){
 
   const cached = !forceRefresh ? readCache() : null;
   if (cached) {
-    allItems = cached.items;
-    allMoves = cached.moves;
-    renderAll();
+    allDocs = cached.docs;
+    renderAll(cached.total, cached.pending, cached.received);
     const mins = Math.max(1, Math.round((Date.now()-cached.t)/60000));
     document.getElementById('cacheNoteText').textContent = `ใช้ข้อมูลที่แคชไว้ (อัปเดตล่าสุด ${mins} นาทีที่แล้ว)`;
     document.getElementById('cacheNote').style.display = 'flex';
@@ -663,19 +659,30 @@ async function loadDashboard(forceRefresh){
   document.getElementById('cacheNote').style.display = 'none';
 
   try {
-    const itemsBase = collection(db, 'warehouse_items');
-    const movesBase = collection(db, 'stock_movements');
+    const base = collection(db, 'warehouse_deliveries');
 
-    const [itemsSnap, movesSnap] = await Promise.all([
-      getDocs(query(itemsBase, limit(ITEMS_LIMIT))),
-      getDocs(query(movesBase, orderBy('createdAt','desc'), limit(MOVES_LIMIT)))
-    ]);
+    let totalCount, pendingCount, receivedCount;
+    try {
+      const [t,p,r] = await Promise.all([
+        getCountFromServer(base),
+        getCountFromServer(query(base, where('status','==','pending'))),
+        getCountFromServer(query(base, where('status','==','received')))
+      ]);
+      totalCount = t.data().count; pendingCount = p.data().count; receivedCount = r.data().count;
+    } catch(e){ totalCount = pendingCount = receivedCount = null; }
 
-    allItems = itemsSnap.docs.map(d => ({ id:d.id, ...d.data() }));
-    allMoves = movesSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+    const q = query(base, orderBy('createdAt','desc'), limit(DOC_LIMIT));
+    const snap = await getDocs(q);
+    allDocs = snap.docs.map(d => ({ id:d.id, ...d.data() }));
 
-    renderAll();
-    writeCache({ items: allItems, moves: allMoves });
+    if (totalCount === null) {
+      totalCount = allDocs.length;
+      pendingCount = allDocs.filter(d => (d.status||'pending') !== 'received').length;
+      receivedCount = allDocs.filter(d => d.status === 'received').length;
+    }
+
+    renderAll(totalCount, pendingCount, receivedCount);
+    writeCache({ docs: allDocs, total: totalCount, pending: pendingCount, received: receivedCount });
   } catch(err){
     console.error('โหลดข้อมูล dashboard ไม่สำเร็จ:', err);
     document.getElementById('errorMsg').textContent = 'โหลดข้อมูลไม่สำเร็จ: ' + (err.message || 'unknown error');
@@ -684,65 +691,40 @@ async function loadDashboard(forceRefresh){
 }
 window.sfReload = loadDashboard;
 
-function renderAll(){
-  allItems = allItems.map(it => ({
-    ...it,
-    quantity: Number(it.quantity||0),
-    minStock: Number(it.minStock||0),
-    unitPrice: Number(it.unitPrice||0),
-  }));
-  allMoves = allMoves.map(m => ({
-    ...m,
-    quantity: Number(m.quantity||0),
-    dateObj: toDate(m.date) || toDate(m.createdAt),
-  }));
+function renderAll(totalCount, pendingCount, receivedCount){
+  allDocs = allDocs.map(d => ({ ...d, dateObj: toDate(d.date) || toDate(d.createdAt) }));
 
-  renderKPIs();
-  renderBreakdownChart();
-  renderDonut();
+  renderKPIs(totalCount, pendingCount, receivedCount);
+  renderOverviewChart();
+  renderDonut(pendingCount, receivedCount, totalCount);
   renderTrendChart();
-  renderRanking();
+  renderVendors();
   renderTable();
-  updateNotif();
+  updateNotif(pendingCount);
 }
 
 function unskel(el){ el.classList.remove('skel'); }
-function mean(arr){ return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
 
-function renderKPIs(){
+function renderKPIs(total, pending, received){
+  const kt = document.getElementById('kpiTotal'); unskel(kt); kt.textContent = total.toLocaleString();
+  const kp = document.getElementById('kpiPending'); unskel(kp); kp.textContent = pending.toLocaleString();
+  const kr = document.getElementById('kpiReceived'); unskel(kr); kr.textContent = received.toLocaleString();
+  document.getElementById('kpiPendingSub').innerHTML = pending>0
+    ? `<i class="ti ti-hourglass"></i> ต้องดำเนินการ`
+    : `<i class="ti ti-circle-check"></i> เรียบร้อยดี`;
+  const pct = total>0 ? Math.round(received/total*100) : 0;
+  document.getElementById('kpiReceivedPct').textContent = pct + '%';
+
   const today = new Date();
+  const docsToday = allDocs.filter(d=>isSameDay(d.dateObj, today));
+  const kd = document.getElementById('kpiToday'); unskel(kd);
+  kd.textContent = docsToday.length.toLocaleString();
 
-  // Total stock quantity + value
-  const totalQty = allItems.reduce((a,it)=>a+it.quantity,0);
-  const totalValue = allItems.reduce((a,it)=>a+it.quantity*it.unitPrice,0);
-
-  const ks = document.getElementById('kpiStock'); unskel(ks);
-  ks.textContent = totalQty.toLocaleString();
-  const kv = document.getElementById('kpiValue'); unskel(kv);
-  kv.textContent = fmtBaht(totalValue);
-
-  // Net movement trend (recent half vs older half of loaded movements)
-  const sortedMoves = [...allMoves].sort((a,b)=>(a.dateObj?.getTime()||0)-(b.dateObj?.getTime()||0));
-  const half = Math.floor(sortedMoves.length/2);
-  const net = m => m.type==='in' ? m.quantity : -m.quantity;
-  const olderNet = sortedMoves.slice(0,half).reduce((a,m)=>a+net(m),0);
-  const recentNet = sortedMoves.slice(half).reduce((a,m)=>a+net(m),0);
-  const stockChangePct = olderNet!==0 ? Math.round(((recentNet-olderNet)/Math.abs(olderNet))*100) : 0;
-  const kt = document.getElementById('kpiStockTrend'); unskel(kt);
-  kt.textContent = `${stockChangePct>=0?'▲':'▼'} ${Math.abs(stockChangePct)}%`;
-  kt.className = 'kpi-trend neutral';
-  document.getElementById('kpiStockSub').textContent = 'หน่วย · จากสัปดาห์ก่อน';
-
-  // Inbound today
-  const inboundToday = allMoves.filter(m=>m.type==='in' && isSameDay(m.dateObj,today)).reduce((a,m)=>a+m.quantity,0);
-  const ki = document.getElementById('kpiInbound'); unskel(ki);
-  ki.textContent = inboundToday.toLocaleString();
-
-  const sparkWrap = document.getElementById('sparkInbound');
+  const sparkWrap = document.getElementById('sparkToday');
   sparkWrap.innerHTML = '';
   const last7 = [...Array(7)].map((_,i)=>{
     const d = new Date(); d.setDate(d.getDate()-(6-i));
-    return allMoves.filter(m=>m.type==='in' && isSameDay(m.dateObj,d)).reduce((a,m)=>a+m.quantity,0);
+    return allDocs.filter(x=>isSameDay(x.dateObj,d)).length;
   });
   const maxV = Math.max(1, ...last7);
   last7.forEach((v,i)=>{
@@ -751,73 +733,68 @@ function renderKPIs(){
     if (i===6) b.style.background = 'var(--purple)';
     sparkWrap.appendChild(b);
   });
-
-  // Low stock / out of stock
-  const lowStockItems = allItems.filter(it=>it.minStock>0 && it.quantity<=it.minStock);
-  const outOfStockItems = allItems.filter(it=>it.quantity<=0);
-  const kl = document.getElementById('kpiLowStock'); unskel(kl);
-  kl.textContent = lowStockItems.length.toLocaleString();
-  const koos = document.getElementById('kpiOutOfStock');
-  if (outOfStockItems.length>0){
-    unskel(koos);
-    koos.style.display='flex';
-    koos.textContent = `หมด ${outOfStockItems.length}`;
-  } else {
-    koos.style.display='none';
-  }
 }
 
-function updateNotif(){
-  const lowStockCount = allItems.filter(it=>it.minStock>0 && it.quantity<=it.minStock).length;
+function updateNotif(pendingCount){
   const dot = document.getElementById('notifDot');
-  if (lowStockCount>0){ dot.style.display='flex'; dot.textContent = lowStockCount>99?'99+':lowStockCount; }
+  if (pendingCount>0){ dot.style.display='flex'; dot.textContent = pendingCount>99?'99+':pendingCount; }
   else dot.style.display='none';
 }
 
-/* ============ breakdown (stacked in/out by warehouse) ============ */
-function filteredMovesByPeriod(){
-  const days = currentPeriod==='month' ? 30 : 7;
-  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-days);
-  return allMoves.filter(m=>m.dateObj && m.dateObj >= cutoff);
+/* ============ overview chart (monthly, received vs pending) ============ */
+function monthBuckets(period){
+  const now = new Date();
+  const buckets = [];
+  if (period === 'year') {
+    for (let m=0; m<=now.getMonth(); m++){
+      buckets.push({ key:`${now.getFullYear()}-${m}`, label: THAI_MONTHS_SHORT[m] });
+    }
+  } else {
+    for (let i=5;i>=0;i--){
+      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+      buckets.push({ key:`${d.getFullYear()}-${d.getMonth()}`, label: THAI_MONTHS_SHORT[d.getMonth()] });
+    }
+  }
+  return buckets;
 }
 
-function renderBreakdownChart(){
-  const moves = filteredMovesByPeriod();
-  const byWarehouse = new Map();
-  moves.forEach(m=>{
-    const w = m.warehouse || 'ไม่ระบุคลัง';
-    if(!byWarehouse.has(w)) byWarehouse.set(w, { in:0, out:0, count:0 });
-    const e = byWarehouse.get(w);
-    if (m.type==='in') e.in += m.quantity; else e.out += m.quantity;
-    e.count++;
+function renderOverviewChart(){
+  const buckets = monthBuckets(currentPeriod);
+  const map = new Map(buckets.map(b => [b.key, {pending:0, received:0}]));
+
+  allDocs.forEach(d => {
+    const dt = d.dateObj;
+    if(!dt) return;
+    const key = `${dt.getFullYear()}-${dt.getMonth()}`;
+    if(!map.has(key)) return;
+    const entry = map.get(key);
+    if (d.status === 'received') entry.received++; else entry.pending++;
   });
-  const warehouses = Array.from(byWarehouse.entries()).sort((a,b)=>b[1].count-a[1].count).slice(0,6);
-  const labels = warehouses.map(w=>w[0]);
+
+  const labels = buckets.map(b=>b.label);
+  const receivedData = buckets.map(b=>map.get(b.key).received);
+  const pendingData = buckets.map(b=>map.get(b.key).pending);
 
   const css = getComputedStyle(html);
   const ink = css.getPropertyValue('--ink-faint').trim();
   const border = css.getPropertyValue('--border').trim();
   const success = css.getPropertyValue('--success').trim();
-  const danger = css.getPropertyValue('--danger').trim();
+  const warn = css.getPropertyValue('--warn').trim();
 
-  const ctx = document.getElementById('breakdownChart');
-  if (breakdownChart) breakdownChart.destroy();
-
-  if (labels.length === 0){
-    document.getElementById('breakdownLegend').innerHTML = `<span style="font-size:12px; color:var(--ink-faint);">ยังไม่มีข้อมูลในช่วงเวลานี้</span>`;
-    breakdownChart = new Chart(ctx, { type:'bar', data:{ labels:['—'], datasets:[{ data:[0], backgroundColor:border }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} } });
-    return;
-  }
-
-  breakdownChart = new Chart(ctx, {
+  const ctx = document.getElementById('overviewChart');
+  if (overviewChart) overviewChart.destroy();
+  overviewChart = new Chart(ctx, {
     type:'bar',
-    data:{ labels, datasets:[
-      { label:'รับเข้า', data: warehouses.map(w=>w[1].in), backgroundColor: success, borderRadius:6, maxBarThickness:34, stack:'s' },
-      { label:'นำออก', data: warehouses.map(w=>w[1].out), backgroundColor: danger, borderRadius:6, maxBarThickness:34, stack:'s' }
-    ] },
+    data:{
+      labels,
+      datasets:[
+        { label:'รับแล้ว', data:receivedData, backgroundColor: success, borderRadius:6, maxBarThickness:34, stack:'s' },
+        { label:'รอดำเนินการ', data:pendingData, backgroundColor: warn, borderRadius:6, maxBarThickness:34, stack:'s' }
+      ]
+    },
     options:{
       responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{ display:false } },
+      plugins:{ legend:{ display:true, position:'bottom', labels:{ color: ink, boxWidth:10, boxHeight:10, font:{ family:"'Plus Jakarta Sans'", size:11 }, usePointStyle:true, pointStyle:'circle' } } },
       scales:{
         x:{ stacked:true, grid:{ display:false }, ticks:{ color: ink, font:{ family:"'Plus Jakarta Sans'", size:11 } } },
         y:{ stacked:true, beginAtZero:true, grid:{ color: border }, ticks:{ color: ink, precision:0, font:{ family:"'Share Tech Mono'", size:10 } } }
@@ -825,75 +802,62 @@ function renderBreakdownChart(){
     }
   });
 
-  document.getElementById('breakdownLegend').innerHTML = `
-    <div class="chart-legend-item"><span class="chart-legend-dot" style="background:${success};"></span>รับเข้า</div>
-    <div class="chart-legend-item"><span class="chart-legend-dot" style="background:${danger};"></span>นำออก</div>
-  `;
+  const note = document.getElementById('chartNote');
+  if (note) {
+    note.textContent = allDocs.length >= DOC_LIMIT
+      ? `อ้างอิงจากเอกสารล่าสุด ${DOC_LIMIT} รายการ — เดือนที่เก่ากว่านี้อาจแสดงจำนวนไม่ครบ`
+      : `อ้างอิงจากเอกสารล่าสุดในระบบ (${allDocs.length} รายการ)`;
+  }
 }
 window.sfSetPeriod = function(p){
   currentPeriod = p;
-  document.getElementById('pillWeek').classList.toggle('active', p==='week');
   document.getElementById('pillMonth').classList.toggle('active', p==='month');
-  renderBreakdownChart();
+  document.getElementById('pillYear').classList.toggle('active', p==='year');
+  renderOverviewChart();
 };
 
-/* ============ donut (stock by category) ============ */
-function renderDonut(){
-  const byCategory = new Map();
-  allItems.forEach(it=>{
-    const c = it.category || 'ไม่ระบุหมวดหมู่';
-    byCategory.set(c, (byCategory.get(c)||0) + it.quantity);
-  });
-  const entries = Array.from(byCategory.entries()).sort((a,b)=>b[1]-a[1]);
-  const total = entries.reduce((a,e)=>a+e[1],0);
-
-  document.getElementById('donutTotal').textContent = Math.round(total).toLocaleString();
+/* ============ donut (status) ============ */
+function renderDonut(pending, received, total){
+  document.getElementById('donutTotal').textContent = total.toLocaleString();
+  document.getElementById('legendReceived').textContent = received.toLocaleString();
+  document.getElementById('legendPending').textContent = pending.toLocaleString();
 
   const css = getComputedStyle(html);
+  const success = css.getPropertyValue('--success').trim();
+  const warn = css.getPropertyValue('--warn').trim();
   const track = css.getPropertyValue('--border-strong').trim();
+
   const ctx = document.getElementById('donutChart');
   if (donutChart) donutChart.destroy();
-
-  const data = total>0 ? entries.map(e=>e[1]) : [1];
-  const colors = total>0 ? entries.map(e=>colorFor(e[0])) : [track];
-
+  const data = total>0 ? [received, pending] : [1];
+  const colors = total>0 ? [success, warn] : [track];
   donutChart = new Chart(ctx, {
     type:'doughnut',
-    data:{ datasets:[{ data, backgroundColor:colors, borderWidth:0, hoverOffset:2 }] },
+    data:{ datasets:[{ data, backgroundColor: colors, borderWidth:0, hoverOffset:2 }] },
     options:{ cutout:'74%', responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }, tooltip:{ enabled:true } } }
   });
-
-  const legendEl = document.getElementById('reasonLegend');
-  if (entries.length === 0){
-    legendEl.innerHTML = `<div style="font-size:12px; color:var(--ink-faint); text-align:center; padding:10px 0;">ไม่มีข้อมูลสินค้าคงคลัง</div>`;
-    return;
-  }
-  legendEl.innerHTML = entries.slice(0,6).map(([cat,qty])=>{
-    const pct = total>0 ? Math.round(qty/total*100) : 0;
-    return `<div class="reason-item"><span class="reason-dot" style="background:${colorFor(cat)};"></span><span class="rn-name">${esc(cat)}</span><span class="rn-val">${pct}%</span></div>`;
-  }).join('');
 }
 
-/* ============ trend line chart (in vs out) ============ */
+/* ============ trend line (received vs pending per day) ============ */
 function renderTrendChart(){
   const days = [...Array(7)].map((_,i)=>{ const d=new Date(); d.setDate(d.getDate()-(6-i)); return d; });
-  const inbound = days.map(d=> allMoves.filter(m=>m.type==='in' && isSameDay(m.dateObj,d)).reduce((a,m)=>a+m.quantity,0));
-  const outbound = days.map(d=> allMoves.filter(m=>m.type==='out' && isSameDay(m.dateObj,d)).reduce((a,m)=>a+m.quantity,0));
+  const received = days.map(d=> allDocs.filter(x=>isSameDay(x.dateObj,d) && x.status==='received').length);
+  const pending = days.map(d=> allDocs.filter(x=>isSameDay(x.dateObj,d) && x.status!=='received').length);
   const labels = days.map(fmtDayLabel);
 
   const css = getComputedStyle(html);
   const ink = css.getPropertyValue('--ink-faint').trim();
   const border = css.getPropertyValue('--border').trim();
   const success = css.getPropertyValue('--success').trim();
-  const danger = css.getPropertyValue('--danger').trim();
+  const warn = css.getPropertyValue('--warn').trim();
 
   const ctx = document.getElementById('trendChart');
   if (trendChart) trendChart.destroy();
   trendChart = new Chart(ctx, {
     type:'line',
     data:{ labels, datasets:[
-      { label:'รับเข้า', data:inbound, borderColor:success, backgroundColor:success, pointRadius:4, pointHoverRadius:6, tension:.35, borderWidth:2.5 },
-      { label:'นำออก', data:outbound, borderColor:danger, backgroundColor:danger, pointRadius:4, pointHoverRadius:6, tension:.35, borderWidth:2.5 }
+      { label:'รับแล้ว', data:received, borderColor:success, backgroundColor:success, pointRadius:4, pointHoverRadius:6, tension:.35, borderWidth:2.5 },
+      { label:'รอดำเนินการ', data:pending, borderColor:warn, backgroundColor:warn, pointRadius:4, pointHoverRadius:6, tension:.35, borderWidth:2.5 }
     ] },
     options:{
       responsive:true, maintainAspectRatio:false,
@@ -905,32 +869,36 @@ function renderTrendChart(){
     }
   });
 
-  const lastIdx = inbound.length-1;
-  document.getElementById('trendLatestVal').textContent = `รับเข้า ${inbound[lastIdx]} · นำออก ${outbound[lastIdx]} · ${fmtFullDate(days[lastIdx])}`;
+  const lastIdx = received.length-1;
+  document.getElementById('trendLatestVal').textContent = `รับแล้ว ${received[lastIdx]} · รอดำเนินการ ${pending[lastIdx]} รายการ`;
 }
 
-/* ============ ranking (top moving items) ============ */
-function renderRanking(){
-  const byItem = new Map();
-  allMoves.forEach(m=>{
-    const name = m.itemName || m.itemCode || 'ไม่ระบุสินค้า';
-    byItem.set(name, (byItem.get(name)||0) + m.quantity);
+/* ============ ranking (top senders) ============ */
+function renderVendors(){
+  const term = (document.getElementById('searchInput').value||'').toLowerCase().trim();
+  const map = new Map();
+  allDocs.forEach(d=>{
+    const name = (d.sender || 'ไม่ระบุผู้ส่ง').trim() || 'ไม่ระบุผู้ส่ง';
+    if (term && !name.toLowerCase().includes(term)) return;
+    if(!map.has(name)) map.set(name, {name, total:0, received:0});
+    const e = map.get(name);
+    e.total++;
+    if (d.status==='received') e.received++;
   });
-  const ranked = Array.from(byItem.entries()).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const vendors = Array.from(map.values()).sort((a,b)=>b.total-a.total).slice(0,5);
   const el = document.getElementById('rankList');
 
-  if (ranked.length===0){
-    el.innerHTML = `<div style="text-align:center; padding:16px 0; color:var(--ink-faint); font-size:12.5px;">ไม่มีข้อมูล</div>`;
+  if (vendors.length===0){
+    el.innerHTML = `<div style="text-align:center; padding:16px 0; color:var(--ink-faint); font-size:12.5px;">ไม่พบข้อมูลคู่ค้า</div>`;
     return;
   }
-  const maxV = ranked[0][1] || 1;
-  const shades = ['#3266f2','#17a668','#e08c1a','#7c5cf0','#e1483f'];
-  el.innerHTML = ranked.map(([name,val],i)=>{
-    const pct = Math.max(6, Math.round(val/maxV*100));
+  const maxV = vendors[0].total || 1;
+  el.innerHTML = vendors.map((v,i)=>{
+    const pct = Math.max(6, Math.round(v.total/maxV*100));
     return `
       <div class="rank-item">
-        <div class="rk-top"><span class="rk-name">${esc(name)}</span><span class="rk-val">${Math.round(val).toLocaleString()} หน่วย</span></div>
-        <div class="rank-bar-track"><div class="rank-bar-fill" style="width:${pct}%; background:${shades[i%shades.length]};"></div></div>
+        <div class="rk-top"><span class="rk-name">${esc(v.name)}</span><span class="rk-val">${v.total} ใบนำเข้า · รับแล้ว ${v.received}</span></div>
+        <div class="rank-bar-track"><div class="rank-bar-fill" style="width:${pct}%; background:${colorFor(v.name)};"></div></div>
       </div>`;
   }).join('');
 }
@@ -940,55 +908,57 @@ function renderTable(){
   const tbody = document.getElementById('recentTableBody');
   const term = (document.getElementById('searchInput').value||'').toLowerCase().trim();
 
-  let rows = [...allMoves].sort((a,b)=>(b.dateObj?.getTime()||0)-(a.dateObj?.getTime()||0));
+  let rows = [...allDocs].sort((a,b)=>(b.dateObj?.getTime()||0)-(a.dateObj?.getTime()||0));
   if (term) {
-    rows = rows.filter(m =>
-      String(m.itemName||'').toLowerCase().includes(term) ||
-      String(m.itemCode||'').toLowerCase().includes(term) ||
-      String(m.warehouse||'').toLowerCase().includes(term)
+    rows = rows.filter(d =>
+      String(d.sender||'').toLowerCase().includes(term) ||
+      String(d.invoice||'').toLowerCase().includes(term) ||
+      String(d.warehouse||'').toLowerCase().includes(term)
     );
   }
   rows = rows.slice(0,8);
 
   if (rows.length === 0) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="6"><i class="ti ti-inbox" style="font-size:20px; display:block; margin-bottom:6px;"></i>ไม่พบรายการที่ตรงกับการค้นหา</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5"><i class="ti ti-inbox" style="font-size:20px; display:block; margin-bottom:6px;"></i>ไม่พบรายการที่ตรงกับการค้นหา</td></tr>`;
     return;
   }
 
-  const itemByCode = new Map(allItems.map(it=>[it.itemCode, it]));
-
-  tbody.innerHTML = rows.map(m=>{
-    const dateStr = m.dateObj ? m.dateObj.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
-    const name = m.itemName || m.itemCode || 'ไม่ระบุสินค้า';
-    const matchedItem = itemByCode.get(m.itemCode);
-    const isLow = matchedItem && matchedItem.minStock>0 && matchedItem.quantity<=matchedItem.minStock;
+  tbody.innerHTML = rows.map(d=>{
+    const dt = d.dateObj;
+    const dateStr = dt ? dt.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'2-digit'}) : '—';
+    const isReceived = d.status === 'received';
+    const sender = d.sender || 'ไม่ระบุผู้ส่ง';
     return `
       <tr>
-        <td>${dateStr}</td>
         <td>
           <div class="row-order">
-            <div class="mini-avatar" style="background:${colorFor(name)};">${esc(initials(name))}</div>
+            <div class="mini-avatar" style="background:${colorFor(sender)};">${esc(initials(sender))}</div>
             <div>
-              <div class="o-inv">${esc(name)}</div>
-              <div class="o-sub">${esc(m.itemCode || '—')}</div>
+              <div class="o-inv">${esc(sender)}</div>
+              <div class="o-sub">${esc(d.invoice || '—')}</div>
             </div>
           </div>
         </td>
-        <td>${esc(m.warehouse || '—')}</td>
-        <td>${m.type==='in'
-          ? `<span class="badge badge-in"><span class="bdot"></span>รับเข้า</span>`
-          : `<span class="badge badge-out"><span class="bdot"></span>นำออก</span>`}</td>
-        <td>${Number(m.quantity||0).toLocaleString()}</td>
-        <td>${isLow
-          ? `<span class="badge badge-over"><span class="bdot"></span>ใกล้หมด</span>`
-          : `<span class="badge badge-ok"><span class="bdot"></span>ปกติ</span>`}</td>
+        <td>${esc(d.warehouse || '—')}</td>
+        <td>${dateStr}</td>
+        <td>${isReceived
+          ? `<span class="badge badge-ok"><span class="bdot"></span>รับแล้ว</span>`
+          : `<span class="badge badge-over"><span class="bdot"></span>รอรับ</span>`}</td>
+        <td><a class="receipt-link" href="receiver.html?id=${encodeURIComponent(d.id)}" title="ดูใบรับสินค้า"><i class="ti ti-receipt-2"></i></a></td>
       </tr>`;
   }).join('');
 }
-document.getElementById('searchInput').addEventListener('input', renderTable);
+document.getElementById('searchInput').addEventListener('input', ()=>{
+  renderTable();
+  renderVendors();
+});
 
 window.sfRefreshChartColors = function(){
-  if (allMoves.length || allItems.length) { renderBreakdownChart(); renderDonut(); renderTrendChart(); }
+  if (allDocs.length) { renderOverviewChart(); renderDonut(
+    allDocs.filter(d=>d.status!=='received').length,
+    allDocs.filter(d=>d.status==='received').length,
+    allDocs.length
+  ); renderTrendChart(); }
 };
 
 loadDashboard(false);
