@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StockFlow — Warehouse Analytics</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Caveat:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<script>
+  (function(){
+    var saved = localStorage.getItem('sf_theme');
+    if (saved === 'dark') document.documentElement.setAttribute('data-theme','dark');
+  })();
+</script>
+
+<style>
+:root{
+  --bg:#eef3fb;
+  --bg-soft:#e4ecf9;
+  --surface:#ffffff;
+  --surface-alt:#f4f7fd;
+  --border:rgba(22,33,61,0.08);
+  --border-strong:rgba(22,33,61,0.14);
+  --ink:#16213d;
+  --ink-soft:#647089;
+  --ink-faint:#9aa4ba;
+
+  --primary:#3266f2;
+  --primary-dark:#1c3fae;
+  --primary-soft:rgba(50,102,242,0.12);
+
+  --success:#17a668;
+  --success-bg:rgba(23,166,104,0.12);
+  --warn:#e08c1a;
+  --warn-bg:rgba(224,140,26,0.13);
+  --danger:#e1483f;
+  --danger-bg:rgba(225,72,63,0.12);
+  --purple:#7c5cf0;
+  --purple-bg:rgba(124,92,240,0.12);
+  --orange:#f2872f;
+  --orange-bg:rgba(242,135,47,0.12);
+
+  --shadow: 0 20px 44px -26px rgba(22,33,61,0.28), 0 2px 8px rgba(22,33,61,0.05);
+  --shadow-sm: 0 8px 20px -13px rgba(22,33,61,0.2);
+  --r-lg:22px; --r-md:16px; --r-sm:10px;
+  --font-ui:'Plus Jakarta Sans','IBM Plex Sans Thai',sans-serif;
+  --font-script:'Caveat',cursive;
+  --font-mono:'Share Tech Mono',monospace;
+}
+
+html[data-theme="dark"]{
+  --bg:#0f1420;
+  --bg-soft:#0b0f18;
+  --surface:#161c2b;
+  --surface-alt:#1c2333;
+  --border:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.14);
+  --ink:#eef1f8;
+  --ink-soft:#98a2ba;
+  --ink-faint:#616d87;
+
+  --primary:#5680ff;
+  --primary-dark:#3a5fe0;
+  --primary-soft:rgba(86,128,255,0.18);
+  --success:#2fcf8e;
+  --success-bg:rgba(47,207,142,0.15);
+  --warn:#f0a53d;
+  --warn-bg:rgba(240,165,61,0.15);
+  --danger:#f0665c;
+  --danger-bg:rgba(240,102,92,0.16);
+  --purple:#9c85f8;
+  --purple-bg:rgba(156,133,248,0.16);
+  --orange:#f5994f;
+  --orange-bg:rgba(245,153,79,0.16);
+
+  --shadow: 0 24px 50px -24px rgba(0,0,0,0.65), 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-sm: 0 10px 22px -14px rgba(0,0,0,0.5);
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-ui);
+  padding:22px 26px 46px;
+  min-height:100vh;
+  transition:background .35s ease, color .35s ease;
+}
+a{color:inherit;}
+button{font-family:inherit;}
+::selection{background:var(--primary); color:#fff;}
+.wrap{max-width:1180px; margin:0 auto;}
+
+@media (prefers-reduced-motion: reduce){ *{animation-duration:.01ms !important; transition-duration:.01ms !important;} }
+
+.grid{display:grid; gap:18px;}
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);
+  transition:background .35s ease, border-color .35s ease, box-shadow .2s ease, transform .2s ease;
+}
+.card-pad{padding:22px 22px;}
+.card-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:16px;}
+.card-title{font-size:15px; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:8px;}
+.card-sub{font-size:11.5px; color:var(--ink-faint); margin-top:3px; font-weight:500;}
+
+.fade-in{opacity:0; animation:fadeIn .5s ease forwards;}
+@keyframes fadeIn{to{opacity:1;}}
+
+.skel{position:relative; overflow:hidden; background:var(--surface-alt); border-radius:8px; color:transparent !important;}
+.skel::after{
+  content:""; position:absolute; inset:0; transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
+  animation:shimmer 1.4s infinite;
+}
+html[data-theme="dark"] .skel::after{ background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent); }
+@keyframes shimmer{100%{transform:translateX(100%);}}
+
+/* ============ topbar ============ */
+.topbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px; }
+.search-box{
+  display:flex; align-items:center; gap:9px;
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:11px 16px; flex:1; max-width:420px; box-shadow:var(--shadow-sm);
+}
+.search-box input{ border:none; outline:none; background:transparent; font-size:13.5px; color:var(--ink); font-family:inherit; width:100%; }
+.search-box i{ color:var(--ink-faint); font-size:17px; }
+.search-box input::placeholder{ color:var(--ink-faint); }
+
+.topbar-actions{ display:flex; align-items:center; gap:12px; }
+.icon-btn{
+  width:42px; height:42px; border-radius:13px; border:1px solid var(--border);
+  background:var(--surface); display:flex; align-items:center; justify-content:center;
+  cursor:pointer; position:relative; color:var(--ink-soft); box-shadow:var(--shadow-sm);
+  transition:transform .15s ease, color .2s ease, border-color .2s ease;
+}
+.icon-btn:hover{ color:var(--primary); transform:translateY(-1px); border-color:var(--primary-soft); }
+.icon-btn i{ font-size:19px; }
+.notif-dot{
+  position:absolute; top:-3px; right:-3px; min-width:17px; height:17px; padding:0 4px; border-radius:999px;
+  background:var(--danger); color:#fff; font-size:9.5px; font-weight:800; display:flex; align-items:center; justify-content:center;
+  border:2px solid var(--bg);
+}
+.theme-toggle{ display:flex; align-items:center; gap:5px; padding:5px; border-radius:999px; background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm); cursor:pointer; }
+.theme-toggle .seg{ width:28px; height:28px; border-radius:999px; display:flex; align-items:center; justify-content:center; color:var(--ink-faint); font-size:13px; }
+.theme-toggle .seg.active{ background:var(--primary); color:#fff; }
+
+.user-chip{ display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:6px 14px 6px 6px; box-shadow:var(--shadow-sm); cursor:pointer; }
+.avatar{ width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; }
+.user-chip .u-name{ font-size:13px; font-weight:700; line-height:1.25; }
+.user-chip .u-role{ font-size:10.5px; color:var(--ink-faint); font-weight:600; }
+.user-chip i{ color:var(--ink-faint); font-size:15px; margin-left:2px; }
+
+/* ============ hero ============ */
+.hero{
+  position:relative; overflow:hidden; border-radius:var(--r-lg); margin-bottom:20px;
+  background:
+    radial-gradient(120% 160% at 100% 0%, rgba(255,255,255,0.14), transparent 55%),
+    linear-gradient(120deg, var(--primary-dark) 0%, var(--primary) 55%, #4b7bf5 100%);
+  padding:34px 34px 30px; color:#fff; box-shadow:var(--shadow);
+}
+.hero::before{
+  content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
+  background-image:
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 42px);
+}
+.hero::after{
+  content:""; position:absolute; right:-70px; top:-90px; width:320px; height:320px; border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,0.16), transparent 70%);
+}
+.hero-row{ position:relative; z-index:1; display:flex; align-items:flex-start; justify-content:space-between; gap:18px; flex-wrap:wrap; }
+.hero-brand{ display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+.hero-brand .logo{ font-size:44px; font-weight:800; letter-spacing:-1px; line-height:1; }
+.hero-brand .logo span{ color:#ffe4b8; }
+.hero-brand .sub{ font-size:15px; font-weight:600; color:rgba(255,255,255,0.82); }
+.hero-tag{ font-size:13.5px; color:rgba(255,255,255,0.86); margin-top:9px; font-weight:500; }
+.hero-script{ font-family:var(--font-script); font-size:22px; color:#ffe4b8; transform:rotate(-4deg); white-space:nowrap; text-align:right; }
+.hero-script small{ display:block; font-family:var(--font-ui); font-size:9.5px; letter-spacing:1px; color:rgba(255,255,255,0.6); font-weight:700; text-transform:uppercase; transform:none; margin-top:2px; }
+
+/* ============ KPI row ============ */
+.kpi-row{ grid-template-columns: repeat(4, 1fr); margin-bottom:18px; }
+.kpi-card{ padding:20px 20px 18px; display:flex; flex-direction:column; }
+.kpi-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
+.kpi-top{ display:flex; align-items:center; justify-content:space-between; }
+.kpi-icon{ width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:19px; }
+.kpi-label{ font-size:12px; font-weight:700; color:var(--ink-soft); margin-top:14px; }
+.kpi-value{ font-family:var(--font-mono); font-size:30px; font-weight:700; line-height:1.05; margin:6px 0 8px; }
+.kpi-sub{ font-size:12px; color:var(--ink-faint); display:flex; align-items:center; gap:6px; font-weight:600; }
+.kpi-trend{ font-size:11px; font-weight:800; display:flex; align-items:center; gap:2px; padding:2px 7px; border-radius:20px; }
+.kpi-trend.up-bad{ color:var(--danger); background:var(--danger-bg); }
+.kpi-trend.down-good{ color:var(--success); background:var(--success-bg); }
+.kpi-trend.neutral{ color:var(--primary); background:var(--primary-soft); }
+.kpi-mini-bars{ display:flex; align-items:flex-end; gap:3px; height:22px; margin-top:auto; padding-top:10px; }
+.kpi-mini-bars b{ flex:1; border-radius:3px 3px 0 0; background:var(--primary-soft); min-height:3px; }
+
+/* ============ overview row ============ */
+.overview-row{ grid-template-columns: 1.5fr 1fr; margin-bottom:18px; align-items:stretch; }
+.period-pills{ display:flex; gap:6px; background:var(--surface-alt); padding:4px; border-radius:10px; border:1px solid var(--border); }
+.period-pill{ border:none; background:transparent; font-size:11.5px; font-weight:700; color:var(--ink-faint); padding:6px 11px; border-radius:7px; cursor:pointer; transition:.2s; }
+.period-pill.active{ background:var(--surface); color:var(--primary); box-shadow:var(--shadow-sm); }
+.chart-wrap{ height:230px; position:relative; }
+.chart-legend-row{ display:flex; flex-wrap:wrap; gap:14px; margin-top:14px; }
+.chart-legend-item{ display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-soft); font-weight:600; }
+.chart-legend-dot{ width:9px; height:9px; border-radius:3px; flex-shrink:0; }
+
+.donut-card{ display:flex; flex-direction:column; }
+.donut-wrap{ position:relative; width:150px; height:150px; margin:6px auto 4px; }
+.donut-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.donut-center .d-num{ font-family:var(--font-mono); font-size:22px; font-weight:700; }
+.donut-center .d-txt{ font-size:10px; color:var(--ink-faint); font-weight:600; margin-top:2px; }
+.reason-legend{ display:flex; flex-direction:column; gap:9px; width:100%; margin-top:16px; }
+.reason-item{ display:flex; align-items:center; gap:9px; font-size:12px; }
+.reason-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.reason-item .rn-name{ flex:1; color:var(--ink-soft); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.reason-item .rn-val{ font-family:var(--font-mono); font-weight:700; color:var(--ink); flex-shrink:0; }
+
+/* ============ trend + ranking row ============ */
+.trend-row{ grid-template-columns: 1.5fr 1fr; margin-bottom:18px; align-items:stretch; }
+.trend-legend{ display:flex; gap:14px; }
+.trend-legend .tl-item{ display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700; color:var(--ink-soft); }
+.trend-legend .tl-swatch{ width:16px; height:3px; border-radius:2px; }
+.trend-note{ margin-top:10px; font-size:11.5px; color:var(--ink-soft); font-weight:600; display:flex; align-items:center; gap:6px; }
+.trend-note b{ color:var(--primary); font-family:var(--font-mono); }
+
+.rank-list{ display:flex; flex-direction:column; gap:14px; }
+.rank-item .rk-top{ display:flex; align-items:center; justify-content:space-between; font-size:12.8px; margin-bottom:6px; gap:8px; }
+.rank-item .rk-name{ font-weight:700; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rank-item .rk-val{ font-family:var(--font-mono); font-weight:700; color:var(--ink-soft); font-size:12px; flex-shrink:0; }
+.rank-bar-track{ height:8px; border-radius:6px; background:var(--surface-alt); overflow:hidden; }
+.rank-bar-fill{ height:100%; border-radius:6px; }
+
+/* ============ table ============ */
+table{ width:100%; border-collapse:collapse; font-size:13px; }
+thead th{ text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-faint); font-weight:700; padding:0 10px 10px; border-bottom:1px solid var(--border); }
+tbody td{ padding:12px 10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+tbody tr:last-child td{ border-bottom:none; }
+tbody tr{ transition:background .15s ease; }
+tbody tr:hover{ background:var(--surface-alt); }
+.row-order{ display:flex; align-items:center; gap:10px; }
+.mini-avatar{ width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; color:#fff; flex-shrink:0; }
+.row-order .o-inv{ font-weight:700; font-size:12.8px; }
+.row-order .o-sub{ font-size:11px; color:var(--ink-faint); }
+.badge{ display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:5px 10px; border-radius:20px; }
+.badge .bdot{ width:6px; height:6px; border-radius:50%; }
+.badge-ok{ background:var(--success-bg); color:var(--success); }
+.badge-ok .bdot{ background:var(--success); }
+.badge-over{ background:var(--warn-bg); color:var(--warn); }
+.badge-over .bdot{ background:var(--warn); }
+.badge-in{ background:var(--success-bg); color:var(--success); }
+.badge-in .bdot{ background:var(--success); }
+.badge-out{ background:var(--danger-bg); color:var(--danger); }
+.badge-out .bdot{ background:var(--danger); }
+.view-all-link{ font-size:12px; font-weight:700; color:var(--primary); text-decoration:none; display:flex; align-items:center; gap:4px; }
+.empty-row td{ text-align:center; padding:30px 10px; color:var(--ink-faint); font-size:12.5px; }
+
+/* ============ quick menu ============ */
+.quick-menu{ margin-bottom:20px; }
+.quick-title{ font-size:14px; font-weight:700; margin:0 0 12px 4px; display:flex; align-items:center; gap:8px; }
+.quick-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+.quick-btn{
+  display:flex; flex-direction:column; align-items:flex-start; gap:12px; padding:18px; border-radius:var(--r-md);
+  border:1px solid var(--border); background:var(--surface); text-decoration:none; color:var(--ink);
+  box-shadow:var(--shadow-sm); transition:.2s;
+}
+.quick-btn:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
+.quick-btn .q-icon{ width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:19px; color:#fff; }
+.quick-btn .q-label{ font-size:12.8px; font-weight:700; line-height:1.3; }
+
+/* ============ footer quote ============ */
+.footer-quote{
+  border-radius:var(--r-lg); padding:26px 30px; margin-top:4px;
+  background:linear-gradient(120deg, var(--primary-dark), var(--primary));
+  color:#fff; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
+  box-shadow:var(--shadow);
+}
+.footer-quote .fq-text{ display:flex; align-items:center; gap:14px; }
+.footer-quote i{ font-size:26px; color:#ffe4b8; flex-shrink:0; }
+.footer-quote .fq-main{ font-size:16.5px; font-weight:700; }
+.footer-quote .fq-right{ text-align:right; }
+.footer-quote .fq-right .fq-r1{ font-family:var(--font-script); font-size:20px; color:#ffe4b8; }
+.footer-quote .fq-right .fq-r2{ font-size:11px; color:rgba(255,255,255,0.75); font-weight:600; margin-top:2px; }
+
+/* error / cache */
+.err-box{ display:flex; align-items:center; gap:10px; background:var(--danger-bg); color:var(--danger); border-radius:12px; padding:12px 14px; font-size:12.5px; font-weight:600; margin-bottom:16px; }
+.err-box button{ margin-left:auto; background:var(--danger); color:#fff; border:none; border-radius:8px; padding:6px 12px; font-size:11.5px; font-weight:700; cursor:pointer; }
+.cache-note{ font-size:10.5px; color:var(--ink-faint); display:flex; align-items:center; gap:5px; margin-bottom:12px; }
+.cache-note i{ font-size:13px; }
+.cache-note button{ border:none; background:none; color:var(--primary); font-weight:700; font-size:10.5px; cursor:pointer; text-decoration:underline; padding:0; font-family:inherit; }
+
+/* responsive */
+@media (max-width:1080px){
+  .kpi-row{ grid-template-columns:repeat(2,1fr); }
+  .overview-row{ grid-template-columns:1fr; }
+  .trend-row{ grid-template-columns:1fr; }
+  .quick-grid{ grid-template-columns:repeat(2,1fr); }
+}
+@media (max-width:720px){
+  body{ padding:16px 14px 32px; }
+  .hero{ padding:24px 20px; }
+  .hero-brand .logo{ font-size:34px; }
+  .hero-script{ display:none; }
+  table{ display:block; overflow-x:auto; white-space:nowrap; }
+}
+@media (max-width:560px){
+  .kpi-row{ grid-template-columns:1fr; }
+  .quick-grid{ grid-template-columns:1fr; }
+  .search-box{ display:none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topbar fade-in">
+  <div class="search-box">
+    <i class="ti ti-search"></i>
+    <input id="searchInput" type="text" placeholder="ค้นหาสินค้า, รหัส, คลัง...">
+  </div>
+  <div class="topbar-actions">
+    <div class="theme-toggle" id="themeToggle" title="สลับโหมดแสง">
+      <div class="seg" id="segLight"><i class="ti ti-sun"></i></div>
+      <div class="seg" id="segDark"><i class="ti ti-moon"></i></div>
+    </div>
+    <div class="icon-btn" title="การแจ้งเตือน">
+      <i class="ti ti-bell"></i>
+      <span class="notif-dot" id="notifDot" style="display:none;">0</span>
+    </div>
+    <div class="user-chip">
+      <div class="avatar" id="userAvatar">?</div>
+      <div>
+        <div class="u-name" id="userNameTop">กำลังโหลด...</div>
+        <div class="u-role">Warehouse Staff</div>
+      </div>
+      <i class="ti ti-chevron-down"></i>
+    </div>
+  </div>
+</div>
+
+<div class="hero fade-in" style="animation-delay:.05s">
+  <div class="hero-row">
+    <div>
+      <div class="hero-brand">
+        <span class="logo">Stock<span>Flow</span></span>
+        <span class="sub">Warehouse Analytics</span>
+      </div>
+      <div class="hero-tag">บริหารคลังสินค้า มองเห็นทุกความเคลื่อนไหว เพิ่มความแม่นยำในการจัดเก็บ</div>
+    </div>
+    <div class="hero-script">Smart Stock<br>Zero Stockout<small>Every item tracked, every move counted</small></div>
+  </div>
+</div>
+
+<div id="errorBox" style="display:none;" class="err-box">
+  <i class="ti ti-alert-triangle"></i>
+  <span id="errorMsg">โหลดข้อมูลไม่สำเร็จ</span>
+  <button onclick="window.sfReload(true)">ลองใหม่</button>
+</div>
+<div id="cacheNote" class="cache-note" style="display:none;">
+  <i class="ti ti-database"></i>
+  <span id="cacheNoteText">ใช้ข้อมูลที่แคชไว้</span>
+  <button onclick="window.sfReload(true)">โหลดข้อมูลล่าสุด</button>
+</div>
+
+<!-- KPI ROW -->
+<div class="grid kpi-row">
+  <div class="card kpi-card fade-in" style="animation-delay:.1s">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background:var(--primary-soft); color:var(--primary);"><i class="ti ti-boxes"></i></div>
+      <span class="kpi-trend neutral skel" id="kpiStockTrend">0%</span>
+    </div>
+    <div class="kpi-label">สินค้าคงคลังทั้งหมด</div>
+    <div class="kpi-value skel" id="kpiStock">0</div>
+    <div class="kpi-sub" id="kpiStockSub">หน่วย · จากสัปดาห์ก่อน</div>
+  </div>
+
+  <div class="card kpi-card fade-in" style="animation-delay:.15s">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background:var(--success-bg); color:var(--success);"><i class="ti ti-coin"></i></div>
+    </div>
+    <div class="kpi-label">มูลค่าสินค้าคงคลัง</div>
+    <div class="kpi-value skel" style="color:var(--success); font-size:24px;" id="kpiValue">฿0</div>
+    <div class="kpi-sub">รวมทุกคลัง</div>
+  </div>
+
+  <div class="card kpi-card fade-in" style="animation-delay:.2s">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background:var(--purple-bg); color:var(--purple);"><i class="ti ti-truck-loading"></i></div>
+    </div>
+    <div class="kpi-label">รับเข้าวันนี้</div>
+    <div class="kpi-value skel" id="kpiInbound">0</div>
+    <div class="kpi-sub">หน่วย</div>
+    <div class="kpi-mini-bars" id="sparkInbound"></div>
+  </div>
+
+  <div class="card kpi-card fade-in" style="animation-delay:.25s">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background:var(--danger-bg); color:var(--danger);"><i class="ti ti-alert-triangle"></i></div>
+      <span class="kpi-trend up-bad skel" id="kpiOutOfStock" style="display:none;">0</span>
+    </div>
+    <div class="kpi-label">สินค้าใกล้หมด</div>
+    <div class="kpi-value skel" style="color:var(--danger);" id="kpiLowStock">0</div>
+    <div class="kpi-sub">รายการที่ต้องเติมสต็อก</div>
+  </div>
+</div>
+
+<!-- OVERVIEW ROW -->
+<div class="grid overview-row">
+  <div class="card card-pad fade-in" style="animation-delay:.3s">
+    <div class="card-head">
+      <div>
+        <div class="card-title"><i class="ti ti-chart-bar" style="color:var(--primary);"></i> การเคลื่อนไหวสินค้าตามคลัง</div>
+        <div class="card-sub">รับเข้า / นำออก แยกตามคลัง</div>
+      </div>
+      <div class="period-pills">
+        <button class="period-pill active" id="pillWeek" onclick="window.sfSetPeriod('week')">7 วัน</button>
+        <button class="period-pill" id="pillMonth" onclick="window.sfSetPeriod('month')">30 วัน</button>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="breakdownChart"></canvas></div>
+    <div class="chart-legend-row" id="breakdownLegend"></div>
+  </div>
+
+  <div class="card card-pad donut-card fade-in" style="animation-delay:.35s">
+    <div class="card-head" style="width:100%;">
+      <div>
+        <div class="card-title"><i class="ti ti-chart-donut" style="color:var(--primary);"></i> สัดส่วนตามหมวดหมู่</div>
+        <div class="card-sub">สินค้าคงคลังปัจจุบัน</div>
+      </div>
+    </div>
+    <div class="donut-wrap">
+      <canvas id="donutChart" width="150" height="150"></canvas>
+      <div class="donut-center">
+        <div class="d-num" id="donutTotal">0</div>
+        <div class="d-txt">หน่วยรวม</div>
+      </div>
+    </div>
+    <div class="reason-legend" id="reasonLegend"></div>
+  </div>
+</div>
+
+<!-- TREND + RANKING ROW -->
+<div class="grid trend-row">
+  <div class="card card-pad fade-in" style="animation-delay:.4s">
+    <div class="card-head">
+      <div>
+        <div class="card-title"><i class="ti ti-chart-line" style="color:var(--primary);"></i> แนวโน้มการรับ-จ่ายสินค้า</div>
+        <div class="card-sub">7 วันล่าสุด</div>
+      </div>
+      <div class="trend-legend">
+        <div class="tl-item"><span class="tl-swatch" style="background:var(--success);"></span>รับเข้า</div>
+        <div class="tl-item"><span class="tl-swatch" style="background:var(--danger);"></span>นำออก</div>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+    <div class="trend-note" id="trendNote"><i class="ti ti-point-filled" style="color:var(--primary);"></i>ล่าสุด <b id="trendLatestVal">—</b></div>
+  </div>
+
+  <div class="card card-pad fade-in" style="animation-delay:.45s">
+    <div class="card-head">
+      <div>
+        <div class="card-title"><i class="ti ti-stack-2" style="color:var(--primary);"></i> สินค้าที่เคลื่อนไหวมากที่สุด</div>
+        <div class="card-sub">รวมรับเข้า + นำออก</div>
+      </div>
+    </div>
+    <div class="rank-list" id="rankList"></div>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="card card-pad fade-in" style="animation-delay:.5s; margin-bottom:20px;">
+  <div class="card-head">
+    <div>
+      <div class="card-title"><i class="ti ti-list-details" style="color:var(--primary);"></i> รายการเคลื่อนไหวล่าสุด</div>
+      <div class="card-sub">ประวัติการรับเข้า-นำออกสินค้าคลัง</div>
+    </div>
+    <a class="view-all-link" href="dashboard.html">ดูทั้งหมด <i class="ti ti-arrow-right"></i></a>
+  </div>
+  <table>
+    <thead>
+      <tr><th>วันที่</th><th>รหัส/ชื่อสินค้า</th><th>คลัง</th><th>ประเภท</th><th>จำนวน</th><th>สถานะสต็อก</th></tr>
+    </thead>
+    <tbody id="recentTableBody">
+      <tr class="empty-row"><td colspan="6">กำลังโหลดข้อมูล...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- QUICK MENU -->
+<div class="quick-menu fade-in" style="animation-delay:.55s">
+  <div class="quick-title"><i class="ti ti-bolt" style="color:var(--primary);"></i> เมนูใช้งานด่วน</div>
+  <div class="quick-grid">
+    <a class="quick-btn" href="stock-in.html">
+      <div class="q-icon" style="background:var(--primary);"><i class="ti ti-package-import"></i></div>
+      <div class="q-label">รับสินค้าเข้าคลัง<br><span style="font-weight:500; color:var(--ink-faint); font-size:11px;">บันทึกสินค้ารับเข้า</span></div>
+    </a>
+    <a class="quick-btn" href="stock-out.html">
+      <div class="q-icon" style="background:var(--orange);"><i class="ti ti-package-export"></i></div>
+      <div class="q-label">เบิกสินค้าออก<br><span style="font-weight:500; color:var(--ink-faint); font-size:11px;">บันทึกสินค้าเบิกจ่าย</span></div>
+    </a>
+    <a class="quick-btn" href="stock-count.html">
+      <div class="q-icon" style="background:var(--purple);"><i class="ti ti-clipboard-check"></i></div>
+      <div class="q-label">ตรวจนับสต็อก<br><span style="font-weight:500; color:var(--ink-faint); font-size:11px;">Stock Take / Cycle Count</span></div>
+    </a>
+    <a class="quick-btn" href="report.html">
+      <div class="q-icon" style="background:var(--success);"><i class="ti ti-file-analytics"></i></div>
+      <div class="q-label">รายงานคลังสินค้า<br><span style="font-weight:500; color:var(--ink-faint); font-size:11px;">Export Excel / PDF</span></div>
+    </a>
+  </div>
+</div>
+
+<!-- FOOTER QUOTE -->
+<div class="footer-quote fade-in" style="animation-delay:.6s">
+  <div class="fq-text">
+    <i class="ti ti-quote"></i>
+    <div class="fq-main">"ทุกชิ้นที่นับถูกต้อง คือรากฐานของคลังที่แม่นยำ"</div>
+  </div>
+  <div class="fq-right">
+    <div class="fq-r1">Smart Warehouse</div>
+    <div class="fq-r2">Every Item Counted · Every Movement Tracked</div>
+  </div>
+</div>
+
+</div>
+
+<script type="module">
+/* ============ THEME ============ */
+const html = document.documentElement;
+function applyThemeUI(){
+  const dark = html.getAttribute('data-theme') === 'dark';
+  document.getElementById('segLight').classList.toggle('active', !dark);
+  document.getElementById('segDark').classList.toggle('active', dark);
+  window.sfRefreshChartColors && window.sfRefreshChartColors();
+}
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const dark = html.getAttribute('data-theme') === 'dark';
+  if (dark) { html.removeAttribute('data-theme'); localStorage.setItem('sf_theme','light'); }
+  else { html.setAttribute('data-theme','dark'); localStorage.setItem('sf_theme','dark'); }
+  applyThemeUI();
+});
+applyThemeUI();
+
+/* ============ helpers ============ */
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function initials(name){
+  const s = String(name||'?').trim();
+  if(!s) return '?';
+  const parts = s.split(/\s+/);
+  return parts.length>1 ? (parts[0][0]+parts[1][0]).toUpperCase() : s.slice(0,2).toUpperCase();
+}
+const PALETTE = ['#3266f2','#17a668','#e08c1a','#7c5cf0','#e1483f','#2b9fc4','#f2872f'];
+function colorFor(name){
+  let h=0; for(let i=0;i<String(name).length;i++) h = (h*31 + String(name).charCodeAt(i)) >>> 0;
+  return PALETTE[h % PALETTE.length];
+}
+function toDate(v){
+  if(!v) return null;
+  if (v.toDate) { try { return v.toDate(); } catch(e){} }
+  const d = new Date(v);
+  return isNaN(d) ? null : d;
+}
+function isSameDay(a,b){ return a && b && a.toDateString()===b.toDateString(); }
+const THAI_MONTHS_SHORT = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+function fmtDayLabel(d){ return `${d.getDate()} ${THAI_MONTHS_SHORT[d.getMonth()]}`; }
+function fmtFullDate(d){ return d.toLocaleDateString('th-TH',{ day:'numeric', month:'short', year:'numeric' }); }
+function fmtBaht(n){
+  if (n >= 1000000) return '฿' + (n/1000000).toFixed(2) + 'M';
+  if (n >= 1000) return '฿' + (n/1000).toFixed(1) + 'K';
+  return '฿' + Math.round(n).toLocaleString();
+}
+
+/* ============ FIREBASE ============ */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, collection, query, orderBy, limit, getDocs, getCountFromServer, doc, getDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAkPFzgT7hLAxPVI129F-vRzA65MIx2VIs",
+  authDomain: "gunkul-my-task-system.firebaseapp.com",
+  projectId: "gunkul-my-task-system",
+  storageBucket: "gunkul-my-task-system.firebasestorage.app",
+  messagingSenderId: "877006770872",
+  appId: "1:877006770872:web:ec56ec0089512899811a4d"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* user chip — cached separately (rarely changes) */
+const USER_CACHE_KEY = 'sf_user_cache_v1';
+const USER_CACHE_MS = 30 * 60 * 1000;
+
+onAuthStateChanged(auth, async (user) => {
+  let displayName = 'ผู้ใช้งาน';
+  if (user) {
+    displayName = user.displayName || (user.email ? user.email.split('@')[0] : displayName);
+    try {
+      const cacheKey = USER_CACHE_KEY + '_' + user.uid;
+      const cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
+      if (cached && (Date.now() - cached.t) < USER_CACHE_MS) {
+        displayName = cached.name;
+      } else {
+        const snap = await getDoc(doc(db,'users',user.uid));
+        if (snap.exists() && snap.data().name) displayName = snap.data().name;
+        sessionStorage.setItem(cacheKey, JSON.stringify({ name: displayName, t: Date.now() }));
+      }
+    } catch(e){ /* เงียบไว้ ใช้ค่า fallback */ }
+  }
+  document.getElementById('userNameTop').textContent = displayName;
+  document.getElementById('userAvatar').textContent = initials(displayName);
+});
+
+/* ============ DATA LOAD (quota-conscious) ============ */
+/*
+  ใช้ 2 collections:
+  - warehouse_items    : สต็อกปัจจุบันของสินค้าแต่ละรายการ (ใช้คำนวณ KPI สต็อก/มูลค่า/หมวดหมู่/ใกล้หมด)
+  - stock_movements    : ประวัติการรับเข้า-นำออก (ใช้คำนวณกราฟแนวโน้ม/ตาราง/อันดับสินค้าเคลื่อนไหว)
+  ผลลัพธ์ถูกแคชรวมกันไว้ใน sessionStorage 2 นาที เพื่อลด read
+*/
+const ITEMS_LIMIT = 500;
+const MOVES_LIMIT = 200;
+const CACHE_KEY = 'sf_dashboard_cache_v1';
+const CACHE_TTL_MS = 2 * 60 * 1000;
+
+let allItems = [];
+let allMoves = [];
+let currentPeriod = 'week';
+let breakdownChart = null, donutChart = null, trendChart = null;
+
+function readCache(){
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || (Date.now() - parsed.t) > CACHE_TTL_MS) return null;
+    return parsed;
+  } catch(e){ return null; }
+}
+function writeCache(payload){
+  try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ...payload, t: Date.now() })); }
+  catch(e){ /* sessionStorage เต็มหรือปิดใช้งาน ไม่เป็นไร ข้ามการแคช */ }
+}
+
+async function loadDashboard(forceRefresh){
+  document.getElementById('errorBox').style.display = 'none';
+
+  const cached = !forceRefresh ? readCache() : null;
+  if (cached) {
+    allItems = cached.items;
+    allMoves = cached.moves;
+    renderAll();
+    const mins = Math.max(1, Math.round((Date.now()-cached.t)/60000));
+    document.getElementById('cacheNoteText').textContent = `ใช้ข้อมูลที่แคชไว้ (อัปเดตล่าสุด ${mins} นาทีที่แล้ว)`;
+    document.getElementById('cacheNote').style.display = 'flex';
+    return;
+  }
+  document.getElementById('cacheNote').style.display = 'none';
+
+  try {
+    const itemsBase = collection(db, 'warehouse_items');
+    const movesBase = collection(db, 'stock_movements');
+
+    const [itemsSnap, movesSnap] = await Promise.all([
+      getDocs(query(itemsBase, limit(ITEMS_LIMIT))),
+      getDocs(query(movesBase, orderBy('createdAt','desc'), limit(MOVES_LIMIT)))
+    ]);
+
+    allItems = itemsSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+    allMoves = movesSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+
+    renderAll();
+    writeCache({ items: allItems, moves: allMoves });
+  } catch(err){
+    console.error('โหลดข้อมูล dashboard ไม่สำเร็จ:', err);
+    document.getElementById('errorMsg').textContent = 'โหลดข้อมูลไม่สำเร็จ: ' + (err.message || 'unknown error');
+    document.getElementById('errorBox').style.display = 'flex';
+  }
+}
+window.sfReload = loadDashboard;
+
+function renderAll(){
+  allItems = allItems.map(it => ({
+    ...it,
+    quantity: Number(it.quantity||0),
+    minStock: Number(it.minStock||0),
+    unitPrice: Number(it.unitPrice||0),
+  }));
+  allMoves = allMoves.map(m => ({
+    ...m,
+    quantity: Number(m.quantity||0),
+    dateObj: toDate(m.date) || toDate(m.createdAt),
+  }));
+
+  renderKPIs();
+  renderBreakdownChart();
+  renderDonut();
+  renderTrendChart();
+  renderRanking();
+  renderTable();
+  updateNotif();
+}
+
+function unskel(el){ el.classList.remove('skel'); }
+function mean(arr){ return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
+
+function renderKPIs(){
+  const today = new Date();
+
+  // Total stock quantity + value
+  const totalQty = allItems.reduce((a,it)=>a+it.quantity,0);
+  const totalValue = allItems.reduce((a,it)=>a+it.quantity*it.unitPrice,0);
+
+  const ks = document.getElementById('kpiStock'); unskel(ks);
+  ks.textContent = totalQty.toLocaleString();
+  const kv = document.getElementById('kpiValue'); unskel(kv);
+  kv.textContent = fmtBaht(totalValue);
+
+  // Net movement trend (recent half vs older half of loaded movements)
+  const sortedMoves = [...allMoves].sort((a,b)=>(a.dateObj?.getTime()||0)-(b.dateObj?.getTime()||0));
+  const half = Math.floor(sortedMoves.length/2);
+  const net = m => m.type==='in' ? m.quantity : -m.quantity;
+  const olderNet = sortedMoves.slice(0,half).reduce((a,m)=>a+net(m),0);
+  const recentNet = sortedMoves.slice(half).reduce((a,m)=>a+net(m),0);
+  const stockChangePct = olderNet!==0 ? Math.round(((recentNet-olderNet)/Math.abs(olderNet))*100) : 0;
+  const kt = document.getElementById('kpiStockTrend'); unskel(kt);
+  kt.textContent = `${stockChangePct>=0?'▲':'▼'} ${Math.abs(stockChangePct)}%`;
+  kt.className = 'kpi-trend neutral';
+  document.getElementById('kpiStockSub').textContent = 'หน่วย · จากสัปดาห์ก่อน';
+
+  // Inbound today
+  const inboundToday = allMoves.filter(m=>m.type==='in' && isSameDay(m.dateObj,today)).reduce((a,m)=>a+m.quantity,0);
+  const ki = document.getElementById('kpiInbound'); unskel(ki);
+  ki.textContent = inboundToday.toLocaleString();
+
+  const sparkWrap = document.getElementById('sparkInbound');
+  sparkWrap.innerHTML = '';
+  const last7 = [...Array(7)].map((_,i)=>{
+    const d = new Date(); d.setDate(d.getDate()-(6-i));
+    return allMoves.filter(m=>m.type==='in' && isSameDay(m.dateObj,d)).reduce((a,m)=>a+m.quantity,0);
+  });
+  const maxV = Math.max(1, ...last7);
+  last7.forEach((v,i)=>{
+    const b = document.createElement('b');
+    b.style.height = Math.max(10,(v/maxV*100)) + '%';
+    if (i===6) b.style.background = 'var(--purple)';
+    sparkWrap.appendChild(b);
+  });
+
+  // Low stock / out of stock
+  const lowStockItems = allItems.filter(it=>it.minStock>0 && it.quantity<=it.minStock);
+  const outOfStockItems = allItems.filter(it=>it.quantity<=0);
+  const kl = document.getElementById('kpiLowStock'); unskel(kl);
+  kl.textContent = lowStockItems.length.toLocaleString();
+  const koos = document.getElementById('kpiOutOfStock');
+  if (outOfStockItems.length>0){
+    unskel(koos);
+    koos.style.display='flex';
+    koos.textContent = `หมด ${outOfStockItems.length}`;
+  } else {
+    koos.style.display='none';
+  }
+}
+
+function updateNotif(){
+  const lowStockCount = allItems.filter(it=>it.minStock>0 && it.quantity<=it.minStock).length;
+  const dot = document.getElementById('notifDot');
+  if (lowStockCount>0){ dot.style.display='flex'; dot.textContent = lowStockCount>99?'99+':lowStockCount; }
+  else dot.style.display='none';
+}
+
+/* ============ breakdown (stacked in/out by warehouse) ============ */
+function filteredMovesByPeriod(){
+  const days = currentPeriod==='month' ? 30 : 7;
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-days);
+  return allMoves.filter(m=>m.dateObj && m.dateObj >= cutoff);
+}
+
+function renderBreakdownChart(){
+  const moves = filteredMovesByPeriod();
+  const byWarehouse = new Map();
+  moves.forEach(m=>{
+    const w = m.warehouse || 'ไม่ระบุคลัง';
+    if(!byWarehouse.has(w)) byWarehouse.set(w, { in:0, out:0, count:0 });
+    const e = byWarehouse.get(w);
+    if (m.type==='in') e.in += m.quantity; else e.out += m.quantity;
+    e.count++;
+  });
+  const warehouses = Array.from(byWarehouse.entries()).sort((a,b)=>b[1].count-a[1].count).slice(0,6);
+  const labels = warehouses.map(w=>w[0]);
+
+  const css = getComputedStyle(html);
+  const ink = css.getPropertyValue('--ink-faint').trim();
+  const border = css.getPropertyValue('--border').trim();
+  const success = css.getPropertyValue('--success').trim();
+  const danger = css.getPropertyValue('--danger').trim();
+
+  const ctx = document.getElementById('breakdownChart');
+  if (breakdownChart) breakdownChart.destroy();
+
+  if (labels.length === 0){
+    document.getElementById('breakdownLegend').innerHTML = `<span style="font-size:12px; color:var(--ink-faint);">ยังไม่มีข้อมูลในช่วงเวลานี้</span>`;
+    breakdownChart = new Chart(ctx, { type:'bar', data:{ labels:['—'], datasets:[{ data:[0], backgroundColor:border }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} } });
+    return;
+  }
+
+  breakdownChart = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[
+      { label:'รับเข้า', data: warehouses.map(w=>w[1].in), backgroundColor: success, borderRadius:6, maxBarThickness:34, stack:'s' },
+      { label:'นำออก', data: warehouses.map(w=>w[1].out), backgroundColor: danger, borderRadius:6, maxBarThickness:34, stack:'s' }
+    ] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ stacked:true, grid:{ display:false }, ticks:{ color: ink, font:{ family:"'Plus Jakarta Sans'", size:11 } } },
+        y:{ stacked:true, beginAtZero:true, grid:{ color: border }, ticks:{ color: ink, precision:0, font:{ family:"'Share Tech Mono'", size:10 } } }
+      }
+    }
+  });
+
+  document.getElementById('breakdownLegend').innerHTML = `
+    <div class="chart-legend-item"><span class="chart-legend-dot" style="background:${success};"></span>รับเข้า</div>
+    <div class="chart-legend-item"><span class="chart-legend-dot" style="background:${danger};"></span>นำออก</div>
+  `;
+}
+window.sfSetPeriod = function(p){
+  currentPeriod = p;
+  document.getElementById('pillWeek').classList.toggle('active', p==='week');
+  document.getElementById('pillMonth').classList.toggle('active', p==='month');
+  renderBreakdownChart();
+};
+
+/* ============ donut (stock by category) ============ */
+function renderDonut(){
+  const byCategory = new Map();
+  allItems.forEach(it=>{
+    const c = it.category || 'ไม่ระบุหมวดหมู่';
+    byCategory.set(c, (byCategory.get(c)||0) + it.quantity);
+  });
+  const entries = Array.from(byCategory.entries()).sort((a,b)=>b[1]-a[1]);
+  const total = entries.reduce((a,e)=>a+e[1],0);
+
+  document.getElementById('donutTotal').textContent = Math.round(total).toLocaleString();
+
+  const css = getComputedStyle(html);
+  const track = css.getPropertyValue('--border-strong').trim();
+  const ctx = document.getElementById('donutChart');
+  if (donutChart) donutChart.destroy();
+
+  const data = total>0 ? entries.map(e=>e[1]) : [1];
+  const colors = total>0 ? entries.map(e=>colorFor(e[0])) : [track];
+
+  donutChart = new Chart(ctx, {
+    type:'doughnut',
+    data:{ datasets:[{ data, backgroundColor:colors, borderWidth:0, hoverOffset:2 }] },
+    options:{ cutout:'74%', responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }, tooltip:{ enabled:true } } }
+  });
+
+  const legendEl = document.getElementById('reasonLegend');
+  if (entries.length === 0){
+    legendEl.innerHTML = `<div style="font-size:12px; color:var(--ink-faint); text-align:center; padding:10px 0;">ไม่มีข้อมูลสินค้าคงคลัง</div>`;
+    return;
+  }
+  legendEl.innerHTML = entries.slice(0,6).map(([cat,qty])=>{
+    const pct = total>0 ? Math.round(qty/total*100) : 0;
+    return `<div class="reason-item"><span class="reason-dot" style="background:${colorFor(cat)};"></span><span class="rn-name">${esc(cat)}</span><span class="rn-val">${pct}%</span></div>`;
+  }).join('');
+}
+
+/* ============ trend line chart (in vs out) ============ */
+function renderTrendChart(){
+  const days = [...Array(7)].map((_,i)=>{ const d=new Date(); d.setDate(d.getDate()-(6-i)); return d; });
+  const inbound = days.map(d=> allMoves.filter(m=>m.type==='in' && isSameDay(m.dateObj,d)).reduce((a,m)=>a+m.quantity,0));
+  const outbound = days.map(d=> allMoves.filter(m=>m.type==='out' && isSameDay(m.dateObj,d)).reduce((a,m)=>a+m.quantity,0));
+  const labels = days.map(fmtDayLabel);
+
+  const css = getComputedStyle(html);
+  const ink = css.getPropertyValue('--ink-faint').trim();
+  const border = css.getPropertyValue('--border').trim();
+  const success = css.getPropertyValue('--success').trim();
+  const danger = css.getPropertyValue('--danger').trim();
+
+  const ctx = document.getElementById('trendChart');
+  if (trendChart) trendChart.destroy();
+  trendChart = new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'รับเข้า', data:inbound, borderColor:success, backgroundColor:success, pointRadius:4, pointHoverRadius:6, tension:.35, borderWidth:2.5 },
+      { label:'นำออก', data:outbound, borderColor:danger, backgroundColor:danger, pointRadius:4, pointHoverRadius:6, tension:.35, borderWidth:2.5 }
+    ] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ grid:{ display:false }, ticks:{ color: ink, font:{ family:"'Plus Jakarta Sans'", size:11 } } },
+        y:{ beginAtZero:true, grid:{ color: border }, ticks:{ color: ink, precision:0, font:{ family:"'Share Tech Mono'", size:10 } } }
+      }
+    }
+  });
+
+  const lastIdx = inbound.length-1;
+  document.getElementById('trendLatestVal').textContent = `รับเข้า ${inbound[lastIdx]} · นำออก ${outbound[lastIdx]} · ${fmtFullDate(days[lastIdx])}`;
+}
+
+/* ============ ranking (top moving items) ============ */
+function renderRanking(){
+  const byItem = new Map();
+  allMoves.forEach(m=>{
+    const name = m.itemName || m.itemCode || 'ไม่ระบุสินค้า';
+    byItem.set(name, (byItem.get(name)||0) + m.quantity);
+  });
+  const ranked = Array.from(byItem.entries()).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const el = document.getElementById('rankList');
+
+  if (ranked.length===0){
+    el.innerHTML = `<div style="text-align:center; padding:16px 0; color:var(--ink-faint); font-size:12.5px;">ไม่มีข้อมูล</div>`;
+    return;
+  }
+  const maxV = ranked[0][1] || 1;
+  const shades = ['#3266f2','#17a668','#e08c1a','#7c5cf0','#e1483f'];
+  el.innerHTML = ranked.map(([name,val],i)=>{
+    const pct = Math.max(6, Math.round(val/maxV*100));
+    return `
+      <div class="rank-item">
+        <div class="rk-top"><span class="rk-name">${esc(name)}</span><span class="rk-val">${Math.round(val).toLocaleString()} หน่วย</span></div>
+        <div class="rank-bar-track"><div class="rank-bar-fill" style="width:${pct}%; background:${shades[i%shades.length]};"></div></div>
+      </div>`;
+  }).join('');
+}
+
+/* ============ recent table ============ */
+function renderTable(){
+  const tbody = document.getElementById('recentTableBody');
+  const term = (document.getElementById('searchInput').value||'').toLowerCase().trim();
+
+  let rows = [...allMoves].sort((a,b)=>(b.dateObj?.getTime()||0)-(a.dateObj?.getTime()||0));
+  if (term) {
+    rows = rows.filter(m =>
+      String(m.itemName||'').toLowerCase().includes(term) ||
+      String(m.itemCode||'').toLowerCase().includes(term) ||
+      String(m.warehouse||'').toLowerCase().includes(term)
+    );
+  }
+  rows = rows.slice(0,8);
+
+  if (rows.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6"><i class="ti ti-inbox" style="font-size:20px; display:block; margin-bottom:6px;"></i>ไม่พบรายการที่ตรงกับการค้นหา</td></tr>`;
+    return;
+  }
+
+  const itemByCode = new Map(allItems.map(it=>[it.itemCode, it]));
+
+  tbody.innerHTML = rows.map(m=>{
+    const dateStr = m.dateObj ? m.dateObj.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
+    const name = m.itemName || m.itemCode || 'ไม่ระบุสินค้า';
+    const matchedItem = itemByCode.get(m.itemCode);
+    const isLow = matchedItem && matchedItem.minStock>0 && matchedItem.quantity<=matchedItem.minStock;
+    return `
+      <tr>
+        <td>${dateStr}</td>
+        <td>
+          <div class="row-order">
+            <div class="mini-avatar" style="background:${colorFor(name)};">${esc(initials(name))}</div>
+            <div>
+              <div class="o-inv">${esc(name)}</div>
+              <div class="o-sub">${esc(m.itemCode || '—')}</div>
+            </div>
+          </div>
+        </td>
+        <td>${esc(m.warehouse || '—')}</td>
+        <td>${m.type==='in'
+          ? `<span class="badge badge-in"><span class="bdot"></span>รับเข้า</span>`
+          : `<span class="badge badge-out"><span class="bdot"></span>นำออก</span>`}</td>
+        <td>${Number(m.quantity||0).toLocaleString()}</td>
+        <td>${isLow
+          ? `<span class="badge badge-over"><span class="bdot"></span>ใกล้หมด</span>`
+          : `<span class="badge badge-ok"><span class="bdot"></span>ปกติ</span>`}</td>
+      </tr>`;
+  }).join('');
+}
+document.getElementById('searchInput').addEventListener('input', renderTable);
+
+window.sfRefreshChartColors = function(){
+  if (allMoves.length || allItems.length) { renderBreakdownChart(); renderDonut(); renderTrendChart(); }
+};
+
+loadDashboard(false);
+</script>
+
+</body>
+</html>
