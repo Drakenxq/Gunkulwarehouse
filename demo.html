@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NewStockFlow — Warehouse Analytics</title>
+<title>Noppawong — Warehouse Analytics</title>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Caveat:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -346,8 +346,8 @@ tbody tr:hover{ background:var(--surface-alt); }
   <div class="hero-row">
     <div>
       <div class="hero-brand">
-        <span class="logo">Stock<span>Flow</span></span>
-        <span class="sub">Warehouse Noppawong Analytics In</span>
+        <span class="logo">Warehouse<span>Noppawong</span></span>
+        <span class="sub">StockFlow Analytics</span>
       </div>
       <div class="hero-tag">ติดตามการรับเข้าสินค้าคลัง มองเห็นสถานะทุกใบนำเข้าแบบเรียลไทม์</div>
     </div>
@@ -614,14 +614,6 @@ onAuthStateChanged(auth, async (user) => {
   document.getElementById('userAvatar').textContent = initials(displayName);
 });
 
-/* ============ DATA LOAD (quota-conscious) ============ */
-/*
-  ใช้ collection เดียวเหมือนโค้ดต้นฉบับ: warehouse_deliveries
-  fields: sender, invoice, warehouse, status ('pending'|'received'), date, createdAt
-  - นับยอดรวม/รอ/รับแล้ว ด้วย getCountFromServer (แม่นยำ ไม่ต้องโหลดทุก doc)
-  - ดึงเอกสารล่าสุด limit(50) มาใช้กับกราฟ/ตาราง/อันดับคู่ค้า
-  - แคชผลรวมไว้ใน sessionStorage 2 นาที ลด read เวลาเปิดหน้าซ้ำ
-*/
 const DOC_LIMIT = 50;
 const CACHE_KEY = 'sf_dashboard_cache_v1';
 const CACHE_TTL_MS = 2 * 60 * 1000;
