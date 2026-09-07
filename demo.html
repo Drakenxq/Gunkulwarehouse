@@ -165,17 +165,12 @@ html[data-theme="dark"] .toast{ background:var(--surface); color:var(--ink); bor
 <div class="wrap">
 
 <div class="topbar fade-in">
-  <div class="search-box">
-    <i class="ti ti-search"></i>
-    <input id="searchInput" type="text" placeholder="ค้นหาหัวข้อ, แท็ก, เนื้อหา...">
-  </div>
   <div class="topbar-actions">
     <button class="icon-btn refresh-btn" id="refreshBtn" title="รีเฟรชข้อมูล"><i class="ti ti-refresh"></i></button>
     <div class="theme-toggle" id="themeToggle" title="สลับโหมดแสง">
       <div class="seg" id="segLight"><i class="ti ti-sun"></i></div>
       <div class="seg" id="segDark"><i class="ti ti-moon"></i></div>
     </div>
-    <a class="icon-btn" href="home.html" title="กลับหน้าแดชบอร์ด"><i class="ti ti-arrow-left"></i></a>
     <div class="user-chip" id="userChip" title="แตะเพื่อเปลี่ยนชื่อ">
       <div class="avatar" id="userAvatar">?</div>
       <div>
@@ -234,13 +229,8 @@ html[data-theme="dark"] .toast{ background:var(--surface); color:var(--ink); bor
     </div>
     <div class="field">
       <label>หมวดหมู่</label>
-      <select id="fCategory">
-        <option value="ขั้นตอนงาน">ขั้นตอนงาน</option>
-        <option value="ความปลอดภัย">ความปลอดภัย</option>
-        <option value="ระบบ/ซอฟต์แวร์">ระบบ/ซอฟต์แวร์</option>
-        <option value="ปัญหาที่พบบ่อย">ปัญหาที่พบบ่อย</option>
-        <option value="อื่นๆ">อื่นๆ</option>
-      </select>
+      <input id="fCategory" type="text" placeholder="เช่น ขั้นตอนงาน, ความปลอดภัย, ระบบ/ซอฟต์แวร์">
+      <div class="field-hint">สามารถพิมพ์หมวดหมู่ใหม่เองได้</div>
     </div>
     <div class="field">
       <label>รายละเอียด</label>
@@ -338,7 +328,7 @@ function showToast(msg){ const t=document.getElementById('toast'); document.getE
    ตั้งค่าตามขั้นตอนในคำตอบแชทที่มาพร้อมไฟล์นี้ แล้วนำ URL ของ
    Web App มาใส่ในตัวแปร SHEETS_API_URL ด้านล่าง
    ============================================================ */
-const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbymZBKcDkxlEbRxYHmqf40n7VaSyBK4WpPZolfxoSM2QZJBTyfXOcBwmXlhe22otV3i/exec';
+const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbxjKj_qksCLR1110a9d2o20EGUbkMW2pzzDsP174aUjilVG5Oso3kzLjXZKsq0QVvHh/exec';
 
 const POLL_INTERVAL_MS = 20000; // รีเฟรชข้อมูลอัตโนมัติทุก 20 วินาที (ไม่มี realtime แบบ Firebase)
 
@@ -492,16 +482,8 @@ function renderChips(){
 }
 
 function renderGrid(){
-  const term = (document.getElementById('searchInput').value || '').toLowerCase().trim();
   let rows = [...allTopics];
   if (activeCategory !== 'ทั้งหมด') rows = rows.filter(t => (t.category||'อื่นๆ') === activeCategory);
-  if (term) {
-    rows = rows.filter(t =>
-      String(t.title||'').toLowerCase().includes(term) ||
-      String(t.content||'').toLowerCase().includes(term) ||
-      (t.tags||[]).some(tag => String(tag).toLowerCase().includes(term))
-    );
-  }
 
   const grid = document.getElementById('kbGrid');
   if (rows.length === 0) {
@@ -559,7 +541,7 @@ function openAdd(){
 function closeAdd(){
   addModal.classList.remove('open');
   ['fTitle','fContent','fTags'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('fCategory').selectedIndex = 0;
+  document.getElementById('fCategory').value = '';
 }
 document.getElementById('openAddBtn').addEventListener('click', openAdd);
 document.getElementById('closeAddModal').addEventListener('click', closeAdd);
@@ -569,7 +551,7 @@ addModal.addEventListener('click', (e) => { if (e.target.id==='addModal') closeA
 document.getElementById('saveTopicBtn').addEventListener('click', async () => {
   const title = document.getElementById('fTitle').value.trim();
   const content = document.getElementById('fContent').value.trim();
-  const category = document.getElementById('fCategory').value;
+  const category = document.getElementById('fCategory').value.trim() || 'อื่นๆ';
   const tags = document.getElementById('fTags').value.split(',').map(s=>s.trim()).filter(Boolean);
   const errBox = document.getElementById('formErr');
 
@@ -596,7 +578,6 @@ document.getElementById('saveTopicBtn').addEventListener('click', async () => {
   }
 });
 
-document.getElementById('searchInput').addEventListener('input', renderGrid);
 </script>
 </body>
 </html>
