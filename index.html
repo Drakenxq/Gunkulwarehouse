@@ -93,23 +93,21 @@
     overflow: hidden;
   }
   
-  /* ปรับปรุงกล่องครอบโลโก้ให้ยืดหยุ่นตามสัดส่วนจริง */
   .logo-mark {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 26px; /* กำหนดความสูงมาตรฐานที่ดูลงตัวกับตัวหนังสือ */
-    width: auto;  /* ปล่อยให้ความกว้างขยายตามสัดส่วนจริงของภาพ */
+    height: 26px;
+    width: auto;
     flex-shrink: 0;
     transition: transform 0.2s ease;
   }
   
-  /* ปรับการควบคุมรูปภาพโลโก้ให้สมสัดส่วน ไม่บีบอัด */
   .logo-mark img {
     height: 100%;
     width: auto;
     object-fit: contain;
-    filter: brightness(0) invert(1); /* ย้าย Effect ย้อมสีขาวมาไว้ใน CSS */
+    filter: brightness(0) invert(1);
   }
   
   .sidebar-header:hover .logo-mark{ transform:scale(1.04) rotate(-2deg); }
@@ -282,7 +280,6 @@
     gap:0;
   }
   
-  /* จัดตำแหน่งโลโก้ตอนพับ Sidebar ให้บาลานซ์ตรงกลางพอดี */
   .sidebar.collapsed .sidebar-header {
     flex-direction: column;
     padding: 20px 8px 14px;
@@ -296,7 +293,7 @@
   }
   .sidebar.collapsed .logo-mark {
     width: 100%;
-    height: 22px; /* ย่อขนาดลงเล็กน้อยตอนพับเพื่อให้รับกับขนาดแถบ */
+    height: 22px;
   }
 
   .app{
