@@ -1,734 +1,591 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Knowledge Base — Warehouse Noppawong</title>
+<title>คลังความรู้ | Knowledge Base</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --ink:#16211F;
-    --ink-soft:#3C4B47;
-    --paper:#F3F5F0;
-    --paper-raised:#FFFFFF;
-    --line:#D9DDD3;
-    --amber:#C98A2B;
-    --amber-deep:#A66E1C;
-    --teal:#35635A;
-    --teal-deep:#274A43;
-    --danger:#B4472F;
-    --radius-card: 3px;
-    --shadow-card: 0 1px 0 rgba(22,33,31,0.08);
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'IBM Plex Sans Thai','IBM Plex Sans',sans-serif;
-    line-height:1.55;
-    -webkit-font-smoothing:antialiased;
-  }
-  h1,h2,h3,.serif{
-    font-family:'Noto Serif Thai','Noto Serif',serif;
-    font-weight:600;
-    color:var(--ink);
-    margin:0;
-  }
-  a{color:inherit;}
-  button{font-family:inherit;}
-  :focus-visible{outline:2px solid var(--teal); outline-offset:2px;}
-  @media (prefers-reduced-motion: reduce){
-    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
-  }
+:root{
+  --bg:#0B1017;
+  --surface:#141B26;
+  --surface-2:#1B2431;
+  --surface-3:#222D3C;
+  --line:#2C3A4B;
+  --line-bright:#3D5266;
+  --gold:#F0A83C;
+  --gold-dim:#4A3A1F;
+  --teal:#2FC7B0;
+  --teal-dim:#1B3D38;
+  --slate:#7C93AE;
+  --slate-dim:#2A3644;
+  --blue:#5B8FD1;
+  --blue-dim:#20304A;
+  --vacant:#E2794F;
+  --vacant-dim:#3E2A20;
+  --danger:#E2554F;
+  --text:#E9EEF4;
+  --text-dim:#8A97AA;
+  --text-faint:#57677D;
+  --radius:10px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;min-height:100vh;}
+::selection{background:var(--gold);color:#1a1200;}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important;}}
 
-  /* ---------- Header (matches site nav) ---------- */
-  header.site{
-    background:var(--ink);
-    color:#EDEFE8;
-    border-bottom:3px solid var(--amber);
-  }
-  .site-inner{
-    max-width:1180px;
-    margin:0 auto;
-    padding:14px 24px;
-    display:flex;
-    align-items:center;
-    gap:28px;
-    flex-wrap:wrap;
-  }
-  .site-logo{display:flex; align-items:center; gap:10px; text-decoration:none;}
-  .site-logo img{height:28px; display:block;}
-  .site-logo span{font-family:'Noto Serif Thai',serif; font-weight:600; font-size:15px; color:#EDEFE8;}
-  nav.site-nav{display:flex; gap:2px; flex-wrap:wrap; margin-left:auto;}
-  nav.site-nav a{
-    font-size:13.5px;
-    padding:8px 12px;
-    border-radius:2px;
-    text-decoration:none;
-    color:#C7CDC2;
-    transition:background .15s, color .15s;
-  }
-  nav.site-nav a:hover{background:rgba(255,255,255,0.08); color:#fff;}
-  nav.site-nav a.active{background:var(--amber); color:#1C1204; font-weight:600;}
-  nav.site-nav .divider{width:1px; background:rgba(255,255,255,0.15); margin:6px 6px;}
+.page{max-width:1280px;margin:0 auto;padding:40px 32px 90px;}
+.eyebrow{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gold);letter-spacing:.04em;margin-bottom:10px;font-weight:500;}
+.eyebrow svg{width:15px;height:15px;stroke:var(--gold);}
+h1{font-family:'Kanit',sans-serif;font-weight:700;font-size:34px;margin:0 0 12px;color:var(--text);letter-spacing:.01em;}
+.lede{color:var(--text-dim);font-size:15px;line-height:1.7;max-width:760px;margin:0 0 26px;}
+.lede b{color:var(--text);font-weight:600;}
 
-  /* ---------- Page hero ---------- */
-  .hero{
-    max-width:1180px;
-    margin:0 auto;
-    padding:40px 24px 20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-    gap:20px;
-    flex-wrap:wrap;
-  }
-  .hero-title h1{font-size:30px; letter-spacing:.2px;}
-  .hero-title p{margin:8px 0 0; color:var(--ink-soft); font-size:14.5px; max-width:56ch;}
-  .kb-count{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:12.5px;
-    color:var(--teal-deep);
-    background:#E4EDE9;
-    border:1px solid #C7DAD3;
-    padding:3px 9px;
-    border-radius:2px;
-    display:inline-block;
-    margin-top:10px;
-  }
-  .btn-add{
-    background:var(--amber);
-    color:#231502;
-    border:none;
-    font-weight:600;
-    font-size:14.5px;
-    padding:12px 20px;
-    border-radius:2px;
-    cursor:pointer;
-    white-space:nowrap;
-    transition:background .15s, transform .05s;
-  }
-  .btn-add:hover{background:var(--amber-deep);}
-  .btn-add:active{transform:translateY(1px);}
+.toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px;}
+.search-wrap{position:relative;flex:1;min-width:240px;max-width:420px;}
+.search-wrap svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--text-faint);pointer-events:none;}
+#search{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);color:var(--text);font-family:'Sarabun',sans-serif;font-size:14px;padding:11px 14px 11px 38px;outline:none;transition:border-color .15s;}
+#search:focus{border-color:var(--gold);}
+#search::placeholder{color:var(--text-faint);}
+.btn{display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--line);color:var(--text);font-family:'Sarabun',sans-serif;font-size:13.5px;font-weight:500;padding:10px 15px;border-radius:var(--radius);cursor:pointer;transition:border-color .15s, background .15s, transform .15s;white-space:nowrap;}
+.btn svg{width:15px;height:15px;stroke:currentColor;flex-shrink:0;}
+.btn:hover{border-color:var(--line-bright);background:var(--surface-2);}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:#1a1200;}
+.btn.primary:hover{background:#f5b658;transform:translateY(-1px);}
+.btn.ghost-danger{color:var(--danger);}
+.btn.ghost-danger:hover{border-color:var(--danger);}
 
-  /* ---------- Toolbar ---------- */
-  .toolbar{
-    max-width:1180px;
-    margin:0 auto;
-    padding:0 24px 18px;
-    display:flex;
-    gap:12px;
-    flex-wrap:wrap;
-    align-items:center;
-  }
-  .search-wrap{
-    flex:1 1 280px;
-    position:relative;
-  }
-  .search-wrap input{
-    width:100%;
-    padding:11px 14px 11px 38px;
-    border:1px solid var(--line);
-    background:var(--paper-raised);
-    border-radius:2px;
-    font-size:14px;
-    color:var(--ink);
-  }
-  .search-wrap svg{position:absolute; left:12px; top:50%; transform:translateY(-50%); opacity:.5;}
-  .banner{
-    max-width:1180px;
-    margin:0 auto;
-    padding:0 24px 14px;
-    font-size:13px;
-  }
-  .banner-inner{
-    background:#FBF1DD;
-    border:1px solid #E9CE96;
-    color:#6B4A0E;
-    padding:10px 14px;
-    border-radius:2px;
-    display:flex;
-    gap:10px;
-    align-items:flex-start;
-  }
+.hint-bar{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:var(--radius);padding:13px 16px;font-size:13.5px;color:var(--text-dim);margin-bottom:22px;line-height:1.6;}
+.hint-bar svg{width:16px;height:16px;stroke:var(--teal);flex-shrink:0;margin-top:1px;}
+.hint-bar b{color:var(--text);font-weight:600;}
 
-  /* ---------- Layout ---------- */
-  .layout{
-    max-width:1180px;
-    margin:0 auto;
-    padding:0 24px 60px;
-    display:grid;
-    grid-template-columns:220px 1fr;
-    gap:28px;
-    align-items:start;
-  }
-  aside.rail{
-    position:sticky;
-    top:20px;
-    border-right:1px solid var(--line);
-    padding-right:18px;
-  }
-  aside.rail h3{
-    font-family:'IBM Plex Sans Thai',sans-serif;
-    font-size:11.5px;
-    letter-spacing:.04em;
-    color:var(--ink-soft);
-    font-weight:600;
-    margin-bottom:10px;
-  }
-  .cat-list{list-style:none; margin:0; padding:0;}
-  .cat-list li{margin-bottom:2px;}
-  .cat-list button{
-    width:100%;
-    text-align:left;
-    background:none;
-    border:none;
-    padding:8px 8px;
-    font-size:13.5px;
-    color:var(--ink-soft);
-    border-radius:2px;
-    cursor:pointer;
-    display:flex;
-    justify-content:space-between;
-    gap:8px;
-  }
-  .cat-list button:hover{background:#EAEBE3;}
-  .cat-list button.active{background:var(--teal); color:#fff; font-weight:600;}
-  .cat-list .n{font-family:'IBM Plex Mono',monospace; font-size:11px; opacity:.75;}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px;}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);color:var(--text-dim);font-size:12.5px;font-weight:500;padding:7px 13px;border-radius:999px;cursor:pointer;transition:border-color .15s,color .15s,background .15s;}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:var(--slate);}
+.chip:hover{border-color:var(--line-bright);color:var(--text);}
+.chip.active{background:var(--surface-3);border-color:var(--gold);color:var(--text);}
+.chip .count{color:var(--text-faint);font-size:11px;}
 
-  /* ---------- Cards ---------- */
-  .grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(260px,1fr));
-    gap:14px;
-  }
-  .card{
-    background:var(--paper-raised);
-    border:1px solid var(--line);
-    border-left:3px solid var(--teal);
-    border-radius:var(--radius-card);
-    box-shadow:var(--shadow-card);
-    padding:16px 16px 14px;
-    cursor:pointer;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-    transition:border-color .15s, transform .05s;
-  }
-  .card:hover{border-left-color:var(--amber);}
-  .card:active{transform:translateY(1px);}
-  .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
-  .card-code{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); opacity:.7;}
-  .card h3{font-size:16px; line-height:1.3;}
-  .card .tag{
-    align-self:flex-start;
-    font-size:11px;
-    color:var(--teal-deep);
-    background:#E4EDE9;
-    border:1px solid #C7DAD3;
-    padding:2px 8px;
-    border-radius:20px;
-  }
-  .card p.excerpt{
-    font-size:13px;
-    color:var(--ink-soft);
-    margin:0;
-    display:-webkit-box;
-    -webkit-line-clamp:3;
-    -webkit-box-orient:vertical;
-    overflow:hidden;
-  }
-  .card .meta{font-size:11.5px; color:#7A857F; margin-top:auto; display:flex; justify-content:space-between;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+.card{
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);
+  border-left:3px solid var(--slate);overflow:hidden;transition:border-color .15s;
+  opacity:0;transform:translateY(10px);animation:cardIn .45s cubic-bezier(.16,1,.3,1) forwards;
+}
+@keyframes cardIn{to{opacity:1;transform:translateY(0);}}
+.card:hover{border-color:var(--line-bright);}
+.card.hidden{display:none;}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:16px 16px 10px;cursor:pointer;}
+.card-head-main{min-width:0;flex:1;}
+.card-cat{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text-faint);margin-bottom:7px;font-weight:500;}
+.card-cat .dot{width:7px;height:7px;border-radius:50%;background:var(--slate);flex-shrink:0;}
+.card-title{
+  font-family:'Kanit',sans-serif;font-weight:600;font-size:16px;color:var(--text);
+  outline:none;border-radius:4px;padding:1px 3px;margin:-1px -3px;word-break:break-word;
+}
+.card-title:focus{background:var(--surface-3);box-shadow:0 0 0 1px var(--line-bright);}
+.card-preview{font-size:13px;color:var(--text-dim);line-height:1.6;margin-top:6px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.card.expanded .card-preview{display:none;}
+.card-actions-top{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.icon-btn{background:none;border:none;color:var(--text-faint);cursor:pointer;padding:5px;border-radius:6px;display:flex;transition:color .15s,background .15s;}
+.icon-btn:hover{color:var(--danger);background:var(--surface-3);}
+.icon-btn.chevron{color:var(--text-dim);}
+.icon-btn.chevron:hover{color:var(--text);}
+.icon-btn svg{width:15px;height:15px;stroke:currentColor;}
+.icon-btn.chevron svg{transition:transform .3s cubic-bezier(.16,1,.3,1);}
+.card.expanded .icon-btn.chevron svg{transform:rotate(180deg);}
 
-  .empty{
-    grid-column:1/-1;
-    text-align:center;
-    padding:60px 20px;
-    border:1px dashed var(--line);
-    border-radius:2px;
-    color:var(--ink-soft);
-  }
-  .empty h3{font-size:18px; margin-bottom:6px;}
-  .empty button{
-    margin-top:14px;
-    background:var(--teal);
-    color:#fff;
-    border:none;
-    padding:10px 18px;
-    border-radius:2px;
-    cursor:pointer;
-    font-weight:600;
-    font-size:13.5px;
-  }
+.card-body-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s cubic-bezier(.16,1,.3,1);}
+.card.expanded .card-body-wrap{grid-template-rows:1fr;}
+.card-body-inner{overflow:hidden;}
+.card-body{padding:0 16px 16px;border-top:1px solid var(--line);margin-top:2px;}
+.card-content{
+  font-size:13.5px;color:var(--text-dim);line-height:1.75;padding-top:12px;
+  outline:none;border-radius:6px;white-space:pre-wrap;word-break:break-word;
+}
+.card-content:focus{background:var(--surface-3);box-shadow:0 0 0 1px var(--line-bright);padding:8px;margin:12px -8px -8px;}
+.card-content ul{margin:6px 0;padding-left:20px;}
+.card-content li{margin-bottom:3px;}
+.card-content b{color:var(--text);}
+.card-content:empty::before{content:'ยังไม่มีเนื้อหา คลิกเพื่อพิมพ์...';color:var(--text-faint);}
+.card-meta-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);}
+.card-meta{font-size:11px;color:var(--text-faint);}
+.card-cat-edit{font-size:11px;color:var(--text-faint);outline:none;border-radius:4px;padding:2px 5px;margin:-2px -5px;}
+.card-cat-edit:focus{background:var(--surface-3);box-shadow:0 0 0 1px var(--line-bright);color:var(--text-dim);}
 
-  /* ---------- Drawer (add/view) ---------- */
-  .scrim{
-    position:fixed; inset:0; background:rgba(22,33,31,0.45);
-    opacity:0; pointer-events:none; transition:opacity .18s;
-    z-index:40;
-  }
-  .scrim.open{opacity:1; pointer-events:auto;}
-  .drawer{
-    position:fixed; top:0; right:0; height:100%;
-    width:min(480px, 100%);
-    background:var(--paper-raised);
-    box-shadow:-4px 0 24px rgba(0,0,0,0.15);
-    transform:translateX(100%);
-    transition:transform .22s ease;
-    z-index:41;
-    display:flex;
-    flex-direction:column;
-  }
-  .drawer.open{transform:translateX(0);}
-  .drawer-head{
-    padding:20px 22px;
-    border-bottom:1px solid var(--line);
-    display:flex; justify-content:space-between; align-items:center;
-  }
-  .drawer-head h2{font-size:19px;}
-  .drawer-close{background:none; border:none; cursor:pointer; font-size:20px; color:var(--ink-soft); line-height:1;}
-  .drawer-body{padding:20px 22px; overflow-y:auto; flex:1;}
-  .field{margin-bottom:16px;}
-  .field label{display:block; font-size:12.5px; font-weight:600; color:var(--ink-soft); margin-bottom:6px;}
-  .field input[type=text], .field textarea, .field select{
-    width:100%;
-    padding:10px 12px;
-    border:1px solid var(--line);
-    border-radius:2px;
-    font-size:14px;
-    font-family:inherit;
-    color:var(--ink);
-    background:var(--paper);
-  }
-  .field textarea{min-height:160px; resize:vertical; line-height:1.6;}
-  .field .hint{font-size:11.5px; color:#7A857F; margin-top:5px;}
-  .drawer-foot{
-    padding:16px 22px;
-    border-top:1px solid var(--line);
-    display:flex; gap:10px; justify-content:flex-end;
-  }
-  .btn-secondary{
-    background:none; border:1px solid var(--line); color:var(--ink-soft);
-    padding:10px 16px; border-radius:2px; cursor:pointer; font-size:13.5px;
-  }
-  .btn-primary{
-    background:var(--teal); border:none; color:#fff;
-    padding:10px 18px; border-radius:2px; cursor:pointer; font-size:13.5px; font-weight:600;
-  }
-  .btn-primary:hover{background:var(--teal-deep);}
-  .btn-danger-text{background:none; border:none; color:var(--danger); font-size:12.5px; cursor:pointer; padding:0;}
+.node.level-vp{border-left-color:var(--gold);}
+.cat-gold{border-left-color:var(--gold) !important;} .cat-gold .dot{background:var(--gold) !important;}
+.cat-teal{border-left-color:var(--teal) !important;} .cat-teal .dot{background:var(--teal) !important;}
+.cat-blue{border-left-color:var(--blue) !important;} .cat-blue .dot{background:var(--blue) !important;}
+.cat-vacant{border-left-color:var(--vacant) !important;} .cat-vacant .dot{background:var(--vacant) !important;}
+.cat-slate{border-left-color:var(--slate) !important;} .cat-slate .dot{background:var(--slate) !important;}
 
-  .view-doc .doc-code{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); opacity:.7;}
-  .view-doc .tag{
-    display:inline-block; font-size:11px; color:var(--teal-deep); background:#E4EDE9;
-    border:1px solid #C7DAD3; padding:2px 9px; border-radius:20px; margin:10px 0 4px;
-  }
-  .view-doc h2{font-size:22px; margin-top:6px;}
-  .view-doc .meta-row{font-size:12px; color:#7A857F; margin:6px 0 18px;}
-  .view-doc .content p{margin:0 0 12px; font-size:14.5px; color:var(--ink);}
-  .view-doc .content ul{margin:0 0 12px; padding-left:20px;}
-  .view-doc .content li{margin-bottom:6px; font-size:14.5px;}
+.empty-state{
+  grid-column:1/-1;text-align:center;padding:70px 20px;border:1px dashed var(--line);
+  border-radius:14px;color:var(--text-faint);
+}
+.empty-state svg{width:34px;height:34px;stroke:var(--text-faint);margin-bottom:14px;}
+.empty-state p{font-size:14px;margin:0 0 16px;}
 
-  footer.site{
-    border-top:1px solid var(--line);
-    padding:26px 24px;
-    text-align:center;
-    font-size:12px;
-    color:#8A9189;
-  }
+.overlay{
+  position:fixed;inset:0;background:rgba(6,9,14,.6);backdrop-filter:blur(2px);
+  display:flex;align-items:center;justify-content:center;padding:20px;z-index:50;
+  opacity:0;pointer-events:none;transition:opacity .2s ease;
+}
+.overlay.open{opacity:1;pointer-events:auto;}
+.modal{
+  width:100%;max-width:520px;background:var(--surface);border:1px solid var(--line-bright);
+  border-radius:14px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.45);
+  transform:translateY(14px) scale(.97);opacity:0;transition:transform .25s cubic-bezier(.16,1,.3,1),opacity .25s ease;
+}
+.overlay.open .modal{transform:translateY(0) scale(1);opacity:1;}
+.modal h2{font-family:'Kanit',sans-serif;font-size:19px;margin:0 0 4px;color:var(--text);}
+.modal .sub{font-size:12.5px;color:var(--text-faint);margin:0 0 20px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12.5px;color:var(--text-dim);margin-bottom:6px;font-weight:500;}
+.field input, .field textarea{
+  width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;
+  color:var(--text);font-family:'Sarabun',sans-serif;font-size:14px;padding:10px 12px;
+  outline:none;transition:border-color .15s;resize:vertical;
+}
+.field input:focus, .field textarea:focus{border-color:var(--gold);}
+.field textarea{min-height:120px;line-height:1.6;}
+.field .hint{font-size:11px;color:var(--text-faint);margin-top:5px;}
+.field input[list]::-webkit-calendar-picker-indicator{filter:invert(.6);}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:6px;}
 
-  @media (max-width:820px){
-    .layout{grid-template-columns:1fr;}
-    aside.rail{position:static; border-right:none; border-bottom:1px solid var(--line); padding:0 0 16px;}
-    .cat-list{display:flex; flex-wrap:wrap; gap:6px;}
-    .cat-list li{margin:0;}
-    .cat-list button{width:auto; border:1px solid var(--line);}
-  }
+.toast{
+  position:fixed;bottom:22px;right:22px;background:var(--surface-3);border:1px solid var(--line-bright);
+  color:var(--text);font-size:13px;padding:11px 16px;border-radius:9px;display:flex;align-items:center;gap:9px;
+  box-shadow:0 10px 28px rgba(0,0,0,.4);transform:translateY(14px);opacity:0;transition:transform .25s,opacity .25s;
+  z-index:60;pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast svg{width:15px;height:15px;stroke:var(--teal);flex-shrink:0;}
+.toast.saving svg{stroke:var(--gold);animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.footer-note{text-align:center;color:var(--text-faint);font-size:12px;margin-top:44px;}
+
+@media (max-width:640px){
+  .page{padding:24px 16px 70px;}
+  h1{font-size:26px;}
+  .toolbar{flex-direction:column;align-items:stretch;}
+  .search-wrap{max-width:none;}
+  .grid{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
+<div class="page">
 
-<header class="site">
-  <div class="site-inner">
-    <a class="site-logo" href="/">
-      <img src="https://gunkul-warehouse.vercel.app/src/svg/logo-default.svg" alt="Gunkul">
-      <span>Warehouse Noppawong</span>
-    </a>
-    <nav class="site-nav">
-      <a href="/src/home.html">Home</a>
-      <a href="/src/dashboard.html">Dashboard</a>
-      <a href="/src/item-master.html">Item Master</a>
-      <a href="/src/report.html">Report</a>
-      <a href="/src/vendor.html">Vendor</a>
-      <div class="divider"></div>
-      <a href="/knowledge-base.html" class="active">Knowledge Base</a>
-      <a href="/org-chart.html">Org Chart</a>
-    </nav>
+  <div class="eyebrow">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    ข้อมูลอ้างอิง
   </div>
-</header>
+  <h1>Knowledge Base</h1>
+  <p class="lede">คลังความรู้และคู่มือการทำงานของฝ่ายคลังสินค้านพวงศ์ — <b>คลิกที่หัวข้อเพื่อเปิดอ่าน คลิกที่ข้อความเพื่อแก้ไขได้ทันที</b> เพิ่มหัวข้อใหม่ได้ตลอดเวลา ข้อมูลจะซิงก์และแสดงผลให้ทุกคนที่เข้าเว็บนี้เห็นแบบเรียลไทม์</p>
 
-<div class="hero">
-  <div class="hero-title">
-    <h1>Knowledge Base</h1>
-    <p>คลังความรู้ของทีมคลังสินค้า — ขั้นตอนการทำงาน, คำถามที่พบบ่อย และบันทึกช่วยจำ เพิ่มหัวข้อใหม่ได้ทุกเมื่อ</p>
-    <span class="kb-count" id="kbCount">0 หัวข้อในระบบ</span>
+  <div class="hint-bar">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <span><b>ข้อมูลนี้เป็นสาธารณะ</b> — ทุกคนที่เปิดหน้านี้จะเห็นหัวข้อและการแก้ไขล่าสุดเหมือนกัน เก็บด้วย Firebase Firestore โปรเจกต์เดียวกับหน้า Organization Chart</span>
   </div>
-  <button class="btn-add" id="openAddBtn">+ เพิ่มหัวข้อใหม่</button>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="ค้นหาหัวข้อ เนื้อหา หรือหมวดหมู่...">
+    </div>
+    <button class="btn primary" id="openAdd">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      <span>เพิ่มหัวข้อใหม่</span>
+    </button>
+  </div>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="grid" id="grid"></div>
+
+  <p class="footer-note">© 2026 Gunkul Engineering Public Company Limited. All rights reserved.</p>
 </div>
 
-<div class="banner" id="modeBanner" style="display:none;">
-  <div class="banner-inner">
-    <span>⚠</span>
-    <span>ยังไม่ได้เชื่อมต่อฐานข้อมูลกลาง — ตอนนี้บันทึกไว้เฉพาะเบราว์เซอร์นี้เท่านั้น (โหมดทดลอง) ดูวิธีเชื่อมต่อแบบฟรีได้ในคำแนะนำท้ายข้อความของ Claude</span>
-  </div>
-</div>
-
-<div class="toolbar">
-  <div class="search-wrap">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input type="text" id="searchInput" placeholder="ค้นหาหัวข้อ, เนื้อหา หรือหมวดหมู่...">
-  </div>
-</div>
-
-<div class="layout">
-  <aside class="rail">
-    <h3>หมวดหมู่</h3>
-    <ul class="cat-list" id="catList"></ul>
-  </aside>
-
-  <main>
-    <div class="grid" id="grid"></div>
-  </main>
-</div>
-
-<footer class="site">© 2026 Gunkul Engineering Public Company Limited. All rights reserved.</footer>
-
-<!-- Scrim -->
-<div class="scrim" id="scrim"></div>
-
-<!-- Add drawer -->
-<div class="drawer" id="addDrawer">
-  <div class="drawer-head">
-    <h2>เพิ่มหัวข้อใหม่</h2>
-    <button class="drawer-close" data-close>✕</button>
-  </div>
-  <div class="drawer-body">
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="modalTitle">เพิ่มหัวข้อใหม่</h2>
+    <p class="sub">กรอกรายละเอียดแล้วกดบันทึก หัวข้อนี้จะแสดงให้ทุกคนเห็นทันที</p>
     <div class="field">
-      <label for="fTitle">หัวข้อ</label>
-      <input type="text" id="fTitle" placeholder="เช่น ขั้นตอนการตรวจรับสินค้าเข้าคลัง">
+      <label for="fTitle">ชื่อหัวข้อ</label>
+      <input id="fTitle" type="text" placeholder="เช่น ขั้นตอนการเบิกสินค้าออกจากคลัง">
     </div>
     <div class="field">
-      <label for="fCategory">หมวดหมู่</label>
-      <input type="text" id="fCategory" list="catOptions" placeholder="เลือกหมวดเดิม หรือพิมพ์หมวดใหม่">
-      <datalist id="catOptions"></datalist>
-      <div class="hint">พิมพ์ชื่อหมวดใหม่ได้อิสระ ระบบจะสร้างหมวดนั้นให้อัตโนมัติ</div>
-    </div>
-    <div class="field">
-      <label for="fAuthor">ผู้บันทึก (ไม่บังคับ)</label>
-      <input type="text" id="fAuthor" placeholder="ชื่อของคุณ">
+      <label for="fCat">หมวดหมู่</label>
+      <input id="fCat" type="text" list="catList" placeholder="เช่น กระบวนการคลังสินค้า, ระบบ IT, นโยบายบริษัท">
+      <datalist id="catList"></datalist>
+      <div class="hint">พิมพ์หมวดหมู่ใหม่ หรือเลือกจากหมวดที่มีอยู่แล้ว</div>
     </div>
     <div class="field">
       <label for="fContent">รายละเอียด</label>
-      <textarea id="fContent" placeholder="อธิบายขั้นตอนหรือรายละเอียด ขึ้นบรรทัดใหม่เพื่อแยกย่อหน้า&#10;ใช้ &quot;- &quot; นำหน้าเพื่อทำเป็นข้อย่อย เช่น&#10;- ข้อที่ 1&#10;- ข้อที่ 2"></textarea>
-      <div class="hint">รองรับการขึ้นย่อหน้าใหม่ และ "- " นำหน้าบรรทัดเพื่อทำเป็นรายการข้อย่อย</div>
+      <textarea id="fContent" placeholder="อธิบายรายละเอียด ขั้นตอน หรือข้อมูลอ้างอิง...&#10;ขึ้นบรรทัดใหม่ด้วย Enter, ใช้ &quot;- &quot; นำหน้าเพื่อทำเป็นบูลเลต"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="cancelAdd">ยกเลิก</button>
+      <button class="btn primary" id="saveAdd">บันทึกหัวข้อ</button>
     </div>
   </div>
-  <div class="drawer-foot">
-    <button class="btn-secondary" data-close>ยกเลิก</button>
-    <button class="btn-primary" id="saveBtn">บันทึกหัวข้อ</button>
-  </div>
 </div>
 
-<!-- View drawer -->
-<div class="drawer" id="viewDrawer">
-  <div class="drawer-head">
-    <h2>รายละเอียดหัวข้อ</h2>
-    <button class="drawer-close" data-close>✕</button>
-  </div>
-  <div class="drawer-body view-doc" id="viewBody"></div>
-  <div class="drawer-foot">
-    <button class="btn-danger-text" id="deleteBtn">ลบหัวข้อนี้</button>
-    <span style="flex:1"></span>
-    <button class="btn-secondary" data-close>ปิด</button>
-  </div>
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+  <span id="toastText">บันทึกแล้ว</span>
 </div>
 
-<script>
-/* =========================================================================
-   KNOWLEDGE BASE — STORAGE ADAPTER
-   -------------------------------------------------------------------------
-   ตั้งค่า API_URL เป็น URL ของ Google Apps Script Web App เพื่อบันทึก
-   ข้อมูลลง Google Sheet แบบใช้งานร่วมกันทั้งทีม (ฟรี ไม่ต้องใช้ Firebase)
-   ถ้าปล่อยว่างไว้ ระบบจะบันทึกลง localStorage ของเบราว์เซอร์นี้แทน (โหมดทดลอง)
-   ดูวิธีตั้งค่า Apps Script ได้ในคำแนะนำท้ายข้อความ
-   ========================================================================= */
-const API_URL = ""; // <-- ใส่ Web App URL จาก Google Apps Script ที่นี่
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const LOCAL_KEY = "gunkul_kb_topics_v1";
-const START_CATEGORIES = ["การรับสินค้า","การเบิกจ่าย","ระบบ/การใช้งานเว็บ","เอกสารและฟอร์ม","ความปลอดภัย","ทั่วไป"];
+// Same Firebase project used across the site (org-chart.html) — kept here for consistency.
+const firebaseConfig = {
+  apiKey: "AIzaSyAkPFzgT7hLAxPVI129F-vRzA65MIx2VIs",
+  authDomain: "gunkul-my-task-system.firebaseapp.com",
+  projectId: "gunkul-my-task-system",
+  storageBucket: "gunkul-my-task-system.firebasestorage.app",
+  messagingSenderId: "877006770872",
+  appId: "1:877006770872:web:ec56ec0089512899811a4d"
+};
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+const kbDocRef = doc(db, 'knowledgebase', 'main');
 
-function seedIfEmpty(){
-  if(localStorage.getItem(LOCAL_KEY)) return;
-  const now = new Date().toISOString();
-  const seed = [
-    {id:"seed-1", title:"ขั้นตอนการตรวจรับสินค้าเข้าคลัง", category:"การรับสินค้า",
-     content:"เมื่อสินค้ามาถึงคลัง ให้ตรวจสอบเอกสารนำเข้าก่อนทุกครั้ง\n- ตรวจนับจำนวนให้ตรงกับใบส่งของ\n- ถ่ายรูปสภาพพาเลทก่อนรับเข้า\n- บันทึกในระบบภายในวันเดียวกัน",
-     author:"ทีมคลัง", createdAt:now},
-    {id:"seed-2", title:"วิธี Export รายงานเป็น Excel", category:"ระบบ/การใช้งานเว็บ",
-     content:"ไปที่หน้า Report แล้วเลือกช่วงวันที่ที่ต้องการ\n- กดปุ่ม Export มุมขวาบน\n- ไฟล์จะดาวน์โหลดเป็น .xlsx อัตโนมัติ",
-     author:"IT", createdAt:now}
-  ];
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(seed));
-}
+(function(){
+  var uid = function(){ return 't'+Math.random().toString(36).slice(2,10); };
+  var CAT_COLORS = ['gold','teal','blue','vacant','slate'];
 
-async function fetchTopics(){
-  if(API_URL){
-    const res = await fetch(API_URL);
-    if(!res.ok) throw new Error("โหลดข้อมูลไม่สำเร็จ");
-    return await res.json();
-  }
-  seedIfEmpty();
-  return JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]");
-}
-
-async function addTopicRemote(topic){
-  if(API_URL){
-    // Sent without an explicit Content-Type header so the browser uses
-    // text/plain, which keeps this a "simple request" and avoids CORS
-    // preflight issues with Google Apps Script.
-    const res = await fetch(API_URL, { method:"POST", body: JSON.stringify(topic) });
-    if(!res.ok) throw new Error("บันทึกไม่สำเร็จ");
-    return await res.json();
-  }
-  const list = JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]");
-  list.unshift(topic);
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(list));
-  return {success:true};
-}
-
-async function deleteTopicRemote(id){
-  if(API_URL){
-    const res = await fetch(API_URL + "?id=" + encodeURIComponent(id), { method:"POST", body: JSON.stringify({_delete:true, id}) });
-    return await res.json();
-  }
-  let list = JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]");
-  list = list.filter(t => t.id !== id);
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(list));
-  return {success:true};
-}
-
-/* ========================================================================= */
-
-let topics = [];
-let activeCategory = "ทั้งหมด";
-let searchTerm = "";
-
-const grid = document.getElementById('grid');
-const catList = document.getElementById('catList');
-const kbCount = document.getElementById('kbCount');
-const modeBanner = document.getElementById('modeBanner');
-
-function renderCategories(){
-  const counts = {};
-  topics.forEach(t => { counts[t.category] = (counts[t.category]||0) + 1; });
-  const cats = Object.keys(counts).sort((a,b)=>a.localeCompare(b,'th'));
-
-  catList.innerHTML = "";
-  const allLi = document.createElement('li');
-  allLi.innerHTML = `<button class="${activeCategory==='ทั้งหมด'?'active':''}" data-cat="ทั้งหมด">
-    <span>ทั้งหมด</span><span class="n">${topics.length}</span></button>`;
-  catList.appendChild(allLi);
-
-  cats.forEach(c => {
-    const li = document.createElement('li');
-    li.innerHTML = `<button class="${activeCategory===c?'active':''}" data-cat="${escapeHtml(c)}">
-      <span>${escapeHtml(c)}</span><span class="n">${counts[c]}</span></button>`;
-    catList.appendChild(li);
-  });
-
-  catList.querySelectorAll('button').forEach(btn=>{
-    btn.addEventListener('click', ()=>{ activeCategory = btn.dataset.cat; renderGrid(); renderCategories(); });
-  });
-
-  // refresh datalist suggestions in add form
-  const dl = document.getElementById('catOptions');
-  dl.innerHTML = "";
-  Array.from(new Set([...START_CATEGORIES, ...cats])).forEach(c=>{
-    const opt = document.createElement('option'); opt.value = c; dl.appendChild(opt);
-  });
-}
-
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-
-function docCode(index){
-  return "KB-" + String(index+1).padStart(3,'0');
-}
-
-function renderGrid(){
-  let list = topics.slice();
-  if(activeCategory !== "ทั้งหมด") list = list.filter(t => t.category === activeCategory);
-  if(searchTerm){
-    const q = searchTerm.toLowerCase();
-    list = list.filter(t =>
-      (t.title||"").toLowerCase().includes(q) ||
-      (t.content||"").toLowerCase().includes(q) ||
-      (t.category||"").toLowerCase().includes(q)
-    );
+  function sampleData(){
+    var now = Date.now();
+    return [
+      { id: uid(), title: 'วิธีเริ่มต้นใช้งานคลังความรู้นี้', category: 'เริ่มต้นใช้งาน',
+        content: 'กดปุ่ม "เพิ่มหัวข้อใหม่" มุมขวาบนเพื่อสร้างหัวข้อ\n- ตั้งชื่อหัวข้อให้ชัดเจน\n- ระบุหมวดหมู่ เพื่อให้กรองและค้นหาได้ง่าย\n- พิมพ์รายละเอียดหรือขั้นตอนการทำงาน\n\nคลิกที่ชื่อหัวข้อหรือเนื้อหาที่บันทึกไว้แล้วเพื่อแก้ไขได้ทันที ระบบจะบันทึกอัตโนมัติและแสดงผลให้ทุกคนเห็นเหมือนกัน',
+        updatedAt: now },
+      { id: uid(), title: 'ขั้นตอนการเบิกสินค้าออกจากคลัง', category: 'กระบวนการคลังสินค้า',
+        content: '1. ตรวจสอบใบขอเบิกจากระบบ\n- ยืนยันรหัสสินค้าและจำนวนให้ตรงกับใบขอเบิก\n- ตรวจสอบสต๊อกคงเหลือก่อนอนุมัติ\n2. จัดเตรียมสินค้าตามผังคลัง\n3. บันทึกรายการเบิกในระบบและแนบเอกสารอ้างอิง',
+        updatedAt: now },
+      { id: uid(), title: 'ช่องทางติดต่อฝ่าย IT เมื่อระบบมีปัญหา', category: 'ระบบ IT',
+        content: 'หากพบปัญหาการใช้งานระบบ ให้แจ้งผ่านช่องทางที่กำหนดไว้ พร้อมแนบภาพหน้าจอและอธิบายขั้นตอนที่ทำก่อนเกิดปัญหา เพื่อให้ทีมตรวจสอบได้รวดเร็วขึ้น',
+        updatedAt: now }
+    ];
   }
 
-  kbCount.textContent = topics.length + " หัวข้อในระบบ";
+  var data = null;
+  var activeCategory = 'ทั้งหมด';
+  var saveTimer = null;
+  var suppressNextSnapshot = false;
 
-  if(list.length === 0){
-    grid.innerHTML = `<div class="empty">
-      <h3>ยังไม่มีหัวข้อ${searchTerm||activeCategory!=='ทั้งหมด' ? 'ที่ตรงกับเงื่อนไขนี้' : 'ในคลังความรู้'}</h3>
-      <p>เริ่มบันทึกความรู้แรกของทีมได้เลย</p>
-      <button id="emptyAddBtn">+ เพิ่มหัวข้อใหม่</button>
-    </div>`;
-    document.getElementById('emptyAddBtn')?.addEventListener('click', openAdd);
-    return;
+  var gridEl = document.getElementById('grid');
+  var chipsEl = document.getElementById('chips');
+  var searchEl = document.getElementById('search');
+  var overlayEl = document.getElementById('overlay');
+  var toastEl = document.getElementById('toast');
+  var toastText = document.getElementById('toastText');
+
+  function catColor(cat){
+    var str = cat || 'ทั่วไป';
+    var h = 0;
+    for(var i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) % 997; }
+    return CAT_COLORS[h % CAT_COLORS.length];
   }
 
-  grid.innerHTML = list.map((t)=>{
-    const idx = topics.findIndex(x=>x.id===t.id);
-    const excerpt = (t.content||"").split("\n").join(" ").slice(0,140);
-    const date = t.createdAt ? new Date(t.createdAt).toLocaleDateString('th-TH', {year:'numeric', month:'short', day:'numeric'}) : "";
-    return `<article class="card" data-id="${t.id}">
-      <div class="card-top">
-        <span class="card-code">${docCode(idx)}</span>
-      </div>
-      <span class="tag">${escapeHtml(t.category||'ทั่วไป')}</span>
-      <h3>${escapeHtml(t.title)}</h3>
-      <p class="excerpt">${escapeHtml(excerpt)}${excerpt.length>=140?'…':''}</p>
-      <div class="meta"><span>${escapeHtml(t.author||'ไม่ระบุผู้บันทึก')}</span><span>${date}</span></div>
-    </article>`;
-  }).join("");
-
-  grid.querySelectorAll('.card').forEach(card=>{
-    card.addEventListener('click', ()=> openView(card.dataset.id));
-  });
-}
-
-function renderContentHtml(content){
-  const lines = (content||"").split("\n");
-  let html = "";
-  let inList = false;
-  lines.forEach(line=>{
-    const trimmed = line.trim();
-    if(trimmed.startsWith("- ")){
-      if(!inList){ html += "<ul>"; inList = true; }
-      html += `<li>${escapeHtml(trimmed.slice(2))}</li>`;
-    } else {
-      if(inList){ html += "</ul>"; inList = false; }
-      if(trimmed) html += `<p>${escapeHtml(trimmed)}</p>`;
+  function showToast(text, saving){
+    toastText.textContent = text;
+    toastEl.classList.toggle('saving', !!saving);
+    toastEl.classList.add('show');
+    clearTimeout(showToast._t);
+    if(!saving){
+      showToast._t = setTimeout(function(){ toastEl.classList.remove('show'); }, 1800);
     }
+  }
+
+  function persist(){
+    showToast('กำลังบันทึก...', true);
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async function(){
+      try{
+        suppressNextSnapshot = true;
+        await setDoc(kbDocRef, { topics: JSON.stringify(data), updatedAt: Date.now() });
+        showToast('บันทึกแล้ว', false);
+      }catch(e){
+        console.warn('save failed', e);
+        showToast('บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง', false);
+      }
+    }, 400);
+  }
+
+  function startRealtimeSync(){
+    onSnapshot(kbDocRef, function(snap){
+      if(suppressNextSnapshot){ suppressNextSnapshot = false; return; }
+      if(snap.exists() && snap.data() && snap.data().topics){
+        try{
+          data = JSON.parse(snap.data().topics);
+          render();
+        }catch(e){ console.warn('parse failed', e); }
+      } else if(!data){
+        data = sampleData();
+        render();
+        persist();
+      }
+    }, function(err){
+      console.warn('realtime sync failed', err);
+      if(!data){ data = sampleData(); render(); }
+    });
+  }
+
+  function findTopic(id){
+    for(var i=0;i<data.length;i++){ if(data[i].id===id) return data[i]; }
+    return null;
+  }
+
+  function icon(name){
+    var icons = {
+      chevron:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>',
+      trash:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>',
+      book:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>'
+    };
+    return icons[name] || '';
+  }
+
+  function formatContent(raw){
+    var text = (raw||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    var lines = text.split('\n');
+    var html = '', inList = false;
+    lines.forEach(function(line){
+      var bullet = /^\s*-\s+(.*)/.exec(line);
+      if(bullet){
+        if(!inList){ html += '<ul>'; inList = true; }
+        html += '<li>'+bullet[1]+'</li>';
+      } else {
+        if(inList){ html += '</ul>'; inList = false; }
+        if(line.trim()==='') { html += '<br>'; } else { html += line + '<br>'; }
+      }
+    });
+    if(inList) html += '</ul>';
+    return html;
+  }
+
+  function buildCard(t, index){
+    var card = document.createElement('div');
+    card.className = 'card cat-' + catColor(t.category);
+    card.dataset.id = t.id;
+    card.style.animationDelay = Math.min(index*45, 360) + 'ms';
+
+    var head = document.createElement('div');
+    head.className = 'card-head';
+
+    var main = document.createElement('div');
+    main.className = 'card-head-main';
+
+    var catRow = document.createElement('div');
+    catRow.className = 'card-cat';
+    var dot = document.createElement('span'); dot.className='dot';
+    var catEdit = document.createElement('span');
+    catEdit.className = 'card-cat-edit';
+    catEdit.contentEditable = true;
+    catEdit.textContent = t.category || 'ทั่วไป';
+    catEdit.addEventListener('click', function(e){ e.stopPropagation(); });
+    catEdit.addEventListener('blur', function(){
+      var n = findTopic(t.id);
+      if(n){ n.category = catEdit.textContent.trim() || 'ทั่วไป'; renderChips(); refreshCardColor(card, n.category); persist(); }
+    });
+    catEdit.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); catEdit.blur(); } });
+    catRow.appendChild(dot); catRow.appendChild(catEdit);
+
+    var title = document.createElement('div');
+    title.className = 'card-title';
+    title.contentEditable = true;
+    title.textContent = t.title;
+    title.addEventListener('click', function(e){ e.stopPropagation(); });
+    title.addEventListener('blur', function(){
+      var n = findTopic(t.id);
+      if(n){ n.title = title.textContent.trim() || 'หัวข้อใหม่'; n.updatedAt = Date.now(); persist(); }
+    });
+    title.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); title.blur(); } });
+
+    var preview = document.createElement('div');
+    preview.className = 'card-preview';
+    preview.textContent = (t.content||'').replace(/\n/g,' ');
+
+    main.appendChild(catRow); main.appendChild(title); main.appendChild(preview);
+
+    var actionsTop = document.createElement('div');
+    actionsTop.className = 'card-actions-top';
+    var delBtn = document.createElement('button');
+    delBtn.className = 'icon-btn'; delBtn.innerHTML = icon('trash'); delBtn.title = 'ลบหัวข้อนี้';
+    delBtn.addEventListener('click', function(e){ e.stopPropagation(); deleteTopic(t.id); });
+    var chevBtn = document.createElement('button');
+    chevBtn.className = 'icon-btn chevron'; chevBtn.innerHTML = icon('chevron');
+    actionsTop.appendChild(delBtn); actionsTop.appendChild(chevBtn);
+
+    head.appendChild(main); head.appendChild(actionsTop);
+    head.addEventListener('click', function(){ card.classList.toggle('expanded'); });
+
+    var bodyWrap = document.createElement('div');
+    bodyWrap.className = 'card-body-wrap';
+    var bodyInner = document.createElement('div');
+    bodyInner.className = 'card-body-inner';
+    var body = document.createElement('div');
+    body.className = 'card-body';
+
+    var content = document.createElement('div');
+    content.className = 'card-content';
+    content.contentEditable = true;
+    content.innerHTML = formatContent(t.content);
+    content.addEventListener('click', function(e){ e.stopPropagation(); });
+    content.addEventListener('blur', function(){
+      var n = findTopic(t.id);
+      if(n){
+        var plain = content.innerText.replace(/\n{3,}/g,'\n\n').trim();
+        n.content = plain; n.updatedAt = Date.now();
+        preview.textContent = plain.replace(/\n/g,' ');
+        persist();
+      }
+    });
+
+    var metaRow = document.createElement('div');
+    metaRow.className = 'card-meta-row';
+    var meta = document.createElement('div');
+    meta.className = 'card-meta';
+    meta.textContent = 'อัปเดตล่าสุด ' + formatDate(t.updatedAt);
+    metaRow.appendChild(meta);
+
+    body.appendChild(content); body.appendChild(metaRow);
+    bodyInner.appendChild(body);
+    bodyWrap.appendChild(bodyInner);
+
+    card.appendChild(head); card.appendChild(bodyWrap);
+    return card;
+  }
+
+  function refreshCardColor(card, category){
+    card.className = card.className.replace(/cat-\w+/, 'cat-' + catColor(category));
+  }
+
+  function formatDate(ts){
+    if(!ts) return '-';
+    var d = new Date(ts);
+    var months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    return d.getDate() + ' ' + months[d.getMonth()] + ' ' + (d.getFullYear()+543);
+  }
+
+  function getCategories(){
+    var set = {};
+    data.forEach(function(t){ set[t.category || 'ทั่วไป'] = (set[t.category || 'ทั่วไป']||0)+1; });
+    return set;
+  }
+
+  function renderChips(){
+    var cats = getCategories();
+    chipsEl.innerHTML = '';
+    var allChip = document.createElement('div');
+    allChip.className = 'chip' + (activeCategory==='ทั้งหมด' ? ' active' : '');
+    allChip.innerHTML = '<span class="dot" style="background:var(--text-faint)"></span><span>ทั้งหมด</span><span class="count">'+data.length+'</span>';
+    allChip.addEventListener('click', function(){ activeCategory='ทั้งหมด'; renderChips(); applyFilter(); });
+    chipsEl.appendChild(allChip);
+
+    Object.keys(cats).sort().forEach(function(cat){
+      var chip = document.createElement('div');
+      chip.className = 'chip' + (activeCategory===cat ? ' active' : '');
+      var color = catColor(cat);
+      var dotColorVar = {gold:'var(--gold)',teal:'var(--teal)',blue:'var(--blue)',vacant:'var(--vacant)',slate:'var(--slate)'}[color];
+      chip.innerHTML = '<span class="dot" style="background:'+dotColorVar+'"></span><span></span><span class="count">'+cats[cat]+'</span>';
+      chip.querySelector('span:nth-child(2)').textContent = cat;
+      chip.addEventListener('click', function(){ activeCategory=cat; renderChips(); applyFilter(); });
+      chipsEl.appendChild(chip);
+    });
+
+    var datalist = document.getElementById('catList');
+    datalist.innerHTML = '';
+    Object.keys(cats).sort().forEach(function(cat){
+      var opt = document.createElement('option'); opt.value = cat; datalist.appendChild(opt);
+    });
+  }
+
+  function render(){
+    gridEl.innerHTML = '';
+    if(!data.length){
+      var empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.innerHTML = icon('book') + '<p>ยังไม่มีหัวข้อในคลังความรู้ — เริ่มเพิ่มหัวข้อแรกได้เลย</p>';
+      var btn = document.createElement('button');
+      btn.className = 'btn primary'; btn.textContent = 'เพิ่มหัวข้อใหม่';
+      btn.addEventListener('click', openModal);
+      empty.appendChild(btn);
+      gridEl.appendChild(empty);
+    } else {
+      data.slice().sort(function(a,b){ return (b.updatedAt||0)-(a.updatedAt||0); }).forEach(function(t, i){
+        gridEl.appendChild(buildCard(t, i));
+      });
+    }
+    renderChips();
+    applyFilter();
+  }
+
+  function applyFilter(){
+    var q = searchEl.value.trim().toLowerCase();
+    var cards = gridEl.querySelectorAll('.card');
+    cards.forEach(function(card){
+      var t = findTopic(card.dataset.id);
+      if(!t){ return; }
+      var matchesCat = activeCategory==='ทั้งหมด' || (t.category||'ทั่วไป')===activeCategory;
+      var text = (t.title+' '+(t.category||'')+' '+(t.content||'')).toLowerCase();
+      var matchesSearch = !q || text.indexOf(q)!==-1;
+      card.classList.toggle('hidden', !(matchesCat && matchesSearch));
+    });
+  }
+  searchEl.addEventListener('input', applyFilter);
+
+  function deleteTopic(id){
+    if(!confirm('ต้องการลบหัวข้อนี้หรือไม่?')) return;
+    data = data.filter(function(t){ return t.id!==id; });
+    render(); persist();
+  }
+
+  // --- Add modal ---
+  var fTitle = document.getElementById('fTitle');
+  var fCat = document.getElementById('fCat');
+  var fContent = document.getElementById('fContent');
+
+  function openModal(){
+    fTitle.value=''; fCat.value=''; fContent.value='';
+    overlayEl.classList.add('open');
+    setTimeout(function(){ fTitle.focus(); }, 200);
+  }
+  function closeModal(){ overlayEl.classList.remove('open'); }
+
+  document.getElementById('openAdd').addEventListener('click', openModal);
+  document.getElementById('cancelAdd').addEventListener('click', closeModal);
+  overlayEl.addEventListener('click', function(e){ if(e.target===overlayEl) closeModal(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && overlayEl.classList.contains('open')) closeModal(); });
+
+  document.getElementById('saveAdd').addEventListener('click', function(){
+    var title = fTitle.value.trim();
+    if(!title){ fTitle.focus(); return; }
+    var newTopic = {
+      id: uid(),
+      title: title,
+      category: fCat.value.trim() || 'ทั่วไป',
+      content: fContent.value.trim(),
+      updatedAt: Date.now()
+    };
+    data.push(newTopic);
+    activeCategory = 'ทั้งหมด';
+    closeModal();
+    render();
+    persist();
   });
-  if(inList) html += "</ul>";
-  return html || "<p>—</p>";
-}
 
-/* ---------- Drawers ---------- */
-const scrim = document.getElementById('scrim');
-const addDrawer = document.getElementById('addDrawer');
-const viewDrawer = document.getElementById('viewDrawer');
-
-function closeDrawers(){
-  addDrawer.classList.remove('open');
-  viewDrawer.classList.remove('open');
-  scrim.classList.remove('open');
-}
-scrim.addEventListener('click', closeDrawers);
-document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', closeDrawers));
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDrawers(); });
-
-function openAdd(){
-  document.getElementById('fTitle').value = "";
-  document.getElementById('fCategory').value = "";
-  document.getElementById('fAuthor').value = "";
-  document.getElementById('fContent').value = "";
-  scrim.classList.add('open');
-  addDrawer.classList.add('open');
-  setTimeout(()=>document.getElementById('fTitle').focus(), 200);
-}
-document.getElementById('openAddBtn').addEventListener('click', openAdd);
-
-document.getElementById('saveBtn').addEventListener('click', async ()=>{
-  const title = document.getElementById('fTitle').value.trim();
-  const category = document.getElementById('fCategory').value.trim() || "ทั่วไป";
-  const author = document.getElementById('fAuthor').value.trim();
-  const content = document.getElementById('fContent').value.trim();
-
-  if(!title || !content){
-    alert("กรุณากรอกหัวข้อและรายละเอียดก่อนบันทึก");
-    return;
-  }
-
-  const saveBtn = document.getElementById('saveBtn');
-  saveBtn.disabled = true; saveBtn.textContent = "กำลังบันทึก...";
-
-  const topic = { id: "t" + Date.now(), title, category, author, content, createdAt: new Date().toISOString() };
-  try{
-    await addTopicRemote(topic);
-    await loadTopics();
-    closeDrawers();
-  } catch(err){
-    alert("บันทึกไม่สำเร็จ: " + err.message);
-  } finally {
-    saveBtn.disabled = false; saveBtn.textContent = "บันทึกหัวข้อ";
-  }
-});
-
-let currentViewId = null;
-function openView(id){
-  const t = topics.find(x=>x.id===id);
-  if(!t) return;
-  currentViewId = id;
-  const idx = topics.findIndex(x=>x.id===id);
-  const date = t.createdAt ? new Date(t.createdAt).toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'}) : "";
-  document.getElementById('viewBody').innerHTML = `
-    <div class="doc-code">${docCode(idx)}</div>
-    <span class="tag">${escapeHtml(t.category||'ทั่วไป')}</span>
-    <h2>${escapeHtml(t.title)}</h2>
-    <div class="meta-row">${escapeHtml(t.author||'ไม่ระบุผู้บันทึก')} · ${date}</div>
-    <div class="content">${renderContentHtml(t.content)}</div>
-  `;
-  scrim.classList.add('open');
-  viewDrawer.classList.add('open');
-}
-
-document.getElementById('deleteBtn').addEventListener('click', async ()=>{
-  if(!currentViewId) return;
-  if(!confirm("ลบหัวข้อนี้ออกจากคลังความรู้?")) return;
-  await deleteTopicRemote(currentViewId);
-  await loadTopics();
-  closeDrawers();
-});
-
-document.getElementById('searchInput').addEventListener('input', (e)=>{
-  searchTerm = e.target.value.trim();
-  renderGrid();
-});
-
-/* ---------- Init ---------- */
-async function loadTopics(){
-  modeBanner.style.display = API_URL ? "none" : "block";
-  try{
-    topics = await fetchTopics();
-    // newest first
-    topics.sort((a,b)=> new Date(b.createdAt||0) - new Date(a.createdAt||0));
-  } catch(err){
-    grid.innerHTML = `<div class="empty"><h3>โหลดข้อมูลไม่สำเร็จ</h3><p>${escapeHtml(err.message)}</p></div>`;
-    return;
-  }
-  renderCategories();
-  renderGrid();
-}
-
-loadTopics();
+  startRealtimeSync();
+})();
 </script>
 </body>
 </html>
