@@ -244,19 +244,29 @@
 .home-panel-title h3{margin:0;font-size:13px;color:#17304c}
 .home-panel-title p{margin:3px 0 0;font-size:9px;color:#8a98a7}
 .home-panel-link{font-size:9px;color:#1677d2;font-weight:700}
-.home-chart-box{height:235px}
+.home-chart-box{height:205px}
 .home-status{
-  height:235px;
+  height:270px;
   display:grid;
   grid-template-columns:180px 1fr;
   align-items:center;
   gap:8px;
 }
-.home-donut{height:180px}
+.home-donut{height:190px}
 .home-legend{display:flex;flex-direction:column;gap:14px}
 .home-legend-row{display:flex;align-items:center;gap:8px;font-size:10px;color:#687a8c}
 .home-legend-dot{width:8px;height:8px;border-radius:50%}
 .home-legend-row b{margin-left:auto;color:#17304c;font-size:13px}
+
+/* Trend insight */
+.home-trend-label{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;background:#edf8ef;color:#3e9c5d;font-size:9px;font-weight:800;white-space:nowrap}
+.home-trend-label.down{background:#fff3e8;color:#c98522}
+.home-trend-label.flat{background:#eef4f9;color:#6f8397}
+.home-trend-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.home-trend-summary>div{padding:9px 11px;border:1px solid #edf1f4;border-radius:10px;background:#f9fbfd}
+.home-trend-summary small{display:block;font-size:8px;color:#8a98a7}
+.home-trend-summary b{display:inline-block;margin-top:2px;font-size:15px;color:#17304c}
+.home-trend-summary span{margin-left:4px;font-size:8px;color:#8796a5}
 
 /* Operations */
 .home-operation-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
@@ -374,7 +384,7 @@
       <div class="home-hero-copy">
         <span class="home-eyebrow"><i class="ti ti-bolt"></i> WAREHOUSE OPERATIONS & ANALYTICS</span>
         <h1>ภาพรวมของ<br><span>การรับเข้าอย่างครบถ้วน</span></h1>
-        <p>ติดตามเอกสารรับเข้า ตรวจสอบสถานะ และดูข้อมูลการรับสินค้า โดยใช้ข้อมูลจริงจากระบบ</p>
+        <p>ติดตามเอกสารรับเข้า ตรวจสอบสถานะ และดูข้อมูลการรับสินค้าได้จากที่เดียว โดยใช้ข้อมูลจริงจากระบบ</p>
         <div class="home-hero-actions">
           <a class="home-btn home-btn-primary" href="#home-overview">ดูภาพรวม <i class="ti ti-arrow-down"></i></a>
           <a class="home-btn home-btn-secondary" href="#home-recent">รายการล่าสุด <i class="ti ti-arrow-up-right"></i></a>
@@ -440,9 +450,15 @@
       <div class="home-grid-2">
         <div class="home-panel home-reveal">
           <div class="home-panel-title">
-            <div><h3>แนวโน้มการรับเข้าสินค้า</h3><p>จำนวนเอกสารแยกตามสถานะใน 6 เดือนล่าสุด</p></div>
+            <div><h3>แนวโน้มการรับเข้าสินค้า</h3><p>จำนวนเอกสารรับเข้าใน 7 วันล่าสุด • จากรายการที่โหลดไว้</p></div>
+            <span class="home-trend-label" id="trendDirection">กำลังวิเคราะห์...</span>
           </div>
           <div class="home-chart-box"><canvas id="overviewChart"></canvas></div>
+          <div class="home-trend-summary">
+            <div><small>วันนี้</small><b id="trendToday">—</b><span>รายการ</span></div>
+            <div><small>เฉลี่ย 7 วัน</small><b id="trendAvg">—</b><span>รายการ/วัน</span></div>
+            <div><small>วันที่สูงสุด</small><b id="trendPeak">—</b><span id="trendPeakDate">—</span></div>
+          </div>
         </div>
 
         <div class="home-panel home-reveal home-d2">
@@ -623,35 +639,70 @@ function renderStats(total,pending,received){
 }
 
 function renderCharts(){
-  const now = new Date();
-  const buckets=[...Array(6)].map((_,i)=>{
-    const d=new Date(now.getFullYear(),now.getMonth()-5+i,1);
-    return {key:`${d.getFullYear()}-${d.getMonth()}`,label:d.toLocaleDateString('th-TH',{month:'short'})};
+  // Use the same latest documents already loaded by the page.
+  // This adds a trend view without creating another Firebase read.
+  const days=[...Array(7)].map((_,i)=>{
+    const d=new Date();
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate()-(6-i));
+    return d;
   });
-  const map=new Map(buckets.map(b=>[b.key,{r:0,p:0}]));
-  allDocs.forEach(d=>{
-    const dt=d.dateObj;if(!dt)return;
-    const x=map.get(`${dt.getFullYear()}-${dt.getMonth()}`);
-    if(x) d.status==='received'?x.r++:x.p++;
-  });
+  const vals=days.map(day=>allDocs.filter(x=>sameDay(x.dateObj,day)).length);
+  const labels=days.map(d=>d.toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'}));
+
+  const firstHalf=vals.slice(0,3).reduce((a,b)=>a+b,0)/3;
+  const lastHalf=vals.slice(-3).reduce((a,b)=>a+b,0)/3;
+  const trendEl=$('trendDirection');
+  if(lastHalf>firstHalf*1.15){
+    trendEl.textContent='แนวโน้มเพิ่มขึ้น ↑';
+    trendEl.className='home-trend-label';
+  }else if(lastHalf<firstHalf*0.85){
+    trendEl.textContent='แนวโน้มลดลง ↓';
+    trendEl.className='home-trend-label down';
+  }else{
+    trendEl.textContent='แนวโน้มคงที่ →';
+    trendEl.className='home-trend-label flat';
+  }
+
+  const today=vals[6]||0;
+  const avg=vals.reduce((a,b)=>a+b,0)/7;
+  const peak=Math.max(...vals,0);
+  const peakIndex=vals.indexOf(peak);
+  $('trendToday').textContent=today.toLocaleString();
+  $('trendAvg').textContent=avg.toFixed(1);
+  $('trendPeak').textContent=peak.toLocaleString();
+  $('trendPeakDate').textContent=peakIndex>=0 ? labels[peakIndex] : '—';
 
   const ctx=$('overviewChart');
   if(overviewChart) overviewChart.destroy();
   overviewChart=new Chart(ctx,{
-    type:'bar',
+    type:'line',
     data:{
-      labels:buckets.map(x=>x.label),
-      datasets:[
-        {label:'รับแล้ว',data:buckets.map(x=>map.get(x.key).r),backgroundColor:'#55b947',borderRadius:6},
-        {label:'รอดำเนินการ',data:buckets.map(x=>map.get(x.key).p),backgroundColor:'#e1a12a',borderRadius:6}
-      ]
+      labels,
+      datasets:[{
+        label:'จำนวนรับเข้า',
+        data:vals,
+        borderColor:'#1978d0',
+        backgroundColor:'rgba(25,120,208,.10)',
+        fill:true,
+        tension:.38,
+        borderWidth:3,
+        pointRadius:4,
+        pointHoverRadius:6,
+        pointBackgroundColor:'#fff',
+        pointBorderWidth:2,
+        pointBorderColor:'#1978d0'
+      }]
     },
     options:{
       responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:7,font:{family:'IBM Plex Sans Thai',size:9}}}},
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:(ctx)=>` ${ctx.parsed.y.toLocaleString()} รายการ`}}
+      },
       scales:{
-        x:{grid:{display:false},ticks:{font:{size:9}}},
-        y:{beginAtZero:true,grid:{color:'#edf1f4'},ticks:{precision:0,font:{size:9}}}
+        x:{grid:{display:false},ticks:{font:{family:'IBM Plex Sans Thai',size:9},maxRotation:0}},
+        y:{beginAtZero:true,grid:{color:'#edf1f4'},ticks:{precision:0,font:{family:'IBM Plex Sans Thai',size:9}}}
       }
     }
   });
@@ -665,7 +716,6 @@ function renderCharts(){
     options:{responsive:true,maintainAspectRatio:false,cutout:'73%',plugins:{legend:{display:false}}}
   });
 }
-
 function renderRecent(){
   const rows=[...allDocs].sort((a,b)=>(b.dateObj?.getTime()||0)-(a.dateObj?.getTime()||0)).slice(0,8);
   $('recentBody').innerHTML=rows.length ? rows.map(d=>{
