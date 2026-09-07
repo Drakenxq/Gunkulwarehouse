@@ -191,7 +191,7 @@ html[data-theme="dark"] .toast{ background:var(--surface); color:var(--ink); bor
     <div>
       <div class="hero-brand">
         <span class="logo">Knowledge<span>Base</span></span>
-        <span class="sub">คลังความรู้นพวงศ์</span>
+        <span class="sub">คลังความรู้ Noppawong</span>
       </div>
       <div class="hero-tag">รวมขั้นตอน ข้อควรระวัง และเคล็ดลับการทำงานคลังไว้ที่เดียว ทุกคนในทีมเพิ่มหัวข้อเองได้และมองเห็นร่วมกัน</div>
     </div>
@@ -285,7 +285,7 @@ html[data-theme="dark"] .toast{ background:var(--surface); color:var(--ink); bor
     </div>
     <div class="field">
       <label>ชื่อที่จะแสดงในคลังความรู้</label>
-      <input id="fMyName" type="text" placeholder="เช่น...">
+      <input id="fMyName" type="text" placeholder="เช่น สมชาย">
       <div class="name-hint">ใช้แสดงเป็นผู้เขียนหัวข้อที่คุณเพิ่ม เก็บไว้ในเบราว์เซอร์นี้เท่านั้น</div>
     </div>
     <div class="modal-actions">
@@ -338,7 +338,7 @@ function showToast(msg){ const t=document.getElementById('toast'); document.getE
    ตั้งค่าตามขั้นตอนในคำตอบแชทที่มาพร้อมไฟล์นี้ แล้วนำ URL ของ
    Web App มาใส่ในตัวแปร SHEETS_API_URL ด้านล่าง
    ============================================================ */
-const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbymZBKcDkxlEbRxYHmqf40n7VaSyBK4WpPZolfxoSM2QZJBTyfXOcBwmXlhe22otV3i/exec';
+const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbxjKj_qksCLR1110a9d2o20EGUbkMW2pzzDsP174aUjilVG5Oso3kzLjXZKsq0QVvHh/exec';
 
 const POLL_INTERVAL_MS = 20000; // รีเฟรชข้อมูลอัตโนมัติทุก 20 วินาที (ไม่มี realtime แบบ Firebase)
 
@@ -382,125 +382,72 @@ function hideError(){ document.getElementById('errorBox').style.display = 'none'
 async function loadTopics(){
 
   if (SHEETS_API_URL.includes('PASTE_YOUR')) {
-    showError(
-      'ยังไม่ได้ตั้งค่า SHEETS_API_URL — ใส่ลิงก์ Apps Script Web App ในโค้ดก่อนใช้งาน'
-    );
-
+    showError('ยังไม่ได้ตั้งค่า SHEETS_API_URL — ใส่ลิงก์ Apps Script Web App ในโค้ดก่อนใช้งาน');
     document.getElementById('kbGrid').innerHTML = '';
     return;
   }
 
   if (isLoading) return;
-
   isLoading = true;
 
   const callbackName =
-    'kbCallback_' +
-    Date.now() +
-    '_' +
+    'kbCallback_' + Date.now() + '_' +
     Math.random().toString(36).substring(2);
 
   let script = null;
   let timeout = null;
 
   const cleanup = () => {
-
-    if (script && script.parentNode) {
-      script.parentNode.removeChild(script);
-    }
-
+    if (script && script.parentNode) script.parentNode.removeChild(script);
     delete window[callbackName];
-
-    if (timeout) {
-      clearTimeout(timeout);
-    }
+    if (timeout) clearTimeout(timeout);
   };
 
   window[callbackName] = (data) => {
-
     cleanup();
 
     try {
-
-      if (!data) {
-        throw new Error('ไม่ได้รับข้อมูลจาก Google Sheets');
-      }
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
+      if (!data) throw new Error('ไม่ได้รับข้อมูลจาก Google Sheets');
+      if (data.error) throw new Error(data.error);
 
       allTopics = (data.topics || [])
         .slice()
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt) -
-            new Date(a.createdAt)
-        );
+        .sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       hideError();
-
       renderChips();
       renderGrid();
       renderStats();
 
     } catch (err) {
-
-      console.error(
-        'โหลดคลังความรู้ไม่สำเร็จ:',
-        err
-      );
-
-      showError(
-        'โหลดข้อมูลไม่สำเร็จ: ' +
-        (err.message || 'unknown error')
-      );
-
+      console.error('โหลดคลังความรู้ไม่สำเร็จ:', err);
+      showError('โหลดข้อมูลไม่สำเร็จ: ' + (err.message || 'unknown error'));
     } finally {
-
       isLoading = false;
     }
   };
 
   script = document.createElement('script');
-
   script.src =
-    `${SHEETS_API_URL}` +
-    `?action=list` +
-    `&callback=${encodeURIComponent(callbackName)}` +
-    `&_=${Date.now()}`;
-
+    `${SHEETS_API_URL}?action=list&callback=${encodeURIComponent(callbackName)}&_=${Date.now()}`;
   script.async = true;
 
   script.onerror = () => {
-
     cleanup();
-
     isLoading = false;
-
-    showError(
-      'เชื่อมต่อ Google Sheets ไม่สำเร็จ กรุณาตรวจสอบ Apps Script Web App'
-    );
-
+    showError('เชื่อมต่อ Google Sheets ไม่สำเร็จ กรุณาตรวจสอบ Apps Script Web App');
   };
 
   document.body.appendChild(script);
 
   timeout = setTimeout(() => {
-
     cleanup();
-
     isLoading = false;
-
-    showError(
-      'หมดเวลารอข้อมูลจาก Google Sheets'
-    );
-
+    showError('หมดเวลารอข้อมูลจาก Google Sheets');
   }, 15000);
 }
 
 async function addTopic(topic) {
-
   const payload = JSON.stringify({
     action: 'add',
     ...topic
@@ -523,12 +470,11 @@ loadTopics();
 setInterval(loadTopics, POLL_INTERVAL_MS);
 
 function renderStats(){
-  document.getElementById('statTotal').textContent = allTopics.length;
-  document.getElementById('statCats').textContent = new Set(allTopics.map(t=>t.category||'อื่นๆ')).size;
-  const weekAgo = Date.now() - 7*24*60*60*1000;
-  document.getElementById('statWeek').textContent = allTopics.filter(t=>{
-    const d = toDate(t.createdAt); return d && d.getTime() >= weekAgo;
-  }).length;
+  const statTotal = document.getElementById('statTotal');
+  const statCats = document.getElementById('statCats');
+
+  if (statTotal) statTotal.textContent = allTopics.length;
+  if (statCats) statCats.textContent = new Set(allTopics.map(t=>t.category||'อื่นๆ')).size;
 }
 
 function renderChips(){
