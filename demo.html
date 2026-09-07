@@ -9,12 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 
-/* ============================================================
-   TOKENS
-   One family carries the whole page (IBM Plex Sans Thai) so Thai
-   and Latin text sit at the same rhythm. Mono is reserved for
-   codes, timestamps and counts — never for prose or labels.
-   ============================================================ */
 :root{
   --bg:            #0A0C10;
   --surface:       #12151B;
@@ -45,11 +39,6 @@
 
   --ease: cubic-bezier(.22,.61,.36,1);
 }
-
-/* Light theme — same structure, warmer-neutral surfaces instead of pure
-   white, and every accent darkened a touch to hold contrast on a light
-   ground. Switched via [data-theme] on <html>, not a media query alone,
-   so the person can override the system setting. */
 :root[data-theme="light"]{
   --bg:            #F6F7F9;
   --surface:       #FFFFFF;
@@ -146,9 +135,6 @@ body.is-ready .reveal:nth-of-type(5){ animation-delay: .34s; }
 /* ---------------- layout ---------------- */
 .wrap{max-width:1440px; margin:0 auto; padding:28px clamp(18px,4vw,48px) 60px;}
 
-/* ---------------- stat strip ----------------
-   One horizontal strip divided by hairlines rather than five
-   identical rounded cards — the numbers carry the hierarchy. */
 .statstrip{
   display:grid;
   grid-template-columns: repeat(5, 1fr);
@@ -251,6 +237,8 @@ body.is-ready .reveal:nth-of-type(5){ animation-delay: .34s; }
 .pagebar__info{font-size:12.5px; color:var(--muted);}
 .pagebar__controls{display:flex; align-items:center; gap:12px;}
 .pagebar__num{font-family:var(--font-mono); font-size:12.5px; color:var(--text-dim); min-width:56px; text-align:center;}
+.pagebar__divider{ width:1px; height:20px; background:var(--line); margin:0 2px; }
+.btn-page.is-active{ border-color:var(--accent); color:var(--accent); }
 .btn-page{ padding:8px 14px; height:34px; font-size:12.5px; }
 .btn-page:disabled{ opacity:.4; cursor:default; border-color:var(--line-strong); color:var(--muted); }
 .btn-page:disabled:hover{ border-color:var(--line-strong); color:var(--muted); }
@@ -530,6 +518,8 @@ tbody tr:hover{background:var(--surface-raised);}
         <button class="btn-ghost btn-page" id="pagePrev" type="button">ก่อนหน้า</button>
         <span class="pagebar__num" id="pageNum">1 / 1</span>
         <button class="btn-ghost btn-page" id="pageNext" type="button">ถัดไป</button>
+        <span class="pagebar__divider"></span>
+        <button class="btn-ghost btn-page" id="pageShowAll" type="button">แสดงทั้งหมด</button>
       </div>
     </div>
   </section>
@@ -616,6 +606,7 @@ let FILTERED = [];
 let sortState = { key: "date", dir: "desc" };
 const PAGE_SIZE = 20;
 let currentPage = 1;
+let showAllMode = false;
 const charts = {};
 let firstRender = true;
 
@@ -1033,14 +1024,16 @@ function renderTable(){
 
   if(!FILTERED.length){
     body.innerHTML = `<tr><td colspan="7" class="empty-row">ไม่พบใบส่งสินค้าที่ตรงกับเงื่อนไขการค้นหา</td></tr>`;
-    renderPagebar(0, 0);
+    renderPagebar(0, 0, 1);
     return;
   }
 
   const totalPages = Math.max(1, Math.ceil(FILTERED.length / PAGE_SIZE));
   currentPage = Math.min(Math.max(1, currentPage), totalPages);
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const pageRows = FILTERED.slice(start, start + PAGE_SIZE);
+
+  const start = showAllMode ? 0 : (currentPage - 1) * PAGE_SIZE;
+  const end = showAllMode ? FILTERED.length : start + PAGE_SIZE;
+  const pageRows = FILTERED.slice(start, end);
 
   body.innerHTML = pageRows.map(r => `
     <tr data-id="${escapeHtml(r.id)}">
@@ -1066,10 +1059,23 @@ function renderPagebar(rangeStart, rangeEnd, totalPages){
   const num = document.getElementById("pageNum");
   const prev = document.getElementById("pagePrev");
   const next = document.getElementById("pageNext");
+  const showAllBtn = document.getElementById("pageShowAll");
 
   if(!FILTERED.length){
     info.textContent = "ไม่มีรายการให้แสดง";
     num.textContent = "0 / 0";
+    prev.disabled = true; next.disabled = true;
+    showAllBtn.disabled = true; showAllBtn.classList.remove("is-active");
+    return;
+  }
+
+  showAllBtn.disabled = false;
+  showAllBtn.classList.toggle("is-active", showAllMode);
+  showAllBtn.textContent = showAllMode ? "กลับไปแบ่งหน้า" : "แสดงทั้งหมด";
+
+  if(showAllMode){
+    info.textContent = `แสดงทั้งหมด ${FILTERED.length.toLocaleString("th-TH")} รายการ`;
+    num.textContent = "1 / 1";
     prev.disabled = true; next.disabled = true;
     return;
   }
@@ -1081,11 +1087,18 @@ function renderPagebar(rangeStart, rangeEnd, totalPages){
 }
 
 document.getElementById("pagePrev").addEventListener("click", () => {
+  if(showAllMode) return;
   if(currentPage > 1){ currentPage--; renderTable(); }
 });
 document.getElementById("pageNext").addEventListener("click", () => {
+  if(showAllMode) return;
   const totalPages = Math.max(1, Math.ceil(FILTERED.length / PAGE_SIZE));
   if(currentPage < totalPages){ currentPage++; renderTable(); }
+});
+document.getElementById("pageShowAll").addEventListener("click", () => {
+  showAllMode = !showAllMode;
+  if(!showAllMode) currentPage = 1;
+  renderTable();
 });
 
 const modal = document.getElementById("modal");
