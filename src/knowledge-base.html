@@ -413,7 +413,7 @@ function hideError(){ document.getElementById('errorBox').style.display = 'none'
 async function loadTopics(){
 
   if (SHEETS_API_URL.includes('PASTE_YOUR')) {
-    showError('ยังไม่ได้ตั้งค่า SHEETS_API_URL — ใส่ลิงก์ Apps Script Web App ในโค้ดก่อนใช้งาน');
+    showError('ยังไม่ได้ตั้งค่า SHEETS_API — Backend Apps Script Web App ก่อนใช้งาน');
     document.getElementById('kbGrid').innerHTML = '';
     return;
   }
