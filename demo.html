@@ -243,6 +243,17 @@ body.is-ready .reveal:nth-of-type(5){ animation-delay: .34s; }
 .panel--table .panel__head{padding:0 26px 0;}
 .panel--table .filterbar{margin:16px 26px 0;}
 .table-wrap{overflow-x:auto; margin-top:14px;}
+
+.pagebar{
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+  padding:16px 26px 6px;
+}
+.pagebar__info{font-size:12.5px; color:var(--muted);}
+.pagebar__controls{display:flex; align-items:center; gap:12px;}
+.pagebar__num{font-family:var(--font-mono); font-size:12.5px; color:var(--text-dim); min-width:56px; text-align:center;}
+.btn-page{ padding:8px 14px; height:34px; font-size:12.5px; }
+.btn-page:disabled{ opacity:.4; cursor:default; border-color:var(--line-strong); color:var(--muted); }
+.btn-page:disabled:hover{ border-color:var(--line-strong); color:var(--muted); }
 table{width:100%; border-collapse:collapse; min-width:820px;}
 thead th{
   text-align:left; font-size:12px; color:var(--muted); font-weight:500;
@@ -512,6 +523,15 @@ tbody tr:hover{background:var(--surface-raised);}
         </tbody>
       </table>
     </div>
+
+    <div class="pagebar" id="pagebar">
+      <span class="pagebar__info" id="pageInfo">–</span>
+      <div class="pagebar__controls">
+        <button class="btn-ghost btn-page" id="pagePrev" type="button">ก่อนหน้า</button>
+        <span class="pagebar__num" id="pageNum">1 / 1</span>
+        <button class="btn-ghost btn-page" id="pageNext" type="button">ถัดไป</button>
+      </div>
+    </div>
   </section>
 
   <footer class="foot">
@@ -594,6 +614,8 @@ export const db = getFirestore(app);
 let RAW = [];
 let FILTERED = [];
 let sortState = { key: "date", dir: "desc" };
+const PAGE_SIZE = 20;
+let currentPage = 1;
 const charts = {};
 let firstRender = true;
 
@@ -796,6 +818,7 @@ function applyFilters(){
   });
 
   sortFiltered();
+  currentPage = 1;
   renderKpis();
   renderCharts();
   renderTable();
@@ -985,6 +1008,7 @@ document.querySelectorAll("#deliveryTable thead th").forEach(th => {
     if(sortState.key === key) sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
     else { sortState.key = key; sortState.dir = "asc"; }
     sortFiltered();
+    currentPage = 1;
     renderTable();
   });
 });
@@ -1006,12 +1030,19 @@ function sortFiltered(){
 function renderTable(){
   document.getElementById("tableCount").textContent = FILTERED.length.toLocaleString("th-TH");
   const body = document.getElementById("tableBody");
+
   if(!FILTERED.length){
     body.innerHTML = `<tr><td colspan="7" class="empty-row">ไม่พบใบส่งสินค้าที่ตรงกับเงื่อนไขการค้นหา</td></tr>`;
+    renderPagebar(0, 0);
     return;
   }
 
-  body.innerHTML = FILTERED.map(r => `
+  const totalPages = Math.max(1, Math.ceil(FILTERED.length / PAGE_SIZE));
+  currentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageRows = FILTERED.slice(start, start + PAGE_SIZE);
+
+  body.innerHTML = pageRows.map(r => `
     <tr data-id="${escapeHtml(r.id)}">
       <td class="mono-cell">${escapeHtml(r.invoice)}</td>
       <td style="color: var(--text-dim);">${fmtDateThai(r.date)}</td>
@@ -1026,7 +1057,36 @@ function renderTable(){
   body.querySelectorAll("tr[data-id]").forEach(tr => {
     tr.addEventListener("click", () => openModal(tr.dataset.id));
   });
+
+  renderPagebar(start, start + pageRows.length, totalPages);
 }
+
+function renderPagebar(rangeStart, rangeEnd, totalPages){
+  const info = document.getElementById("pageInfo");
+  const num = document.getElementById("pageNum");
+  const prev = document.getElementById("pagePrev");
+  const next = document.getElementById("pageNext");
+
+  if(!FILTERED.length){
+    info.textContent = "ไม่มีรายการให้แสดง";
+    num.textContent = "0 / 0";
+    prev.disabled = true; next.disabled = true;
+    return;
+  }
+
+  info.textContent = `แสดง ${(rangeStart+1).toLocaleString("th-TH")}–${rangeEnd.toLocaleString("th-TH")} จาก ${FILTERED.length.toLocaleString("th-TH")} รายการ`;
+  num.textContent = `${currentPage} / ${totalPages}`;
+  prev.disabled = currentPage <= 1;
+  next.disabled = currentPage >= totalPages;
+}
+
+document.getElementById("pagePrev").addEventListener("click", () => {
+  if(currentPage > 1){ currentPage--; renderTable(); }
+});
+document.getElementById("pageNext").addEventListener("click", () => {
+  const totalPages = Math.max(1, Math.ceil(FILTERED.length / PAGE_SIZE));
+  if(currentPage < totalPages){ currentPage++; renderTable(); }
+});
 
 const modal = document.getElementById("modal");
 function openModal(id){
