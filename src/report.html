@@ -9,12 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 
-/* ============================================================
-   TOKENS
-   One family carries the whole page (IBM Plex Sans Thai) so Thai
-   and Latin text sit at the same rhythm. Mono is reserved for
-   codes, timestamps and counts — never for prose or labels.
-   ============================================================ */
 :root{
   --bg:            #0A0C10;
   --surface:       #12151B;
@@ -46,10 +40,6 @@
   --ease: cubic-bezier(.22,.61,.36,1);
 }
 
-/* Light theme — same structure, warmer-neutral surfaces instead of pure
-   white, and every accent darkened a touch to hold contrast on a light
-   ground. Switched via [data-theme] on <html>, not a media query alone,
-   so the person can override the system setting. */
 :root[data-theme="light"]{
   --bg:            #F6F7F9;
   --surface:       #FFFFFF;
@@ -92,9 +82,6 @@ a{color:inherit;}
 ::selection{background:var(--accent); color:#fff;}
 button{font-family:inherit;}
 
-/* ---------------- entrance sequence ----------------
-   One orchestrated reveal when data finishes loading —
-   not a hover animation on every element. */
 .reveal{ opacity:0; transform:translateY(10px); }
 body.is-ready .reveal{
   animation: revealUp .6s var(--ease) forwards;
@@ -146,9 +133,6 @@ body.is-ready .reveal:nth-of-type(5){ animation-delay: .34s; }
 /* ---------------- layout ---------------- */
 .wrap{max-width:1440px; margin:0 auto; padding:28px clamp(18px,4vw,48px) 60px;}
 
-/* ---------------- stat strip ----------------
-   One horizontal strip divided by hairlines rather than five
-   identical rounded cards — the numbers carry the hierarchy. */
 .statstrip{
   display:grid;
   grid-template-columns: repeat(5, 1fr);
@@ -624,18 +608,11 @@ let showAllMode = false;
 const charts = {};
 let firstRender = true;
 
-// Theme: default follows the OS setting, then the toggle overrides it for
-// the session. State lives in memory only (no persistence), so it resets
-// on reload — deliberate, since this file has no storage of its own.
 (function initTheme(){
   const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
   document.documentElement.setAttribute("data-theme", prefersLight ? "light" : "dark");
 })();
 
-// Semantic status colors: received = success, pending = "awaiting" (amber,
-// not an error red), anything else = neutral. Kept consistent across the
-// pill, the donut and the trend line — and re-read per theme so charts
-// stay legible on both a dark and a light ground.
 const THEME_COLORS = {
   dark:  { success:"#34C78A", warn:"#E3A73E", accent:"#5B8DEF", neutral:"#8891A0", grid:"#1E232C", tick:"#ABB2BE", surfaceBorder:"#12151B" },
   light: { success:"#1E9E6C", warn:"#B9791E", accent:"#3D6FE0", neutral:"#6B7280", grid:"#E4E7EC", tick:"#565D68", surfaceBorder:"#FFFFFF" }
@@ -687,8 +664,6 @@ function statusPillHtml(status){
   return `<span class="pill ${statusClass(status)}">${escapeHtml(label)}</span>`;
 }
 
-// Short count-up used only when a number actually changes — a response to
-// the user's own filtering, not decoration that runs on every render.
 function animateNumber(el, target){
   const from = parseInt(el.dataset.raw || "0", 10) || 0;
   target = Math.round(target);
