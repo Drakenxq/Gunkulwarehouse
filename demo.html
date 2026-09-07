@@ -64,7 +64,13 @@ button{font-family:inherit;}
 .search-box{ display:flex; align-items:center; gap:9px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:11px 16px; flex:1; max-width:420px; box-shadow:var(--shadow-sm); }
 .search-box input{ border:none; outline:none; background:transparent; font-size:13.5px; color:var(--ink); font-family:inherit; width:100%; }
 .search-box i{ color:var(--ink-faint); font-size:17px; }
-.topbar-actions{ display:flex; align-items:center; gap:12px; }
+.topbar-actions{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
 .icon-btn{ width:42px; height:42px; border-radius:13px; border:1px solid var(--border); background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-soft); box-shadow:var(--shadow-sm); transition:transform .15s ease, color .2s ease, border-color .2s ease; }
 .icon-btn:hover{ color:var(--primary); transform:translateY(-1px); border-color:var(--primary-soft); }
 .theme-toggle{ display:flex; align-items:center; gap:5px; padding:5px; border-radius:999px; background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm); cursor:pointer; }
@@ -320,7 +326,7 @@ function showToast(msg){ const t=document.getElementById('toast'); document.getE
 
 const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbymZBKcDkxlEbRxYHmqf40n7VaSyBK4WpPZolfxoSM2QZJBTyfXOcBwmXlhe22otV3i/exec';
 
-const POLL_INTERVAL_MS = 20000; // รีเฟรชข้อมูลอัตโนมัติทุก 20 วินาที (ไม่มี realtime แบบ Firebase)
+const POLL_INTERVAL_MS = 20000;
 
 /* ============ current user (local only, no auth backend) ============ */
 let currentUser = { name: localStorage.getItem('kb_user_name') || '' };
