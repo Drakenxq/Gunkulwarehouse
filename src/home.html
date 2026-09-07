@@ -11,6 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 
 <style>
+
 :root{
   --home-navy:#102a4b;
   --home-blue:#1677d2;
@@ -450,13 +451,13 @@
       <div class="home-grid-2">
         <div class="home-panel home-reveal">
           <div class="home-panel-title">
-            <div><h3>แนวโน้มการรับเข้าสินค้า</h3><p>จำนวนเอกสารรับเข้าใน 7 วันล่าสุด • จากรายการที่โหลดไว้</p></div>
+            <div><h3>แนวโน้มการรับเข้าสินค้า</h3><p>จำนวนเอกสารรับเข้าใน 30 วันล่าสุด • จากรายการที่โหลดไว้</p></div>
             <span class="home-trend-label" id="trendDirection">กำลังวิเคราะห์...</span>
           </div>
           <div class="home-chart-box"><canvas id="overviewChart"></canvas></div>
           <div class="home-trend-summary">
             <div><small>วันนี้</small><b id="trendToday">—</b><span>รายการ</span></div>
-            <div><small>เฉลี่ย 7 วัน</small><b id="trendAvg">—</b><span>รายการ/วัน</span></div>
+            <div><small>เฉลี่ย 30 วัน</small><b id="trendAvg">—</b><span>รายการ/วัน</span></div>
             <div><small>วันที่สูงสุด</small><b id="trendPeak">—</b><span id="trendPeakDate">—</span></div>
           </div>
         </div>
@@ -641,17 +642,17 @@ function renderStats(total,pending,received){
 function renderCharts(){
   // Use the same latest documents already loaded by the page.
   // This adds a trend view without creating another Firebase read.
-  const days=[...Array(7)].map((_,i)=>{
+  const days=[...Array(30)].map((_,i)=>{
     const d=new Date();
     d.setHours(0,0,0,0);
-    d.setDate(d.getDate()-(6-i));
+    d.setDate(d.getDate()-(29-i));
     return d;
   });
   const vals=days.map(day=>allDocs.filter(x=>sameDay(x.dateObj,day)).length);
-  const labels=days.map(d=>d.toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'}));
+  const labels=days.map(d=>d.toLocaleDateString('th-TH',{day:'numeric',month:'short'}));
 
-  const firstHalf=vals.slice(0,3).reduce((a,b)=>a+b,0)/3;
-  const lastHalf=vals.slice(-3).reduce((a,b)=>a+b,0)/3;
+  const firstHalf=vals.slice(0,7).reduce((a,b)=>a+b,0)/7;
+  const lastHalf=vals.slice(-7).reduce((a,b)=>a+b,0)/7;
   const trendEl=$('trendDirection');
   if(lastHalf>firstHalf*1.15){
     trendEl.textContent='แนวโน้มเพิ่มขึ้น ↑';
@@ -665,7 +666,7 @@ function renderCharts(){
   }
 
   const today=vals[6]||0;
-  const avg=vals.reduce((a,b)=>a+b,0)/7;
+  const avg=vals.reduce((a,b)=>a+b,0)/30;
   const peak=Math.max(...vals,0);
   const peakIndex=vals.indexOf(peak);
   $('trendToday').textContent=today.toLocaleString();
@@ -687,8 +688,8 @@ function renderCharts(){
         fill:true,
         tension:.38,
         borderWidth:3,
-        pointRadius:4,
-        pointHoverRadius:6,
+        pointRadius:2,
+        pointHoverRadius:5,
         pointBackgroundColor:'#fff',
         pointBorderWidth:2,
         pointBorderColor:'#1978d0'
