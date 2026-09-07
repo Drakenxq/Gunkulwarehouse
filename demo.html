@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คลังสินค้า · ภาพรวมการรับเข้า</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+/* ============================================================
+   TOKENS
+   One family carries the whole page (IBM Plex Sans Thai) so Thai
+   and Latin text sit at the same rhythm. Mono is reserved for
+   codes, timestamps and counts — never for prose or labels.
+   ============================================================ */
+:root{
+  --bg:            #0A0C10;
+  --surface:       #12151B;
+  --surface-raised:#161A22;
+  --line:          #1E232C;
+  --line-strong:   #2B323D;
+
+  --text:          #ECEEF1;
+  --text-dim:      #ABB2BE;
+  --muted:         #6B7280;
+
+  --accent:        #5B8DEF;
+  --accent-tint:   rgba(91, 141, 239, 0.12);
+
+  --success:       #34C78A;
+  --success-tint:  rgba(52, 199, 138, 0.12);
+  --warn:          #E3A73E;
+  --warn-tint:     rgba(227, 167, 62, 0.12);
+  --neutral:       #8891A0;
+  --neutral-tint:  rgba(136, 145, 160, 0.12);
+
+  --radius-lg:     20px;
+  --radius-md:     12px;
+  --radius-sm:     8px;
+
+  --font-th:       'IBM Plex Sans Thai', sans-serif;
+  --font-mono:     'JetBrains Mono', monospace;
+
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-th);
+  font-weight:400;
+  line-height:1.55;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2{font-family:var(--font-th); margin:0;}
+p{margin:0;}
+a{color:inherit;}
+::selection{background:var(--accent); color:#fff;}
+button{font-family:inherit;}
+
+/* ---------------- entrance sequence ----------------
+   One orchestrated reveal when data finishes loading —
+   not a hover animation on every element. */
+.reveal{ opacity:0; transform:translateY(10px); }
+body.is-ready .reveal{
+  animation: revealUp .6s var(--ease) forwards;
+}
+body.is-ready .reveal:nth-of-type(1){ animation-delay: .02s; }
+body.is-ready .reveal:nth-of-type(2){ animation-delay: .10s; }
+body.is-ready .reveal:nth-of-type(3){ animation-delay: .18s; }
+body.is-ready .reveal:nth-of-type(4){ animation-delay: .26s; }
+body.is-ready .reveal:nth-of-type(5){ animation-delay: .34s; }
+@keyframes revealUp{ to{ opacity:1; transform:translateY(0); } }
+
+@media (prefers-reduced-motion: reduce){
+  .reveal{ opacity:1; transform:none; animation:none !important; }
+  *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+}
+
+/* ---------------- topbar ---------------- */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:22px clamp(18px,4vw,48px);
+  border-bottom:1px solid var(--line);
+  background:var(--bg);
+}
+.topbar__title h1{font-size:19px; font-weight:600; letter-spacing:-0.01em;}
+.topbar__title p{font-size:13px; color:var(--muted); margin-top:3px;}
+
+.topbar__meta{display:flex; align-items:center; gap:14px;}
+.stamp{
+  display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:11.5px;
+  color:var(--text-dim); padding:0;
+}
+.stamp__dot{width:6px; height:6px; border-radius:50%; background:var(--muted);}
+.stamp.ok .stamp__dot{background:var(--success); box-shadow:0 0 6px var(--success);}
+.stamp.err .stamp__dot{background:var(--warn); box-shadow:0 0 6px var(--warn);}
+
+/* ---------------- layout ---------------- */
+.wrap{max-width:1440px; margin:0 auto; padding:28px clamp(18px,4vw,48px) 60px;}
+
+/* ---------------- stat strip ----------------
+   One horizontal strip divided by hairlines rather than five
+   identical rounded cards — the numbers carry the hierarchy. */
+.statstrip{
+  display:grid;
+  grid-template-columns: repeat(5, 1fr);
+  border:1px solid var(--line);
+  border-radius:var(--radius-lg);
+  background:var(--surface);
+  overflow:hidden;
+  margin-bottom:28px;
+}
+.stat{
+  padding:22px 24px;
+  border-left:1px solid var(--line);
+}
+.stat:first-child{border-left:none;}
+.stat__label{font-size:13px; color:var(--muted); display:block;}
+.stat__value{
+  font-family:var(--font-mono); font-size:30px; font-weight:600; color:var(--text);
+  line-height:1.15; display:block; margin-top:10px; font-variant-numeric:tabular-nums;
+}
+.stat__sub{font-size:12.5px; color:var(--text-dim); display:block; margin-top:4px;}
+.stat[data-k="received"] .stat__value{color:var(--success);}
+.stat[data-k="pending"] .stat__value{color:var(--warn);}
+
+@media (max-width:900px){
+  .statstrip{grid-template-columns:repeat(3,1fr);}
+  .stat:nth-child(4){border-left:none;}
+}
+@media (max-width:560px){
+  .statstrip{grid-template-columns:repeat(2,1fr);}
+  .stat:nth-child(3){border-left:none;}
+}
+
+/* ---------------- chart grid ---------------- */
+.chart-grid{ display:flex; flex-direction:column; gap:20px; margin-bottom:28px; }
+.chart-row{ display:grid; gap:20px; grid-template-columns:1fr 1fr; }
+
+.panel{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
+  padding:24px; display:flex; flex-direction:column; min-width:0;
+}
+.panel--hero{ padding:26px 26px 20px; }
+.panel__head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:18px;}
+.panel__head h2{font-size:15px; font-weight:600;}
+.panel__head p{font-size:12.5px; color:var(--muted); margin-top:3px;}
+.tag-mono{font-family:var(--font-mono); font-size:11px; color:var(--text-dim);}
+
+.panel__body{position:relative; height:250px;}
+.panel--hero .panel__body{height:280px;}
+.panel__body--donut{display:flex; align-items:center; gap:20px; height:220px;}
+.panel__body--donut .donut-canvas-wrap{width:140px; height:140px; flex-shrink:0; position:relative;}
+.donut-center{
+  position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  pointer-events:none;
+}
+.donut-center__value{font-family:var(--font-mono); font-size:22px; font-weight:600;}
+.donut-center__label{font-size:11px; color:var(--muted); margin-top:2px;}
+
+.legend{list-style:none; margin:0; padding:0; font-size:13.5px; flex:1;}
+.legend li{display:flex; align-items:center; gap:9px; padding:8px 0; border-bottom:1px solid var(--line);}
+.legend li:last-child{border-bottom:none;}
+.legend__dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+.legend__val{margin-left:auto; font-family:var(--font-mono); color:var(--text-dim); font-size:12.5px;}
+
+@media (max-width:900px){ .chart-row{grid-template-columns:1fr;} }
+
+/* ---------------- filter bar ---------------- */
+.filterbar{
+  display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end;
+  padding:4px 4px 18px;
+  border-bottom:1px solid var(--line);
+  margin-bottom:0;
+}
+.field{display:flex; flex-direction:column; gap:6px;}
+.field label{font-size:12px; color:var(--muted);}
+.field input, .field select{
+  background:var(--surface); border:1px solid var(--line); color:var(--text);
+  border-radius:var(--radius-sm); padding:9px 12px; font-family:var(--font-th); font-size:13.5px;
+  outline:none; transition: border-color .15s;
+  min-width:150px;
+}
+.field input::placeholder { color: var(--muted); }
+.field input:focus, .field select:focus{border-color:var(--accent);}
+.btn-ghost{
+  background:transparent; border:1px solid var(--line-strong); color:var(--text-dim);
+  font-size:13px; padding:9px 16px; border-radius:var(--radius-sm); cursor:pointer; white-space:nowrap;
+  transition: border-color .15s, color .15s; height:38px;
+}
+.btn-ghost:hover{border-color:var(--accent); color:var(--text);}
+
+/* ---------------- table ---------------- */
+.panel--table{padding:26px 0 8px; margin-top:28px;}
+.panel--table .panel__head{padding:0 26px 0;}
+.panel--table .filterbar{margin:16px 26px 0;}
+.table-wrap{overflow-x:auto; margin-top:14px;}
+table{width:100%; border-collapse:collapse; min-width:820px;}
+thead th{
+  text-align:left; font-size:12px; color:var(--muted); font-weight:500;
+  padding:10px 26px; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  cursor:pointer; user-select:none; transition:color .15s;
+}
+thead th:hover{color:var(--text);}
+tbody td{padding:15px 26px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:middle;}
+tbody tr{cursor:pointer; transition:background .12s;}
+tbody tr:hover{background:var(--surface-raised);}
+.mono-cell{font-family:var(--font-mono); font-size:13px; color:var(--text);}
+.empty-row{text-align:center; color:var(--muted); padding:44px 0; cursor:default;}
+.empty-row:hover{background:transparent;}
+
+.pill{
+  display:inline-flex; align-items:center; gap:6px; font-size:12.5px;
+  padding:4px 11px; border-radius:20px;
+  color:var(--success); background:var(--success-tint);
+}
+.pill::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--success); }
+.pill.is-pending{color:var(--warn); background:var(--warn-tint);}
+.pill.is-pending::before{background:var(--warn);}
+.pill.is-other{color:var(--neutral); background:var(--neutral-tint);}
+.pill.is-other::before{background:var(--neutral);}
+
+.foot{
+  display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  font-family:var(--font-mono); font-size:11.5px; color:var(--muted);
+  margin-top:22px; padding:0 4px;
+}
+
+/* ---------------- modal ---------------- */
+.modal{position:fixed; inset:0; z-index:20; display:none;}
+.modal.is-open{display:flex; align-items:center; justify-content:center;}
+.modal__backdrop{ position:absolute; inset:0; background:rgba(5,7,10,0.78); backdrop-filter:blur(6px); }
+.modal__panel{
+  position:relative; z-index:1; max-width:660px; width:92%; max-height:88vh; overflow-y:auto;
+  background:var(--surface-raised); border:1px solid var(--line-strong); border-radius:var(--radius-lg);
+  padding:30px;
+  animation: modalIn .25s var(--ease);
+}
+@keyframes modalIn{ from{opacity:0; transform:translateY(8px) scale(.985);} to{opacity:1; transform:none;} }
+.modal__close{
+  position:absolute; top:22px; right:22px; background:transparent; border:1px solid var(--line-strong);
+  color:var(--muted); width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:13px;
+  display:flex; align-items:center; justify-content:center; transition:color .15s, border-color .15s;
+}
+.modal__close:hover{color:var(--text); border-color:var(--accent);}
+
+.modal__head{display:flex; align-items:center; gap:14px; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--line);}
+#modalInvoice{font-family:var(--font-mono); font-size:19px; font-weight:600;}
+
+.modal__grid{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-md); overflow:hidden; margin-bottom:24px;}
+.modal__info-card { background:var(--surface); padding:12px 16px; }
+.modal__label{ font-size:11px; color:var(--muted); display:block; margin-bottom:4px; }
+.modal__info-card p{font-size:14px; margin:0; color:var(--text);}
+
+.modal__note{
+  margin-bottom:24px; padding:14px 16px; background:var(--warn-tint);
+  border-radius:var(--radius-md); border:1px solid rgba(227,167,62,0.25);
+}
+
+.modal__items table{ width:100%; border-collapse:collapse; min-width:0; }
+.modal__items th{ padding:8px 12px; font-size:11px; color:var(--muted); font-weight:500; border-bottom:1px solid var(--line); }
+.modal__items td{ padding:11px 12px; font-size:13.5px; border-bottom:1px solid var(--line); color:var(--text); }
+.modal__items tr:last-child td{ border-bottom:none; }
+
+.check{color:var(--success); font-weight:600;}
+.uncheck{color:var(--muted);}
+
+.modal__sig{margin-top:24px;}
+.modal__sig img{ max-width:200px; background:#fff; border-radius:var(--radius-sm); padding:10px; margin-top:8px; }
+
+/* ---------------- loading overlay ---------------- */
+.loading-overlay {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 9999; transition: opacity .4s ease, visibility .4s ease;
+}
+.loading-overlay.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
+.spinner-box { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.spinner {
+  width: 34px; height: 34px; border: 2px solid var(--line);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+.loading-text { font-size: 13.5px; color: var(--text-dim); letter-spacing:0.02em; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------------- responsive ---------------- */
+@media (max-width:768px){
+  .topbar{flex-direction:column; align-items:flex-start; gap:12px;}
+  .modal__grid{grid-template-columns:1fr;}
+  .panel--table .panel__head, .panel--table .filterbar{padding-left:18px; padding-right:18px; margin-left:0; margin-right:0;}
+}
+
+</style>
+</head>
+<body>
+
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="spinner-box">
+    <div class="spinner"></div>
+    <div class="loading-text">กำลังเชื่อมต่อคลังข้อมูลสินค้า…</div>
+  </div>
+</div>
+
+<header class="topbar reveal">
+  <div class="topbar__title">
+    <h1>ภาพรวมคลังสินค้า</h1>
+    <p>ติดตาม จัดการ และคาดการณ์การรับเข้าจากคลังสินค้า</p>
+  </div>
+  <div class="topbar__meta">
+    <span class="stamp" id="syncStamp"><span class="stamp__dot"></span><span id="lastSync">กำลังโหลด…</span></span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="statstrip reveal" id="tickets" aria-label="สรุปภาพรวม">
+    <div class="stat" data-k="total">
+      <span class="stat__label">รายการทั้งหมด</span>
+      <span class="stat__value" id="kpiTotal">0</span>
+      <span class="stat__sub">ใบส่งของทั้งหมด</span>
+    </div>
+    <div class="stat" data-k="received">
+      <span class="stat__label">รับของสำเร็จ</span>
+      <span class="stat__value" id="kpiReceived">0</span>
+      <span class="stat__sub" id="kpiReceivedPct">0% ของทั้งหมด</span>
+    </div>
+    <div class="stat" data-k="pending">
+      <span class="stat__label">รอดำเนินการ</span>
+      <span class="stat__value" id="kpiPending">0</span>
+      <span class="stat__sub" id="kpiPendingPct">0% ของทั้งหมด</span>
+    </div>
+    <div class="stat" data-k="items">
+      <span class="stat__label">รายการสินค้ารวม</span>
+      <span class="stat__value" id="kpiItems">0</span>
+      <span class="stat__sub">รายการ</span>
+    </div>
+    <div class="stat" data-k="month">
+      <span class="stat__label">งานประจำเดือนนี้</span>
+      <span class="stat__value" id="kpiMonth">0</span>
+      <span class="stat__sub">การรับเข้าสินค้า</span>
+    </div>
+  </section>
+
+  <section class="chart-grid reveal">
+
+    <div class="panel panel--hero">
+      <div class="panel__head">
+        <div>
+          <h2>แนวโน้มการรับเข้ารายเดือน</h2>
+          <p>จำแนกตามสถานะจริงของแต่ละใบส่งของ</p>
+        </div>
+        <span class="tag-mono" id="trendRange">–</span>
+      </div>
+      <div class="panel__body"><canvas id="chartTrend"></canvas></div>
+    </div>
+
+    <div class="chart-row">
+      <div class="panel">
+        <div class="panel__head">
+          <div>
+            <h2>สัดส่วนสถานะ</h2>
+            <p>สัดส่วนของใบส่งของภายในระบบ</p>
+          </div>
+        </div>
+        <div class="panel__body panel__body--donut">
+          <div class="donut-canvas-wrap">
+            <canvas id="chartStatus"></canvas>
+            <div class="donut-center">
+              <span class="donut-center__value" id="donutTotal">0</span>
+              <span class="donut-center__label">ทั้งหมด</span>
+            </div>
+          </div>
+          <ul class="legend" id="statusLegend"></ul>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__head">
+          <div>
+            <h2>สินค้ายอดนิยม</h2>
+            <p>เรียงตามจำนวนชิ้นรวม</p>
+          </div>
+        </div>
+        <div class="panel__body"><canvas id="chartItems"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="panel">
+        <div class="panel__head">
+          <div>
+            <h2>ซัพพลายเออร์</h2>
+            <p>อ้างตามจำนวนครั้งที่มาส่งของ</p>
+          </div>
+        </div>
+        <div class="panel__body"><canvas id="chartSenders"></canvas></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__head">
+          <div>
+            <h2>บริษัทที่สั่งของเยอะที่สุด</h2>
+            <p>ตามจำนวนการรับเข้า</p>
+          </div>
+        </div>
+        <div class="panel__body"><canvas id="chartRecipients"></canvas></div>
+      </div>
+    </div>
+
+  </section>
+
+  <section class="panel panel--table reveal">
+    <div class="panel__head">
+      <div>
+        <h2>การรับเข้าสินค้า</h2>
+        <p>พบใบส่งของที่ตรงตัวกรอง <span id="tableCount" style="color:var(--accent); font-weight:600;">0</span> รายการ</p>
+      </div>
+    </div>
+
+    <div class="filterbar" id="filterbar">
+      <div class="field" style="flex:1 1 220px;">
+        <label for="fSearch">ค้นหา</label>
+        <input id="fSearch" type="text" placeholder="เลขที่ใบส่ง / ผู้ส่ง / สินค้า…">
+      </div>
+      <div class="field">
+        <label for="fFrom">ตั้งแต่วันที่</label>
+        <input id="fFrom" type="date">
+      </div>
+      <div class="field">
+        <label for="fTo">ถึงวันที่</label>
+        <input id="fTo" type="date">
+      </div>
+      <div class="field">
+        <label for="fStatus">สถานะ</label>
+        <select id="fStatus"><option value="">ทั้งหมด</option></select>
+      </div>
+      <div class="field">
+        <label for="fWarehouse">คลัง</label>
+        <select id="fWarehouse"><option value="">ทั้งหมด</option></select>
+      </div>
+      <button id="fReset" class="btn-ghost" type="button">ล้างตัวกรอง</button>
+    </div>
+
+    <div class="table-wrap">
+      <table id="deliveryTable">
+        <thead>
+          <tr>
+            <th data-sort="invoice">เลขที่ใบส่ง</th>
+            <th data-sort="date">วันที่</th>
+            <th data-sort="sender">ผู้ส่ง</th>
+            <th data-sort="recipient">ผู้รับ</th>
+            <th data-sort="warehouse">คลัง</th>
+            <th data-sort="itemCount">รายการสินค้า</th>
+            <th data-sort="status">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="7" class="empty-row">กำลังโหลดข้อมูลคลังสินค้า…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span>Warehouse Management System © 2026</span>
+    <span id="lastSyncFoot">อัปเดตล่าสุด: –</span>
+  </footer>
+</main>
+
+<div class="modal" id="modal" aria-hidden="true">
+  <div class="modal__backdrop" id="modalBackdrop"></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalInvoice">
+    <button class="modal__close" id="modalClose" aria-label="ปิด">✕</button>
+    <div class="modal__head">
+      <span id="modalInvoice">SCPO-000000</span>
+      <span class="pill" id="modalStatus">status</span>
+    </div>
+    <div class="modal__grid">
+      <div class="modal__info-card">
+        <span class="modal__label">ผู้ส่ง</span>
+        <p id="modalSender">–</p>
+      </div>
+      <div class="modal__info-card">
+        <span class="modal__label">ผู้รับ</span>
+        <p id="modalRecipient">–</p>
+      </div>
+      <div class="modal__info-card">
+        <span class="modal__label">วันที่</span>
+        <p id="modalDate">–</p>
+      </div>
+      <div class="modal__info-card">
+        <span class="modal__label">รับของโดย</span>
+        <p id="modalReceivedBy">–</p>
+      </div>
+      <div class="modal__info-card">
+        <span class="modal__label">คลัง</span>
+        <p id="modalWarehouse">–</p>
+      </div>
+      <div class="modal__info-card">
+        <span class="modal__label">รับเมื่อ</span>
+        <p id="modalReceivedAt">–</p>
+      </div>
+    </div>
+    <div class="modal__note" id="modalNoteWrap" hidden>
+      <span class="modal__label">หมายเหตุ</span>
+      <p id="modalNote">–</p>
+    </div>
+    <div class="modal__items">
+      <span class="modal__label" style="margin-left: 2px;">รายการสินค้าภายในเอกสาร</span>
+      <table>
+        <thead><tr><th style="width: 32px;"></th><th>ชื่อสินค้า</th><th>จำนวนรวม</th><th>หน่วยนับ</th></tr></thead>
+        <tbody id="modalItemsBody"></tbody>
+      </table>
+    </div>
+    <div class="modal__sig" id="modalSigWrap" hidden>
+      <span class="modal__label">ลายเซ็นดิจิทัลผู้รับสินค้า</span>
+      <img id="modalSigImg" alt="ลายเซ็นผู้รับสินค้า">
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAkPFzgT7hLAxPVI129F-vRzA65MIx2VIs",
+  authDomain: "gunkul-my-task-system.firebaseapp.com",
+  projectId: "gunkul-my-task-system",
+  storageBucket: "gunkul-my-task-system.firebasestorage.app",
+  messagingSenderId: "877006770872",
+  appId: "1:877006770872:web:ec56ec0089512899811a4d"
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+let RAW = [];
+let FILTERED = [];
+let sortState = { key: "date", dir: "desc" };
+const charts = {};
+let firstRender = true;
+
+// Semantic status colors: received = success, pending = "awaiting" (amber,
+// not an error red), anything else = neutral. Kept consistent across the
+// pill, the donut and the trend line.
+const COLORS = {
+  success: "#34C78A",
+  warn:    "#E3A73E",
+  accent:  "#5B8DEF",
+  neutral: "#8891A0"
+};
+const PALETTE = ["#5B8DEF", "#34C78A", "#E3A73E", "#8891A0", "#8B7CF0", "#E0729A", "#4FB8C4", "#C9A15A"];
+
+function toDateSafe(v){
+  if(!v) return null;
+  if(typeof v === "string") { const d = new Date(v); return isNaN(d) ? null : d; }
+  if(v.toDate) return v.toDate();
+  if(v.seconds) return new Date(v.seconds * 1000);
+  return null;
+}
+function monthKey(d){ return d ? `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}` : "unknown"; }
+function monthLabel(key){
+  if(key === "unknown") return "ไม่ระบุ";
+  const [y,m] = key.split("-");
+  const names = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  return `${names[parseInt(m,10)-1]} ${(parseInt(y,10)+543).toString().slice(-2)}`;
+}
+function fmtDateThai(d){
+  if(!d) return "–";
+  return d.toLocaleDateString("th-TH", { day:"2-digit", month:"short", year:"numeric" });
+}
+function fmtDateTimeThai(d){
+  if(!d) return "–";
+  return d.toLocaleString("th-TH", { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" });
+}
+function escapeHtml(s){
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+function statusClass(status){
+  const s = (status||"").toLowerCase();
+  if(s === "received") return "";
+  if(s === "pending") return "is-pending";
+  return "is-other";
+}
+function statusPillHtml(status){
+  let label = status || "ไม่ระบุ";
+  const s = (status || "").toLowerCase();
+  if (s === "received") label = "รับแล้ว";
+  else if (s === "pending") label = "รอรับสินค้า";
+  return `<span class="pill ${statusClass(status)}">${escapeHtml(label)}</span>`;
+}
+
+// Short count-up used only when a number actually changes — a response to
+// the user's own filtering, not decoration that runs on every render.
+function animateNumber(el, target){
+  const from = parseInt(el.dataset.raw || "0", 10) || 0;
+  target = Math.round(target);
+  el.dataset.raw = target;
+  if(from === target){ el.textContent = target.toLocaleString("th-TH"); return; }
+  const duration = 420;
+  const start = performance.now();
+  function step(now){
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const val = Math.round(from + (target - from) * eased);
+    el.textContent = val.toLocaleString("th-TH");
+    if(t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+async function loadData() {
+  try {
+    const snap = await getDocs(collection(db, "warehouse_deliveries"));
+
+    RAW = snap.docs.map(docSnap => {
+      const data = docSnap.data();
+      const items = Array.isArray(data.items) ? data.items : [];
+      const dateObj = toDateSafe(data.date) || toDateSafe(data.createdAt);
+      return {
+        id: docSnap.id,
+        invoice: data.invoice || docSnap.id,
+        date: dateObj,
+        createdAt: toDateSafe(data.createdAt),
+        receivedAt: toDateSafe(data.receivedAt),
+        receivedBy: data.receivedBy || "",
+        recipient: data.recipient || "",
+        sender: data.sender || "",
+        status: data.status || "unknown",
+        warehouse: data.warehouse || "",
+        note: data.note || "",
+        signatureData: data.signatureData || "",
+        items: items.map(it => ({
+          name: it.name || "",
+          qty: Number(it.qty) || 0,
+          unit: it.unit || "",
+          checked: !!it.checked
+        })),
+        itemCount: items.length,
+        itemQty: items.reduce((s,it)=> s + (Number(it.qty)||0), 0)
+      };
+    });
+
+    const syncText = new Date().toLocaleTimeString("th-TH");
+    document.getElementById("lastSync").textContent = "อัปเดตล่าสุด " + syncText;
+    document.getElementById("lastSyncFoot").textContent = "อัปเดตล่าสุด: " + syncText;
+    document.getElementById("syncStamp").classList.add("ok");
+
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    if (loadingOverlay) loadingOverlay.classList.add("fade-out");
+    document.body.classList.add("is-ready");
+
+    populateFilterOptions();
+    applyFilters();
+
+  } catch (err) {
+    console.error(err);
+
+    const loadingText = document.querySelector(".loading-text");
+    if (loadingText) {
+      loadingText.textContent = `โหลดข้อมูลไม่สำเร็จ (${err.code || err.message}) — โปรดตรวจสอบสิทธิ์คลังสินค้า`;
+      loadingText.style.color = "var(--warn)";
+    }
+    document.getElementById("syncStamp").classList.add("err");
+
+    document.getElementById("tableBody").innerHTML =
+      `<tr><td colspan="7" class="empty-row">โหลดข้อมูลไม่สำเร็จ (${escapeHtml(err.code || err.message)}) — ตรวจสอบ Firestore Rules</td></tr>`;
+
+    document.body.classList.add("is-ready");
+  }
+}
+
+loadData();
+
+const els = {
+  search: document.getElementById("fSearch"),
+  from: document.getElementById("fFrom"),
+  to: document.getElementById("fTo"),
+  status: document.getElementById("fStatus"),
+  warehouse: document.getElementById("fWarehouse"),
+  reset: document.getElementById("fReset"),
+};
+
+function populateFilterOptions(){
+  const statuses = [...new Set(RAW.map(r => r.status).filter(Boolean))].sort();
+  const warehouses = [...new Set(RAW.map(r => r.warehouse).filter(Boolean))].sort();
+
+  const keepStatus = els.status.value;
+  els.status.innerHTML = `<option value="">ทั้งหมด</option>` +
+    statuses.map(s => {
+      let label = s;
+      const lowS = s.toLowerCase();
+      if(lowS === "received") label = "รับแล้ว";
+      else if(lowS === "pending") label = "รอรับสินค้า";
+      return `<option value="${escapeHtml(s)}">${escapeHtml(label)}</option>`;
+    }).join("");
+  els.status.value = statuses.includes(keepStatus) ? keepStatus : "";
+
+  const keepWh = els.warehouse.value;
+  els.warehouse.innerHTML = `<option value="">ทั้งหมด</option>` +
+    warehouses.map(w => `<option value="${escapeHtml(w)}">${escapeHtml(w)}</option>`).join("");
+  els.warehouse.value = warehouses.includes(keepWh) ? keepWh : "";
+}
+
+function applyFilters(){
+  const q = els.search.value.trim().toLowerCase();
+  const from = els.from.value ? new Date(els.from.value) : null;
+  const to = els.to.value ? new Date(els.to.value) : null;
+  if(to) to.setHours(23,59,59,999);
+  const status = els.status.value;
+  const warehouse = els.warehouse.value;
+
+  FILTERED = RAW.filter(r => {
+    if(status && r.status !== status) return false;
+    if(warehouse && r.warehouse !== warehouse) return false;
+    if(from && (!r.date || r.date < from)) return false;
+    if(to && (!r.date || r.date > to)) return false;
+    if(q){
+      const hay = [
+        r.invoice, r.sender, r.recipient, r.receivedBy, r.warehouse,
+        ...r.items.map(it => it.name)
+      ].join(" ").toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  sortFiltered();
+  renderKpis();
+  renderCharts();
+  renderTable();
+}
+
+[els.search, els.from, els.to, els.status, els.warehouse].forEach(el =>
+  el.addEventListener("input", applyFilters)
+);
+els.reset.addEventListener("click", () => {
+  els.search.value = ""; els.from.value = ""; els.to.value = "";
+  els.status.value = ""; els.warehouse.value = "";
+  applyFilters();
+});
+
+function renderKpis(){
+  const total = FILTERED.length;
+  const received = FILTERED.filter(r => (r.status||"").toLowerCase() === "received").length;
+  const pending = FILTERED.filter(r => (r.status||"").toLowerCase() === "pending").length;
+  const totalItemsCount = FILTERED.reduce((s,r)=> s + r.itemCount, 0);
+
+  const now = new Date();
+  const thisMonth = FILTERED.filter(r => r.date && r.date.getFullYear()===now.getFullYear() && r.date.getMonth()===now.getMonth()).length;
+
+  animateNumber(document.getElementById("kpiTotal"), total);
+  animateNumber(document.getElementById("kpiReceived"), received);
+  animateNumber(document.getElementById("kpiPending"), pending);
+  animateNumber(document.getElementById("kpiItems"), totalItemsCount);
+  animateNumber(document.getElementById("kpiMonth"), thisMonth);
+
+  document.getElementById("kpiReceivedPct").textContent = total ? `${Math.round(received/total*100)}% ของทั้งหมด` : "0% ของทั้งหมด";
+  document.getElementById("kpiPendingPct").textContent = total ? `${Math.round(pending/total*100)}% ของทั้งหมด` : "0% ของทั้งหมด";
+}
+
+Chart.defaults.color = "#ABB2BE";
+Chart.defaults.font.family = "'IBM Plex Sans Thai', sans-serif";
+Chart.defaults.font.size = 11.5;
+
+function destroy(name){ if(charts[name]){ charts[name].destroy(); delete charts[name]; } }
+
+function renderCharts(){
+  renderTrendChart();
+  renderStatusChart();
+  renderTopChart("chartItems", topItemsData());
+  renderTopChart("chartSenders", topCountData("sender"));
+  renderTopChart("chartRecipients", topCountData("recipient"));
+}
+
+function renderTrendChart(){
+  const byMonth = new Map();
+  FILTERED.forEach(r => {
+    const key = monthKey(r.date);
+    if(!byMonth.has(key)) byMonth.set(key, { received:0, pending:0, other:0 });
+    const bucket = byMonth.get(key);
+    const s = (r.status||"").toLowerCase();
+    if(s === "received") bucket.received++;
+    else if(s === "pending") bucket.pending++;
+    else bucket.other++;
+  });
+  const keys = [...byMonth.keys()].filter(k=>k!=="unknown").sort();
+  const labels = keys.map(monthLabel);
+
+  document.getElementById("trendRange").textContent = keys.length
+    ? `${monthLabel(keys[0])} – ${monthLabel(keys[keys.length-1])}`
+    : "–";
+
+  const animDuration = firstRender ? 700 : 300;
+
+  destroy("trend");
+  charts.trend = new Chart(document.getElementById("chartTrend"), {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        { label:"รับแล้ว", data: keys.map(k=>byMonth.get(k).received), borderColor: COLORS.success, backgroundColor: 'rgba(52, 199, 138, 0.08)', fill: true, tension: 0.35, borderWidth: 2.5, pointRadius:0, pointHoverRadius:4 },
+        { label:"รอรับสินค้า", data: keys.map(k=>byMonth.get(k).pending), borderColor: COLORS.warn, backgroundColor: 'rgba(227, 167, 62, 0.06)', fill: true, tension: 0.35, borderWidth: 2.5, pointRadius:0, pointHoverRadius:4 },
+        { label:"อื่นๆ", data: keys.map(k=>byMonth.get(k).other), borderColor: COLORS.neutral, backgroundColor: 'transparent', fill: false, tension: 0.35, borderWidth: 1.5, borderDash:[3,3], pointRadius:0, pointHoverRadius:4 }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      animation: { duration: animDuration, easing: 'easeOutCubic' },
+      interaction: { mode:'index', intersect:false },
+      scales:{
+        x:{ grid:{ color:"#1E232C" }, border:{ display:false } },
+        y:{ beginAtZero:true, ticks:{ precision:0 }, grid:{ color:"#1E232C" }, border:{ display:false } }
+      },
+      plugins:{ legend:{ position:"top", align:"end", labels:{ boxWidth:8, boxHeight:8, usePointStyle:true, padding:18 } } }
+    }
+  });
+}
+
+function renderStatusChart(){
+  const counts = {};
+  FILTERED.forEach(r => { const s = r.status || "ไม่ระบุ"; counts[s] = (counts[s]||0)+1; });
+  const labels = Object.keys(counts);
+  const data = labels.map(l => counts[l]);
+  const colorFor = (label) => {
+    const s = label.toLowerCase();
+    if(s === "received") return COLORS.success;
+    if(s === "pending") return COLORS.warn;
+    return COLORS.neutral;
+  };
+  const colors = labels.map(colorFor);
+
+  const displayLabels = labels.map(l => {
+    const s = l.toLowerCase();
+    if(s === "received") return "รับแล้ว";
+    if(s === "pending") return "รอรับสินค้า";
+    return l;
+  });
+
+  const total = data.reduce((a,b)=>a+b,0) || 0;
+  document.getElementById("donutTotal").textContent = total.toLocaleString("th-TH");
+
+  destroy("status");
+  charts.status = new Chart(document.getElementById("chartStatus"), {
+    type:"doughnut",
+    data:{ labels: displayLabels, datasets:[{ data, backgroundColor:colors, borderColor:"#12151B", borderWidth:3 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:"78%", plugins:{ legend:{ display:false } } }
+  });
+
+  const denom = total || 1;
+  const legend = document.getElementById("statusLegend");
+  legend.innerHTML = labels.map((l,i)=>{
+    let label = l;
+    const s = l.toLowerCase();
+    if(s === "received") label = "รับแล้ว";
+    else if(s === "pending") label = "รอรับสินค้า";
+    return `
+      <li><span class="legend__dot" style="background:${colors[i]}"></span>${escapeHtml(label)}
+      <span class="legend__val">${data[i]} · ${Math.round(data[i]/denom*100)}%</span></li>
+    `;
+  }).join("") || `<li>ไม่มีข้อมูล</li>`;
+}
+
+function topItemsData(){
+  const counts = new Map();
+  FILTERED.forEach(r => r.items.forEach(it => {
+    if(!it.name) return;
+    counts.set(it.name, (counts.get(it.name)||0) + it.qty);
+  }));
+  return [...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
+}
+function topCountData(field){
+  const counts = new Map();
+  FILTERED.forEach(r => {
+    const v = r[field];
+    if(!v) return;
+    counts.set(v, (counts.get(v)||0) + 1);
+  });
+  return [...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
+}
+
+function renderTopChart(canvasId, pairs){
+  const labels = pairs.map(p => p[0].length > 22 ? p[0].slice(0,20)+"…" : p[0]);
+  const data = pairs.map(p => p[1]);
+  const animDuration = firstRender ? 600 : 250;
+  destroy(canvasId);
+  charts[canvasId] = new Chart(document.getElementById(canvasId), {
+    type:"bar",
+    data:{ labels, datasets:[{ data, backgroundColor: PALETTE, borderRadius:4, maxBarThickness:14 }] },
+    options:{
+      indexAxis:"y", responsive:true, maintainAspectRatio:false,
+      animation: { duration: animDuration, easing: 'easeOutCubic' },
+      scales:{
+        x:{ beginAtZero:true, ticks:{ precision:0 }, grid:{ color:"#1E232C" }, border:{ display:false } },
+        y:{ grid:{ display:false }, border:{ display:false } }
+      },
+      plugins:{ legend:{ display:false } }
+    }
+  });
+  firstRender = false;
+}
+
+document.querySelectorAll("#deliveryTable thead th").forEach(th => {
+  th.addEventListener("click", () => {
+    const key = th.dataset.sort;
+    if(sortState.key === key) sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
+    else { sortState.key = key; sortState.dir = "asc"; }
+    sortFiltered();
+    renderTable();
+  });
+});
+
+function sortFiltered(){
+  const { key, dir } = sortState;
+  const mul = dir === "asc" ? 1 : -1;
+  FILTERED.sort((a,b) => {
+    let av = a[key], bv = b[key];
+    if(key === "date"){ av = a.date ? a.date.getTime() : -Infinity; bv = b.date ? b.date.getTime() : -Infinity; }
+    if(typeof av === "string") av = av.toLowerCase();
+    if(typeof bv === "string") bv = bv.toLowerCase();
+    if(av < bv) return -1*mul;
+    if(av > bv) return 1*mul;
+    return 0;
+  });
+}
+
+function renderTable(){
+  document.getElementById("tableCount").textContent = FILTERED.length.toLocaleString("th-TH");
+  const body = document.getElementById("tableBody");
+  if(!FILTERED.length){
+    body.innerHTML = `<tr><td colspan="7" class="empty-row">ไม่พบใบส่งสินค้าที่ตรงกับเงื่อนไขการค้นหา</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = FILTERED.map(r => `
+    <tr data-id="${escapeHtml(r.id)}">
+      <td class="mono-cell">${escapeHtml(r.invoice)}</td>
+      <td style="color: var(--text-dim);">${fmtDateThai(r.date)}</td>
+      <td>${escapeHtml(r.sender) || "–"}</td>
+      <td>${escapeHtml(r.recipient) || "–"}</td>
+      <td>${escapeHtml(r.warehouse) || "–"}</td>
+      <td style="color: var(--text-dim);">${r.itemCount} รายการ</td>
+      <td>${statusPillHtml(r.status)}</td>
+    </tr>
+  `).join("");
+
+  body.querySelectorAll("tr[data-id]").forEach(tr => {
+    tr.addEventListener("click", () => openModal(tr.dataset.id));
+  });
+}
+
+const modal = document.getElementById("modal");
+function openModal(id){
+  const r = RAW.find(x => x.id === id);
+  if(!r) return;
+
+  document.getElementById("modalInvoice").textContent = r.invoice;
+  document.getElementById("modalStatus").outerHTML = statusPillHtml(r.status).replace('class="pill', 'id="modalStatus" class="pill');
+  document.getElementById("modalSender").textContent = r.sender || "–";
+  document.getElementById("modalRecipient").textContent = r.recipient || "–";
+  document.getElementById("modalDate").textContent = fmtDateThai(r.date);
+  document.getElementById("modalReceivedBy").textContent = r.receivedBy || "–";
+  document.getElementById("modalWarehouse").textContent = r.warehouse || "–";
+  document.getElementById("modalReceivedAt").textContent = fmtDateTimeThai(r.receivedAt);
+
+  const noteWrap = document.getElementById("modalNoteWrap");
+  if(r.note){ noteWrap.hidden = false; document.getElementById("modalNote").textContent = r.note; }
+  else noteWrap.hidden = true;
+
+  document.getElementById("modalItemsBody").innerHTML = r.items.map(it => `
+    <tr>
+      <td style="text-align: center;">${it.checked ? '<span class="check">✓</span>' : '<span class="uncheck">–</span>'}</td>
+      <td>${escapeHtml(it.name)}</td>
+      <td class="mono-cell" style="color: var(--accent);">${it.qty.toLocaleString("th-TH")}</td>
+      <td style="color: var(--text-dim);">${escapeHtml(it.unit)}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="4" style="text-align: center; color: var(--muted); padding: 20px;">ไม่มีรายการสินค้าในเอกสารนี้</td></tr>`;
+
+  const sigWrap = document.getElementById("modalSigWrap");
+  if(r.signatureData){
+    sigWrap.hidden = false;
+    document.getElementById("modalSigImg").src = r.signatureData;
+  } else sigWrap.hidden = true;
+
+  modal.classList.add("is-open");
+}
+document.getElementById("modalClose").addEventListener("click", () => modal.classList.remove("is-open"));
+document.getElementById("modalBackdrop").addEventListener("click", () => modal.classList.remove("is-open"));
+document.addEventListener("keydown", (e) => { if(e.key === "Escape") modal.classList.remove("is-open"); });
+</script>
+</body>
+</html>
