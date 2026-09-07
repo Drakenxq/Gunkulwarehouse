@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noppawong — คลังความรู้ (Knowledge Base)</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Caveat:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<script>
+  (function(){
+    var saved = localStorage.getItem('sf_theme');
+    if (saved === 'dark') document.documentElement.setAttribute('data-theme','dark');
+  })();
+</script>
+
+<style>
+/* ====== identical design tokens to home.html — keep in sync if the brand theme changes ====== */
+:root{
+  --bg:#eef3fb; --bg-soft:#e4ecf9; --surface:#ffffff; --surface-alt:#f4f7fd;
+  --border:rgba(22,33,61,0.08); --border-strong:rgba(22,33,61,0.14);
+  --ink:#16213d; --ink-soft:#647089; --ink-faint:#9aa4ba;
+  --primary:#3266f2; --primary-dark:#1c3fae; --primary-soft:rgba(50,102,242,0.12);
+  --success:#17a668; --success-bg:rgba(23,166,104,0.12);
+  --warn:#e08c1a; --warn-bg:rgba(224,140,26,0.13);
+  --danger:#e1483f; --danger-bg:rgba(225,72,63,0.12);
+  --purple:#7c5cf0; --purple-bg:rgba(124,92,240,0.12);
+  --orange:#f2872f; --orange-bg:rgba(242,135,47,0.12);
+  --shadow: 0 20px 44px -26px rgba(22,33,61,0.28), 0 2px 8px rgba(22,33,61,0.05);
+  --shadow-sm: 0 8px 20px -13px rgba(22,33,61,0.2);
+  --r-lg:22px; --r-md:16px; --r-sm:10px;
+  --font-ui:'Plus Jakarta Sans','IBM Plex Sans Thai',sans-serif;
+  --font-script:'Caveat',cursive;
+  --font-mono:'Share Tech Mono',monospace;
+}
+html[data-theme="dark"]{
+  --bg:#0f1420; --bg-soft:#0b0f18; --surface:#161c2b; --surface-alt:#1c2333;
+  --border:rgba(255,255,255,0.08); --border-strong:rgba(255,255,255,0.14);
+  --ink:#eef1f8; --ink-soft:#98a2ba; --ink-faint:#616d87;
+  --primary:#5680ff; --primary-dark:#3a5fe0; --primary-soft:rgba(86,128,255,0.18);
+  --success:#2fcf8e; --success-bg:rgba(47,207,142,0.15);
+  --warn:#f0a53d; --warn-bg:rgba(240,165,61,0.15);
+  --danger:#f0665c; --danger-bg:rgba(240,102,92,0.16);
+  --purple:#9c85f8; --purple-bg:rgba(156,133,248,0.16);
+  --orange:#f5994f; --orange-bg:rgba(245,153,79,0.16);
+  --shadow: 0 24px 50px -24px rgba(0,0,0,0.65), 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-sm: 0 10px 22px -14px rgba(0,0,0,0.5);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{ background:var(--bg); color:var(--ink); font-family:var(--font-ui); padding:22px 26px 46px; min-height:100vh; transition:background .35s ease, color .35s ease; }
+button{font-family:inherit;}
+::selection{background:var(--primary); color:#fff;}
+.wrap{max-width:1180px; margin:0 auto;}
+@media (prefers-reduced-motion: reduce){ *{animation-duration:.01ms !important; transition-duration:.01ms !important;} }
+
+.card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--shadow-sm); transition:background .35s ease, border-color .35s ease, box-shadow .2s ease, transform .2s ease; }
+.fade-in{opacity:0; animation:fadeIn .5s ease forwards;}
+@keyframes fadeIn{to{opacity:1;}}
+
+/* topbar (same as home.html) */
+.topbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px; }
+.search-box{ display:flex; align-items:center; gap:9px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:11px 16px; flex:1; max-width:420px; box-shadow:var(--shadow-sm); }
+.search-box input{ border:none; outline:none; background:transparent; font-size:13.5px; color:var(--ink); font-family:inherit; width:100%; }
+.search-box i{ color:var(--ink-faint); font-size:17px; }
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  gap: 12px;
+}
+.icon-btn{ width:42px; height:42px; border-radius:13px; border:1px solid var(--border); background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-soft); box-shadow:var(--shadow-sm); transition:transform .15s ease, color .2s ease, border-color .2s ease; }
+.icon-btn:hover{ color:var(--primary); transform:translateY(-1px); border-color:var(--primary-soft); }
+.theme-toggle{ display:flex; align-items:center; gap:5px; padding:5px; border-radius:999px; background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm); cursor:pointer; }
+.theme-toggle .seg{ width:28px; height:28px; border-radius:999px; display:flex; align-items:center; justify-content:center; color:var(--ink-faint); font-size:13px; }
+.theme-toggle .seg.active{ background:var(--primary); color:#fff; }
+.user-chip{ display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:6px 14px 6px 6px; box-shadow:var(--shadow-sm); cursor:pointer; }
+.avatar{ width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; }
+.user-chip .u-name{ font-size:13px; font-weight:700; line-height:1.25; }
+.user-chip .u-role{ font-size:10.5px; color:var(--ink-faint); font-weight:600; }
+
+/* hero */
+.hero{ position:relative; overflow:hidden; border-radius:var(--r-lg); margin-bottom:20px;
+  background: radial-gradient(120% 160% at 100% 0%, rgba(255,255,255,0.14), transparent 55%), linear-gradient(120deg, var(--primary-dark) 0%, var(--primary) 55%, #4b7bf5 100%);
+  padding:34px 34px 30px; color:#fff; box-shadow:var(--shadow); }
+.hero::before{ content:""; position:absolute; inset:0; opacity:.5; pointer-events:none; background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 42px); }
+.hero::after{ content:""; position:absolute; right:-70px; top:-90px; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,0.16), transparent 70%); }
+.hero-row{ position:relative; z-index:1; display:flex; align-items:flex-start; justify-content:space-between; gap:18px; flex-wrap:wrap; }
+.hero-brand{ display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+.hero-brand .logo{ font-size:40px; font-weight:800; letter-spacing:-1px; line-height:1; }
+.hero-brand .logo span{ color:#ffe4b8; }
+.hero-brand .sub{ font-size:15px; font-weight:600; color:rgba(255,255,255,0.82); }
+.hero-tag{ font-size:13.5px; color:rgba(255,255,255,0.86); margin-top:9px; font-weight:500; max-width:520px; }
+.hero-script{ font-family:var(--font-script); font-size:22px; color:#ffe4b8; transform:rotate(-4deg); white-space:nowrap; text-align:right; }
+.hero-script small{ display:block; font-family:var(--font-ui); font-size:9.5px; letter-spacing:1px; color:rgba(255,255,255,0.6); font-weight:700; text-transform:uppercase; transform:none; margin-top:2px; }
+.hero-stats{ position:relative; z-index:1; display:flex; gap:26px; margin-top:22px; flex-wrap:wrap; }
+.hero-stat b{ display:block; font-family:var(--font-mono); font-size:22px; font-weight:700; }
+.hero-stat span{ font-size:11px; color:rgba(255,255,255,0.78); font-weight:600; }
+
+/* filter row */
+.filter-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:16px; flex-wrap:wrap; }
+.chip-scroll{ display:flex; gap:8px; overflow-x:auto; padding-bottom:2px; }
+.chip{ border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); font-size:12px; font-weight:700; padding:8px 14px; border-radius:999px; cursor:pointer; white-space:nowrap; transition:.2s; box-shadow:var(--shadow-sm); display:flex; align-items:center; gap:6px; }
+.chip .cnt{ font-family:var(--font-mono); font-size:10.5px; opacity:.7; }
+.chip.active{ background:var(--primary); color:#fff; border-color:var(--primary); }
+.add-btn{ display:flex; align-items:center; gap:8px; background:var(--primary); color:#fff; border:none; border-radius:12px; padding:11px 18px; font-size:13px; font-weight:700; cursor:pointer; box-shadow:var(--shadow-sm); flex-shrink:0; transition:transform .15s ease, background .2s ease; }
+.add-btn:hover{ background:var(--primary-dark); transform:translateY(-1px); }
+.refresh-btn{ display:flex; align-items:center; gap:6px; }
+
+/* article grid */
+.kb-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:22px; }
+.kb-card{ padding:20px; cursor:pointer; display:flex; flex-direction:column; gap:12px; }
+.kb-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow); border-color:var(--primary-soft); }
+.kb-cat{ display:inline-flex; align-items:center; gap:6px; font-size:10.5px; font-weight:800; padding:4px 10px; border-radius:20px; align-self:flex-start; }
+.kb-title{ font-size:15px; font-weight:700; line-height:1.4; color:var(--ink); }
+.kb-excerpt{ font-size:12.5px; color:var(--ink-soft); line-height:1.6; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.kb-meta{ display:flex; align-items:center; justify-content:space-between; margin-top:auto; padding-top:10px; border-top:1px solid var(--border); font-size:11px; color:var(--ink-faint); font-weight:600; }
+.kb-meta .m-author{ display:flex; align-items:center; gap:6px; }
+.kb-tags{ display:flex; gap:6px; flex-wrap:wrap; }
+.kb-tag{ font-size:10px; font-weight:700; color:var(--ink-faint); background:var(--surface-alt); padding:3px 8px; border-radius:6px; }
+.empty-kb{ grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--ink-faint); }
+.empty-kb i{ font-size:36px; margin-bottom:10px; display:block; }
+
+.skel-card{ height:170px; }
+.skel-line{ background:var(--surface-alt); border-radius:6px; position:relative; overflow:hidden; }
+.skel-line::after{ content:""; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent); animation:shimmer 1.4s infinite; }
+html[data-theme="dark"] .skel-line::after{ background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent); }
+@keyframes shimmer{100%{transform:translateX(100%);}}
+
+/* modal (add topic + view article) */
+.modal-overlay{ position:fixed; inset:0; background:rgba(15,20,32,0.55); backdrop-filter:blur(3px); display:none; align-items:center; justify-content:center; z-index:100; padding:20px; opacity:0; transition:opacity .2s ease; }
+.modal-overlay.open{ display:flex; opacity:1; }
+.modal-box{ background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); width:100%; max-width:560px; max-height:88vh; overflow-y:auto; padding:26px; transform:translateY(14px) scale(.98); transition:transform .22s cubic-bezier(.2,.8,.2,1); border:1px solid var(--border); }
+.modal-overlay.open .modal-box{ transform:translateY(0) scale(1); }
+.modal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.modal-head h3{ margin:0; font-size:17px; font-weight:800; }
+.modal-close{ width:32px; height:32px; border-radius:9px; border:none; background:var(--surface-alt); color:var(--ink-soft); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.field{ margin-bottom:14px; }
+.field label{ display:block; font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; }
+.field input, .field textarea, .field select{ width:100%; border:1px solid var(--border-strong); background:var(--surface-alt); border-radius:10px; padding:10px 12px; font-size:13px; font-family:inherit; color:var(--ink); outline:none; transition:border-color .15s ease; }
+.field input:focus, .field textarea:focus, .field select:focus{ border-color:var(--primary); }
+.field textarea{ min-height:130px; resize:vertical; line-height:1.6; }
+.field-hint{ font-size:10.5px; color:var(--ink-faint); margin-top:5px; }
+.modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }
+.btn-ghost{ border:1px solid var(--border-strong); background:transparent; color:var(--ink-soft); padding:10px 16px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; }
+.btn-primary{ border:none; background:var(--primary); color:#fff; padding:10px 18px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; box-shadow:var(--shadow-sm); }
+.btn-primary:disabled{ opacity:.6; cursor:not-allowed; }
+.btn-danger{ border:none; background:var(--danger); color:#fff; padding:10px 18px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; box-shadow:var(--shadow-sm); }
+.btn-danger:hover{ filter:brightness(.94); }
+.btn-danger:disabled{ opacity:.6; cursor:not-allowed; }
+.form-err{ font-size:11.5px; color:var(--danger); margin-top:6px; display:none; }
+
+.view-title{ font-size:20px; font-weight:800; margin:4px 0 10px; }
+.view-body{ font-size:13.5px; line-height:1.9; color:var(--ink-soft); white-space:pre-wrap; }
+.view-meta{ display:flex; align-items:center; gap:14px; font-size:11.5px; color:var(--ink-faint); font-weight:600; margin-bottom:16px; flex-wrap:wrap; }
+
+.toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--bg); padding:12px 20px; border-radius:12px; font-size:12.5px; font-weight:700; box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:.25s ease; z-index:200; display:flex; align-items:center; gap:8px; }
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+html[data-theme="dark"] .toast{ background:var(--surface); color:var(--ink); border:1px solid var(--border); }
+
+.err-box{ display:flex; align-items:center; gap:10px; background:var(--danger-bg); color:var(--danger); border-radius:12px; padding:12px 14px; font-size:12.5px; font-weight:600; margin-bottom:16px; }
+
+/* set-name modal */
+.name-hint{ font-size:11.5px; color:var(--ink-faint); margin-top:4px; }
+
+@media (max-width:1080px){ .kb-grid{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:720px){ body{ padding:16px 14px 32px; } .hero{ padding:24px 20px; } .hero-brand .logo{ font-size:32px; } .hero-script{ display:none; } }
+@media (max-width:560px){ .kb-grid{ grid-template-columns:1fr; } .search-box{ display:none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topbar fade-in">
+  <div class="topbar-actions">
+    <button class="icon-btn refresh-btn" id="refreshBtn" title="รีเฟรชข้อมูล"><i class="ti ti-refresh"></i></button>
+    <div class="theme-toggle" id="themeToggle" title="สลับโหมดแสง">
+      <div class="seg" id="segLight"><i class="ti ti-sun"></i></div>
+      <div class="seg" id="segDark"><i class="ti ti-moon"></i></div>
+    </div>
+    <div class="user-chip" id="userChip" title="แตะเพื่อเปลี่ยนชื่อ">
+      <div class="avatar" id="userAvatar">?</div>
+      <div>
+        <div class="u-name" id="userNameTop">กำลังโหลด...</div>
+        <div class="u-role">Warehouse Staff</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="hero fade-in" style="animation-delay:.05s">
+  <div class="hero-row">
+    <div>
+      <div class="hero-brand">
+        <span class="logo">Knowledge<span>Base</span></span>
+        <span class="sub">คลังความรู้ Noppawong</span>
+      </div>
+      <div class="hero-tag">รวมขั้นตอน ข้อควรระวัง และเคล็ดลับการทำงานคลังไว้ที่เดียว ทุกคนในทีมเพิ่มหัวข้อเองได้และมองเห็นร่วมกัน</div>
+    </div>
+    <div class="hero-script">Share What You Know<small>open to every teammate</small></div>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><b id="statTotal">0</b><span>หัวข้อทั้งหมด</span></div>
+    <div class="hero-stat"><b id="statCats">0</b><span>หมวดหมู่</span></div>
+  </div>
+</div>
+
+<div id="errorBox" style="display:none;" class="err-box">
+  <i class="ti ti-alert-triangle"></i>
+  <span id="errorMsg">โหลดข้อมูลไม่สำเร็จ</span>
+</div>
+
+<div class="filter-row fade-in" style="animation-delay:.1s">
+  <div class="chip-scroll" id="chipScroll"></div>
+  <button class="add-btn" id="openAddBtn"><i class="ti ti-plus"></i> เพิ่มหัวข้อใหม่</button>
+</div>
+
+<div class="kb-grid" id="kbGrid">
+  <div class="card kb-card skel-card"><div class="skel-line" style="height:16px;width:60%;margin-bottom:10px;"></div><div class="skel-line" style="height:12px;width:100%;margin-bottom:6px;"></div><div class="skel-line" style="height:12px;width:80%;"></div></div>
+  <div class="card kb-card skel-card"><div class="skel-line" style="height:16px;width:50%;margin-bottom:10px;"></div><div class="skel-line" style="height:12px;width:100%;margin-bottom:6px;"></div><div class="skel-line" style="height:12px;width:70%;"></div></div>
+  <div class="card kb-card skel-card"><div class="skel-line" style="height:16px;width:65%;margin-bottom:10px;"></div><div class="skel-line" style="height:12px;width:90%;margin-bottom:6px;"></div><div class="skel-line" style="height:12px;width:75%;"></div></div>
+</div>
+
+</div>
+
+<!-- ADD TOPIC MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>เพิ่มหัวข้อความรู้ใหม่</h3>
+      <button class="modal-close" id="closeAddModal"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="field">
+      <label>หัวข้อ</label>
+      <input id="fTitle" type="text" placeholder="เช่น วิธีตรวจนับสินค้าเมื่อจำนวนไม่ตรงบิล">
+    </div>
+    <div class="field">
+      <label>หมวดหมู่</label>
+      <input id="fCategory" type="text" placeholder="เช่น ขั้นตอนงาน, ความปลอดภัย, ระบบ/ซอฟต์แวร์">
+      <div class="field-hint">สามารถพิมพ์หมวดหมู่ใหม่เองได้</div>
+    </div>
+    <div class="field">
+      <label>รายละเอียด</label>
+      <textarea id="fContent" placeholder="อธิบายขั้นตอนหรือรายละเอียดที่อยากบันทึกไว้..."></textarea>
+    </div>
+    <div class="field">
+      <label>แท็ก (คั่นด้วยจุลภาค, ไม่บังคับ)</label>
+      <input id="fTags" type="text" placeholder="เช่น รับสินค้า, GR, สต๊อก">
+      <div class="field-hint">หัวข้อนี้จะแสดงให้ทุกคนในทีมเห็นทันที (สาธารณะภายในทีม)</div>
+    </div>
+    <div class="form-err" id="formErr">กรุณากรอกหัวข้อและรายละเอียดให้ครบ</div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancelAddBtn">ยกเลิก</button>
+      <button class="btn-primary" id="saveTopicBtn"><i class="ti ti-device-floppy"></i> บันทึกหัวข้อ</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW ARTICLE MODAL -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="kb-cat" id="viewCat">หมวดหมู่</span>
+      <button class="modal-close" id="closeViewModal"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="view-title" id="viewTitle"></div>
+    <div class="view-meta">
+      <span id="viewAuthor"><i class="ti ti-user"></i></span>
+      <span id="viewDate"><i class="ti ti-calendar"></i></span>
+    </div>
+    <div class="view-body" id="viewBody"></div>
+    <div class="kb-tags" id="viewTags" style="margin-top:16px;"></div>
+    <div class="modal-actions" id="viewActions" style="display:none;">
+      <button class="btn-danger" id="deleteTopicBtn"><i class="ti ti-trash"></i> ลบหัวข้อนี้</button>
+    </div>
+  </div>
+</div>
+
+<!-- SET NAME MODAL -->
+<div class="modal-overlay" id="nameModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>ชื่อของคุณ</h3>
+      <button class="modal-close" id="closeNameModal"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="field">
+      <label>ชื่อที่จะแสดงในคลังความรู้</label>
+      <input id="fMyName" type="text" placeholder="เช่น สมชาย">
+      <div class="name-hint">ใช้แสดงเป็นผู้เขียนหัวข้อที่คุณเพิ่ม เก็บไว้ในเบราว์เซอร์นี้เท่านั้น</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="saveNameBtn"><i class="ti ti-check"></i> บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="ti ti-check"></i><span id="toastMsg">บันทึกแล้ว</span></div>
+
+<script type="module">
+/* ============ THEME (identical behavior to home.html) ============ */
+const html = document.documentElement;
+function applyThemeUI(){
+  const dark = html.getAttribute('data-theme') === 'dark';
+  document.getElementById('segLight').classList.toggle('active', !dark);
+  document.getElementById('segDark').classList.toggle('active', dark);
+}
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const dark = html.getAttribute('data-theme') === 'dark';
+  if (dark) { html.removeAttribute('data-theme'); localStorage.setItem('sf_theme','light'); }
+  else { html.setAttribute('data-theme','dark'); localStorage.setItem('sf_theme','dark'); }
+  applyThemeUI();
+});
+applyThemeUI();
+
+/* ============ helpers ============ */
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function initials(name){ const s=String(name||'?').trim(); if(!s) return '?'; const parts=s.split(/\s+/); return parts.length>1?(parts[0][0]+parts[1][0]).toUpperCase():s.slice(0,2).toUpperCase(); }
+const PALETTE = ['#3266f2','#17a668','#e08c1a','#7c5cf0','#e1483f','#2b9fc4','#f2872f'];
+function colorFor(name){ let h=0; for(let i=0;i<String(name).length;i++) h=(h*31+String(name).charCodeAt(i))>>>0; return PALETTE[h%PALETTE.length]; }
+const CAT_STYLE = {
+  'ขั้นตอนงาน':{bg:'var(--primary-soft)', fg:'var(--primary)'},
+  'ความปลอดภัย':{bg:'var(--danger-bg)', fg:'var(--danger)'},
+  'ระบบ/ซอฟต์แวร์':{bg:'var(--purple-bg)', fg:'var(--purple)'},
+  'ปัญหาที่พบบ่อย':{bg:'var(--warn-bg)', fg:'var(--warn)'},
+  'อื่นๆ':{bg:'var(--success-bg)', fg:'var(--success)'}
+};
+function toDate(v){ if(!v) return null; const d=new Date(v); return isNaN(d)?null:d; }
+function fmtDate(d){ return d ? d.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'2-digit'}) : '—'; }
+function showToast(msg){ const t=document.getElementById('toast'); document.getElementById('toastMsg').textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
+
+const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbymZBKcDkxlEbRxYHmqf40n7VaSyBK4WpPZolfxoSM2QZJBTyfXOcBwmXlhe22otV3i/exec';
+
+const POLL_INTERVAL_MS = 20000; // รีเฟรชข้อมูลอัตโนมัติทุก 20 วินาที (ไม่มี realtime แบบ Firebase)
+
+/* ============ current user (local only, no auth backend) ============ */
+let currentUser = { name: localStorage.getItem('kb_user_name') || '' };
+
+// รายชื่อ Admin ที่มีสิทธิ์ลบหัวข้อความรู้ของทุกคน
+// เปลี่ยน/เพิ่มชื่อได้ตามต้องการ
+const ADMIN_NAMES = ['System'];
+function isAdmin(){
+  return ADMIN_NAMES.some(name => String(name).trim().toLowerCase() === String(currentUser.name || '').trim().toLowerCase());
+}
+
+function renderUserChip(){
+  const name = currentUser.name || 'ยังไม่ตั้งชื่อ';
+  document.getElementById('userNameTop').textContent = name;
+  document.getElementById('userAvatar').textContent = initials(name);
+}
+renderUserChip();
+if (!currentUser.name) {
+  setTimeout(() => document.getElementById('nameModal').classList.add('open'), 300);
+}
+document.getElementById('userChip').addEventListener('click', () => {
+  document.getElementById('fMyName').value = currentUser.name || '';
+  document.getElementById('nameModal').classList.add('open');
+});
+document.getElementById('closeNameModal').addEventListener('click', () => document.getElementById('nameModal').classList.remove('open'));
+document.getElementById('saveNameBtn').addEventListener('click', () => {
+  const n = document.getElementById('fMyName').value.trim();
+  if (!n) return;
+  currentUser.name = n;
+  localStorage.setItem('kb_user_name', n);
+  renderUserChip();
+  document.getElementById('nameModal').classList.remove('open');
+});
+
+/* ============ data layer ============ */
+let allTopics = [];
+let activeCategory = 'ทั้งหมด';
+let isLoading = false;
+
+function showError(msg){
+  document.getElementById('errorMsg').textContent = msg;
+  document.getElementById('errorBox').style.display = 'flex';
+}
+function hideError(){ document.getElementById('errorBox').style.display = 'none'; }
+
+async function loadTopics(){
+
+  if (SHEETS_API_URL.includes('PASTE_YOUR')) {
+    showError('ยังไม่ได้ตั้งค่า SHEETS_API_URL — ใส่ลิงก์ Apps Script Web App ในโค้ดก่อนใช้งาน');
+    document.getElementById('kbGrid').innerHTML = '';
+    return;
+  }
+
+  if (isLoading) return;
+  isLoading = true;
+
+  const callbackName =
+    'kbCallback_' + Date.now() + '_' +
+    Math.random().toString(36).substring(2);
+
+  let script = null;
+  let timeout = null;
+
+  const cleanup = () => {
+    if (script && script.parentNode) script.parentNode.removeChild(script);
+    delete window[callbackName];
+    if (timeout) clearTimeout(timeout);
+  };
+
+  window[callbackName] = (data) => {
+    cleanup();
+
+    try {
+      if (!data) throw new Error('ไม่ได้รับข้อมูลจาก Google Sheets');
+      if (data.error) throw new Error(data.error);
+
+      allTopics = (data.topics || [])
+        .slice()
+        .sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      hideError();
+      renderChips();
+      renderGrid();
+      renderStats();
+
+    } catch (err) {
+      console.error('โหลดคลังความรู้ไม่สำเร็จ:', err);
+      showError('โหลดข้อมูลไม่สำเร็จ: ' + (err.message || 'unknown error'));
+    } finally {
+      isLoading = false;
+    }
+  };
+
+  script = document.createElement('script');
+  script.src =
+    `${SHEETS_API_URL}?action=list&callback=${encodeURIComponent(callbackName)}&_=${Date.now()}`;
+  script.async = true;
+
+  script.onerror = () => {
+    cleanup();
+    isLoading = false;
+    showError('เชื่อมต่อ Google Sheets ไม่สำเร็จ กรุณาตรวจสอบ Apps Script Web App');
+  };
+
+  document.body.appendChild(script);
+
+  timeout = setTimeout(() => {
+    cleanup();
+    isLoading = false;
+    showError('หมดเวลารอข้อมูลจาก Google Sheets');
+  }, 15000);
+}
+
+async function addTopic(topic) {
+  const payload = JSON.stringify({
+    action: 'add',
+    ...topic
+  });
+
+  await fetch(SHEETS_API_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8'
+    },
+    body: payload
+  });
+
+  return { ok: true };
+}
+
+async function deleteTopic(id) {
+  if (!isAdmin()) throw new Error('คุณไม่มีสิทธิ์ลบหัวข้อนี้');
+
+  const payload = JSON.stringify({
+    action: 'delete',
+    id: String(id),
+    requesterName: currentUser.name
+  });
+
+  await fetch(SHEETS_API_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8'
+    },
+    body: payload
+  });
+
+  return { ok: true };
+}
+
+document.getElementById('refreshBtn').addEventListener('click', () => loadTopics());
+loadTopics();
+setInterval(loadTopics, POLL_INTERVAL_MS);
+
+function renderStats(){
+  const statTotal = document.getElementById('statTotal');
+  const statCats = document.getElementById('statCats');
+
+  if (statTotal) statTotal.textContent = allTopics.length;
+  if (statCats) statCats.textContent = new Set(allTopics.map(t=>t.category||'อื่นๆ')).size;
+}
+
+function renderChips(){
+  const counts = {};
+  allTopics.forEach(t => { const c = t.category || 'อื่นๆ'; counts[c] = (counts[c]||0)+1; });
+  const cats = ['ทั้งหมด', ...Object.keys(counts)];
+  const wrap = document.getElementById('chipScroll');
+  wrap.innerHTML = cats.map(c => {
+    const n = c === 'ทั้งหมด' ? allTopics.length : counts[c];
+    return `<button class="chip ${c===activeCategory?'active':''}" data-cat="${esc(c)}">${esc(c)} <span class="cnt">${n}</span></button>`;
+  }).join('');
+  wrap.querySelectorAll('.chip').forEach(btn => {
+    btn.addEventListener('click', () => { activeCategory = btn.dataset.cat; renderChips(); renderGrid(); });
+  });
+}
+
+function renderGrid(){
+  let rows = [...allTopics];
+  if (activeCategory !== 'ทั้งหมด') rows = rows.filter(t => (t.category||'อื่นๆ') === activeCategory);
+
+  const grid = document.getElementById('kbGrid');
+  if (rows.length === 0) {
+    grid.innerHTML = `<div class="empty-kb"><i class="ti ti-notebook"></i>ยังไม่มีหัวข้อในหมวดนี้ — เริ่มเพิ่มหัวข้อแรกได้เลย</div>`;
+    return;
+  }
+
+  grid.innerHTML = rows.map((t, i) => {
+    const cat = t.category || 'อื่นๆ';
+    const style = CAT_STYLE[cat] || CAT_STYLE['อื่นๆ'];
+    const created = toDate(t.createdAt);
+    return `
+      <div class="card kb-card fade-in" style="animation-delay:${Math.min(i*0.04,0.3)}s" data-id="${esc(t.id)}">
+        <span class="kb-cat" style="background:${style.bg}; color:${style.fg};">${esc(cat)}</span>
+        <div class="kb-title">${esc(t.title)}</div>
+        <div class="kb-excerpt">${esc(t.content)}</div>
+        <div class="kb-meta">
+          <span class="m-author"><span style="width:18px;height:18px;border-radius:50%;background:${colorFor(t.authorName||'?')};color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;">${esc(initials(t.authorName))}</span>${esc(t.authorName||'ไม่ระบุ')}</span>
+          <span>${fmtDate(created)}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.kb-card').forEach(card => {
+    card.addEventListener('click', () => openView(card.dataset.id));
+  });
+}
+
+function openView(id){
+  const t = allTopics.find(x => String(x.id) === String(id));
+  if (!t) return;
+  const cat = t.category || 'อื่นๆ';
+  const style = CAT_STYLE[cat] || CAT_STYLE['อื่นๆ'];
+  const vc = document.getElementById('viewCat');
+  vc.textContent = cat; vc.style.background = style.bg; vc.style.color = style.fg;
+  document.getElementById('viewTitle').textContent = t.title;
+  document.getElementById('viewAuthor').innerHTML = `<i class="ti ti-user"></i> ${esc(t.authorName||'ไม่ระบุ')}`;
+  document.getElementById('viewDate').innerHTML = `<i class="ti ti-calendar"></i> ${fmtDate(toDate(t.createdAt))}`;
+  document.getElementById('viewBody').textContent = t.content;
+  document.getElementById('viewTags').innerHTML = (t.tags||[]).map(tag => `<span class="kb-tag">#${esc(tag)}</span>`).join('');
+
+  const viewActions = document.getElementById('viewActions');
+  if (viewActions) viewActions.style.display = isAdmin() ? 'flex' : 'none';
+
+  const deleteBtn = document.getElementById('deleteTopicBtn');
+  if (deleteBtn) {
+    deleteBtn.onclick = async () => {
+      const ok = confirm(`ยืนยันการลบหัวข้อ “${t.title}” ?\n\nการลบนี้จะลบข้อมูลออกจาก Google Sheets ด้วย`);
+      if (!ok) return;
+
+      deleteBtn.disabled = true;
+      deleteBtn.innerHTML = '<i class="ti ti-loader-2"></i> กำลังลบ...';
+
+      try {
+        await deleteTopic(t.id);
+        document.getElementById('viewModal').classList.remove('open');
+        showToast('ลบหัวข้อเรียบร้อย — กำลังรีเฟรชรายการ');
+        await new Promise(resolve => setTimeout(resolve, 800));
+        await loadTopics();
+      } catch (err) {
+        console.error('ลบหัวข้อไม่สำเร็จ:', err);
+        alert('ลบไม่สำเร็จ: ' + (err.message || 'unknown error'));
+      } finally {
+        deleteBtn.disabled = false;
+        deleteBtn.innerHTML = '<i class="ti ti-trash"></i> ลบหัวข้อนี้';
+      }
+    };
+  }
+
+  document.getElementById('viewModal').classList.add('open');
+}
+document.getElementById('closeViewModal').addEventListener('click', () => document.getElementById('viewModal').classList.remove('open'));
+document.getElementById('viewModal').addEventListener('click', (e) => { if (e.target.id==='viewModal') e.currentTarget.classList.remove('open'); });
+
+/* ============ add topic modal ============ */
+const addModal = document.getElementById('addModal');
+function openAdd(){
+  if (!currentUser.name) {
+    document.getElementById('nameModal').classList.add('open');
+    return;
+  }
+  addModal.classList.add('open'); document.getElementById('formErr').style.display='none';
+}
+function closeAdd(){
+  addModal.classList.remove('open');
+  ['fTitle','fContent','fTags'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fCategory').value = '';
+}
+document.getElementById('openAddBtn').addEventListener('click', openAdd);
+document.getElementById('closeAddModal').addEventListener('click', closeAdd);
+document.getElementById('cancelAddBtn').addEventListener('click', closeAdd);
+addModal.addEventListener('click', (e) => { if (e.target.id==='addModal') closeAdd(); });
+
+document.getElementById('saveTopicBtn').addEventListener('click', async () => {
+  const title = document.getElementById('fTitle').value.trim();
+  const content = document.getElementById('fContent').value.trim();
+  const category = document.getElementById('fCategory').value.trim() || 'อื่นๆ';
+  const tags = document.getElementById('fTags').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const errBox = document.getElementById('formErr');
+
+  if (!title || !content) { errBox.textContent = 'กรุณากรอกหัวข้อและรายละเอียดให้ครบ'; errBox.style.display = 'block'; return; }
+  errBox.style.display = 'none';
+
+  const btn = document.getElementById('saveTopicBtn');
+  btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2"></i> กำลังบันทึก...';
+  try {
+    await addTopic({
+      title, content, category, tags,
+      authorName: currentUser.name,
+      createdAt: new Date().toISOString()
+    });
+    closeAdd();
+    showToast('บันทึกหัวข้อเรียบร้อย — กำลังรีเฟรชรายการ');
+    await loadTopics();
+  } catch (err) {
+    console.error('บันทึกหัวข้อไม่สำเร็จ:', err);
+    errBox.textContent = 'บันทึกไม่สำเร็จ: ' + (err.message || 'unknown error');
+    errBox.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<i class="ti ti-device-floppy"></i> บันทึกหัวข้อ';
+  }
+});
+
+</script>
+</body>
+</html>
