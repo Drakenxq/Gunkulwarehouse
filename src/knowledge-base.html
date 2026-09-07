@@ -273,7 +273,39 @@ html[data-theme="dark"] .toast{ background:var(--surface); color:var(--ink); bor
     <div class="view-body" id="viewBody"></div>
     <div class="kb-tags" id="viewTags" style="margin-top:16px;"></div>
     <div class="modal-actions" id="viewActions" style="display:none;">
+      <button class="btn-ghost" id="editTopicBtn"><i class="ti ti-edit"></i> แก้ไข</button>
       <button class="btn-danger" id="deleteTopicBtn"><i class="ti ti-trash"></i> ลบหัวข้อนี้</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT TOPIC MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>แก้ไขหัวข้อความรู้</h3>
+      <button class="modal-close" id="closeEditModal"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="field">
+      <label>หัวข้อ</label>
+      <input id="eTitle" type="text" placeholder="หัวข้อความรู้">
+    </div>
+    <div class="field">
+      <label>หมวดหมู่</label>
+      <input id="eCategory" type="text" placeholder="เช่น ขั้นตอนงาน, ความปลอดภัย, ระบบ/ซอฟต์แวร์">
+    </div>
+    <div class="field">
+      <label>รายละเอียด</label>
+      <textarea id="eContent" placeholder="รายละเอียด"></textarea>
+    </div>
+    <div class="field">
+      <label>แท็ก (คั่นด้วยจุลภาค, ไม่บังคับ)</label>
+      <input id="eTags" type="text" placeholder="เช่น รับสินค้า, GR, สต๊อก">
+    </div>
+    <div class="form-err" id="editFormErr"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancelEditBtn">ยกเลิก</button>
+      <button class="btn-primary" id="saveEditBtn"><i class="ti ti-device-floppy"></i> บันทึกการแก้ไข</button>
     </div>
   </div>
 </div>
@@ -332,7 +364,7 @@ function showToast(msg){ const t=document.getElementById('toast'); document.getE
 
 const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbymZBKcDkxlEbRxYHmqf40n7VaSyBK4WpPZolfxoSM2QZJBTyfXOcBwmXlhe22otV3i/exec';
 
-const POLL_INTERVAL_MS = 20000; // รีเฟรชข้อมูลอัตโนมัติทุก 20 วินาที (ไม่มี realtime แบบ Firebase)
+const POLL_INTERVAL_MS = 20000;
 
 /* ============ current user (local only, no auth backend) ============ */
 let currentUser = { name: localStorage.getItem('kb_user_name') || '' };
@@ -485,6 +517,31 @@ async function deleteTopic(id) {
   return { ok: true };
 }
 
+async function updateTopic(topic) {
+  if (!isAdmin()) throw new Error('คุณไม่มีสิทธิ์แก้ไขหัวข้อนี้');
+
+  const payload = JSON.stringify({
+    action: 'update',
+    id: String(topic.id),
+    title: topic.title || '',
+    category: topic.category || 'อื่นๆ',
+    content: topic.content || '',
+    tags: Array.isArray(topic.tags) ? topic.tags : [],
+    requesterName: currentUser.name
+  });
+
+  await fetch(SHEETS_API_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8'
+    },
+    body: payload
+  });
+
+  return { ok: true };
+}
+
 document.getElementById('refreshBtn').addEventListener('click', () => loadTopics());
 loadTopics();
 setInterval(loadTopics, POLL_INTERVAL_MS);
@@ -558,6 +615,21 @@ function openView(id){
   const viewActions = document.getElementById('viewActions');
   if (viewActions) viewActions.style.display = isAdmin() ? 'flex' : 'none';
 
+  const editBtn = document.getElementById('editTopicBtn');
+  if (editBtn) {
+    editBtn.onclick = () => {
+      if (!isAdmin()) { alert('คุณไม่มีสิทธิ์แก้ไขหัวข้อนี้'); return; }
+      document.getElementById('eTitle').value = t.title || '';
+      document.getElementById('eCategory').value = t.category || 'อื่นๆ';
+      document.getElementById('eContent').value = t.content || '';
+      document.getElementById('eTags').value = Array.isArray(t.tags) ? t.tags.join(', ') : '';
+      document.getElementById('editFormErr').style.display = 'none';
+      document.getElementById('viewModal').classList.remove('open');
+      document.getElementById('editModal').classList.add('open');
+      document.getElementById('editModal').dataset.id = String(t.id);
+    };
+  }
+
   const deleteBtn = document.getElementById('deleteTopicBtn');
   if (deleteBtn) {
     deleteBtn.onclick = async () => {
@@ -587,6 +659,51 @@ function openView(id){
 }
 document.getElementById('closeViewModal').addEventListener('click', () => document.getElementById('viewModal').classList.remove('open'));
 document.getElementById('viewModal').addEventListener('click', (e) => { if (e.target.id==='viewModal') e.currentTarget.classList.remove('open'); });
+
+/* ============ edit topic modal ============ */
+const editModal = document.getElementById('editModal');
+function closeEdit(){
+  editModal.classList.remove('open');
+  editModal.dataset.id = '';
+  document.getElementById('editFormErr').style.display = 'none';
+}
+document.getElementById('closeEditModal').addEventListener('click', closeEdit);
+document.getElementById('cancelEditBtn').addEventListener('click', closeEdit);
+editModal.addEventListener('click', (e) => { if (e.target.id === 'editModal') closeEdit(); });
+
+document.getElementById('saveEditBtn').addEventListener('click', async () => {
+  if (!isAdmin()) { alert('คุณไม่มีสิทธิ์แก้ไขหัวข้อนี้'); return; }
+
+  const id = String(editModal.dataset.id || '').trim();
+  const title = document.getElementById('eTitle').value.trim();
+  const content = document.getElementById('eContent').value.trim();
+  const category = document.getElementById('eCategory').value.trim() || 'อื่นๆ';
+  const tags = document.getElementById('eTags').value.split(',').map(s => s.trim()).filter(Boolean);
+  const errBox = document.getElementById('editFormErr');
+
+  if (!id) { errBox.textContent = 'ไม่พบ ID ของหัวข้อ'; errBox.style.display = 'block'; return; }
+  if (!title || !content) { errBox.textContent = 'กรุณากรอกหัวข้อและรายละเอียดให้ครบ'; errBox.style.display = 'block'; return; }
+  errBox.style.display = 'none';
+
+  const btn = document.getElementById('saveEditBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2"></i> กำลังบันทึก...';
+
+  try {
+    await updateTopic({ id, title, content, category, tags });
+    closeEdit();
+    showToast('แก้ไขหัวข้อเรียบร้อย — กำลังรีเฟรชรายการ');
+    await new Promise(resolve => setTimeout(resolve, 800));
+    await loadTopics();
+  } catch (err) {
+    console.error('แก้ไขหัวข้อไม่สำเร็จ:', err);
+    errBox.textContent = 'แก้ไขไม่สำเร็จ: ' + (err.message || 'unknown error');
+    errBox.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-device-floppy"></i> บันทึกการแก้ไข';
+  }
+});
 
 /* ============ add topic modal ============ */
 const addModal = document.getElementById('addModal');
