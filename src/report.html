@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>คลังสินค้า · ภาพรวมการรับเข้า</title>
+<title>Warhouse · ภาพรวมการรับเข้า</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-
 :root{
   --bg:            #0A0C10;
   --surface:       #12151B;
@@ -40,6 +39,10 @@
   --ease: cubic-bezier(.22,.61,.36,1);
 }
 
+/* Light theme — same structure, warmer-neutral surfaces instead of pure
+   white, and every accent darkened a touch to hold contrast on a light
+   ground. Switched via [data-theme] on <html>, not a media query alone,
+   so the person can override the system setting. */
 :root[data-theme="light"]{
   --bg:            #F6F7F9;
   --surface:       #FFFFFF;
@@ -609,8 +612,7 @@ const charts = {};
 let firstRender = true;
 
 (function initTheme(){
-  const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-  document.documentElement.setAttribute("data-theme", prefersLight ? "light" : "dark");
+  document.documentElement.setAttribute("data-theme", "light");
 })();
 
 const THEME_COLORS = {
