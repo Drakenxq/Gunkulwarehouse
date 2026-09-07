@@ -46,8 +46,36 @@
   --ease: cubic-bezier(.22,.61,.36,1);
 }
 
+/* Light theme — same structure, warmer-neutral surfaces instead of pure
+   white, and every accent darkened a touch to hold contrast on a light
+   ground. Switched via [data-theme] on <html>, not a media query alone,
+   so the person can override the system setting. */
+:root[data-theme="light"]{
+  --bg:            #F6F7F9;
+  --surface:       #FFFFFF;
+  --surface-raised:#FFFFFF;
+  --line:          #E4E7EC;
+  --line-strong:   #CBD1DA;
+
+  --text:          #171A20;
+  --text-dim:      #565D68;
+  --muted:         #8A8F98;
+
+  --accent:        #3D6FE0;
+  --accent-tint:   rgba(61, 111, 224, 0.09);
+
+  --success:       #1E9E6C;
+  --success-tint:  rgba(30, 158, 108, 0.10);
+  --warn:          #B9791E;
+  --warn-tint:     rgba(185, 121, 30, 0.10);
+  --neutral:       #6B7280;
+  --neutral-tint:  rgba(107, 114, 128, 0.10);
+}
+
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
+html{ color-scheme: dark; }
+html[data-theme="light"]{ color-scheme: light; }
 body{
   background:var(--bg);
   color:var(--text);
@@ -56,6 +84,7 @@ body{
   line-height:1.55;
   min-height:100vh;
   -webkit-font-smoothing:antialiased;
+  transition: background-color .25s var(--ease), color .25s var(--ease);
 }
 h1,h2{font-family:var(--font-th); margin:0;}
 p{margin:0;}
@@ -100,6 +129,19 @@ body.is-ready .reveal:nth-of-type(5){ animation-delay: .34s; }
 .stamp__dot{width:6px; height:6px; border-radius:50%; background:var(--muted);}
 .stamp.ok .stamp__dot{background:var(--success); box-shadow:0 0 6px var(--success);}
 .stamp.err .stamp__dot{background:var(--warn); box-shadow:0 0 6px var(--warn);}
+
+.theme-toggle{
+  display:flex; align-items:center; justify-content:center;
+  width:32px; height:32px; border-radius:50%;
+  border:1px solid var(--line-strong); background:transparent; color:var(--text-dim);
+  cursor:pointer; transition: border-color .15s, color .15s;
+  flex-shrink:0;
+}
+.theme-toggle:hover{ border-color:var(--accent); color:var(--text); }
+.theme-toggle svg{ width:15px; height:15px; display:block; }
+.theme-toggle .icon-sun{ display:none; }
+:root[data-theme="light"] .theme-toggle .icon-moon{ display:none; }
+:root[data-theme="light"] .theme-toggle .icon-sun{ display:block; }
 
 /* ---------------- layout ---------------- */
 .wrap{max-width:1440px; margin:0 auto; padding:28px clamp(18px,4vw,48px) 60px;}
@@ -315,6 +357,10 @@ tbody tr:hover{background:var(--surface-raised);}
   </div>
   <div class="topbar__meta">
     <span class="stamp" id="syncStamp"><span class="stamp__dot"></span><span id="lastSync">กำลังโหลด…</span></span>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="สลับธีมสว่าง/มืด">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+    </button>
   </div>
 </header>
 
@@ -551,16 +597,29 @@ let sortState = { key: "date", dir: "desc" };
 const charts = {};
 let firstRender = true;
 
+// Theme: default follows the OS setting, then the toggle overrides it for
+// the session. State lives in memory only (no persistence), so it resets
+// on reload — deliberate, since this file has no storage of its own.
+(function initTheme(){
+  const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+  document.documentElement.setAttribute("data-theme", prefersLight ? "light" : "dark");
+})();
+
 // Semantic status colors: received = success, pending = "awaiting" (amber,
 // not an error red), anything else = neutral. Kept consistent across the
-// pill, the donut and the trend line.
-const COLORS = {
-  success: "#34C78A",
-  warn:    "#E3A73E",
-  accent:  "#5B8DEF",
-  neutral: "#8891A0"
+// pill, the donut and the trend line — and re-read per theme so charts
+// stay legible on both a dark and a light ground.
+const THEME_COLORS = {
+  dark:  { success:"#34C78A", warn:"#E3A73E", accent:"#5B8DEF", neutral:"#8891A0", grid:"#1E232C", tick:"#ABB2BE", surfaceBorder:"#12151B" },
+  light: { success:"#1E9E6C", warn:"#B9791E", accent:"#3D6FE0", neutral:"#6B7280", grid:"#E4E7EC", tick:"#565D68", surfaceBorder:"#FFFFFF" }
 };
-const PALETTE = ["#5B8DEF", "#34C78A", "#E3A73E", "#8891A0", "#8B7CF0", "#E0729A", "#4FB8C4", "#C9A15A"];
+const THEME_PALETTE = {
+  dark:  ["#5B8DEF", "#34C78A", "#E3A73E", "#8891A0", "#8B7CF0", "#E0729A", "#4FB8C4", "#C9A15A"],
+  light: ["#3D6FE0", "#1E9E6C", "#B9791E", "#6B7280", "#7A5AF8", "#C2447A", "#0E8FA0", "#A9822E"]
+};
+function currentTheme(){ return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark"; }
+function COLORS(){ return THEME_COLORS[currentTheme()]; }
+function PALETTE(){ return THEME_PALETTE[currentTheme()]; }
 
 function toDateSafe(v){
   if(!v) return null;
@@ -770,13 +829,14 @@ function renderKpis(){
   document.getElementById("kpiPendingPct").textContent = total ? `${Math.round(pending/total*100)}% ของทั้งหมด` : "0% ของทั้งหมด";
 }
 
-Chart.defaults.color = "#ABB2BE";
+Chart.defaults.color = COLORS().tick;
 Chart.defaults.font.family = "'IBM Plex Sans Thai', sans-serif";
 Chart.defaults.font.size = 11.5;
 
 function destroy(name){ if(charts[name]){ charts[name].destroy(); delete charts[name]; } }
 
 function renderCharts(){
+  Chart.defaults.color = COLORS().tick;
   renderTrendChart();
   renderStatusChart();
   renderTopChart("chartItems", topItemsData());
@@ -803,6 +863,7 @@ function renderTrendChart(){
     : "–";
 
   const animDuration = firstRender ? 700 : 300;
+  const c = COLORS();
 
   destroy("trend");
   charts.trend = new Chart(document.getElementById("chartTrend"), {
@@ -810,9 +871,9 @@ function renderTrendChart(){
     data: {
       labels,
       datasets: [
-        { label:"รับแล้ว", data: keys.map(k=>byMonth.get(k).received), borderColor: COLORS.success, backgroundColor: 'rgba(52, 199, 138, 0.08)', fill: true, tension: 0.35, borderWidth: 2.5, pointRadius:0, pointHoverRadius:4 },
-        { label:"รอรับสินค้า", data: keys.map(k=>byMonth.get(k).pending), borderColor: COLORS.warn, backgroundColor: 'rgba(227, 167, 62, 0.06)', fill: true, tension: 0.35, borderWidth: 2.5, pointRadius:0, pointHoverRadius:4 },
-        { label:"อื่นๆ", data: keys.map(k=>byMonth.get(k).other), borderColor: COLORS.neutral, backgroundColor: 'transparent', fill: false, tension: 0.35, borderWidth: 1.5, borderDash:[3,3], pointRadius:0, pointHoverRadius:4 }
+        { label:"รับแล้ว", data: keys.map(k=>byMonth.get(k).received), borderColor: c.success, backgroundColor: hexToRgba(c.success, 0.08), fill: true, tension: 0.35, borderWidth: 2.5, pointRadius:0, pointHoverRadius:4 },
+        { label:"รอรับสินค้า", data: keys.map(k=>byMonth.get(k).pending), borderColor: c.warn, backgroundColor: hexToRgba(c.warn, 0.06), fill: true, tension: 0.35, borderWidth: 2.5, pointRadius:0, pointHoverRadius:4 },
+        { label:"อื่นๆ", data: keys.map(k=>byMonth.get(k).other), borderColor: c.neutral, backgroundColor: 'transparent', fill: false, tension: 0.35, borderWidth: 1.5, borderDash:[3,3], pointRadius:0, pointHoverRadius:4 }
       ]
     },
     options: {
@@ -820,12 +881,17 @@ function renderTrendChart(){
       animation: { duration: animDuration, easing: 'easeOutCubic' },
       interaction: { mode:'index', intersect:false },
       scales:{
-        x:{ grid:{ color:"#1E232C" }, border:{ display:false } },
-        y:{ beginAtZero:true, ticks:{ precision:0 }, grid:{ color:"#1E232C" }, border:{ display:false } }
+        x:{ grid:{ color:c.grid }, border:{ display:false } },
+        y:{ beginAtZero:true, ticks:{ precision:0 }, grid:{ color:c.grid }, border:{ display:false } }
       },
       plugins:{ legend:{ position:"top", align:"end", labels:{ boxWidth:8, boxHeight:8, usePointStyle:true, padding:18 } } }
     }
   });
+}
+function hexToRgba(hex, alpha){
+  const h = hex.replace("#","");
+  const r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
+  return `rgba(${r},${g},${b},${alpha})`;
 }
 
 function renderStatusChart(){
@@ -833,11 +899,12 @@ function renderStatusChart(){
   FILTERED.forEach(r => { const s = r.status || "ไม่ระบุ"; counts[s] = (counts[s]||0)+1; });
   const labels = Object.keys(counts);
   const data = labels.map(l => counts[l]);
+  const c = COLORS();
   const colorFor = (label) => {
     const s = label.toLowerCase();
-    if(s === "received") return COLORS.success;
-    if(s === "pending") return COLORS.warn;
-    return COLORS.neutral;
+    if(s === "received") return c.success;
+    if(s === "pending") return c.warn;
+    return c.neutral;
   };
   const colors = labels.map(colorFor);
 
@@ -854,7 +921,7 @@ function renderStatusChart(){
   destroy("status");
   charts.status = new Chart(document.getElementById("chartStatus"), {
     type:"doughnut",
-    data:{ labels: displayLabels, datasets:[{ data, backgroundColor:colors, borderColor:"#12151B", borderWidth:3 }] },
+    data:{ labels: displayLabels, datasets:[{ data, backgroundColor:colors, borderColor:c.surfaceBorder, borderWidth:3 }] },
     options:{ responsive:true, maintainAspectRatio:false, cutout:"78%", plugins:{ legend:{ display:false } } }
   });
 
@@ -894,15 +961,16 @@ function renderTopChart(canvasId, pairs){
   const labels = pairs.map(p => p[0].length > 22 ? p[0].slice(0,20)+"…" : p[0]);
   const data = pairs.map(p => p[1]);
   const animDuration = firstRender ? 600 : 250;
+  const c = COLORS();
   destroy(canvasId);
   charts[canvasId] = new Chart(document.getElementById(canvasId), {
     type:"bar",
-    data:{ labels, datasets:[{ data, backgroundColor: PALETTE, borderRadius:4, maxBarThickness:14 }] },
+    data:{ labels, datasets:[{ data, backgroundColor: PALETTE(), borderRadius:4, maxBarThickness:14 }] },
     options:{
       indexAxis:"y", responsive:true, maintainAspectRatio:false,
       animation: { duration: animDuration, easing: 'easeOutCubic' },
       scales:{
-        x:{ beginAtZero:true, ticks:{ precision:0 }, grid:{ color:"#1E232C" }, border:{ display:false } },
+        x:{ beginAtZero:true, ticks:{ precision:0 }, grid:{ color:c.grid }, border:{ display:false } },
         y:{ grid:{ display:false }, border:{ display:false } }
       },
       plugins:{ legend:{ display:false } }
@@ -998,6 +1066,12 @@ function openModal(id){
 document.getElementById("modalClose").addEventListener("click", () => modal.classList.remove("is-open"));
 document.getElementById("modalBackdrop").addEventListener("click", () => modal.classList.remove("is-open"));
 document.addEventListener("keydown", (e) => { if(e.key === "Escape") modal.classList.remove("is-open"); });
+
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const next = currentTheme() === "light" ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", next);
+  if(RAW.length) renderCharts();
+});
 </script>
 </body>
 </html>
