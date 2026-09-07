@@ -250,7 +250,6 @@ footer .logo{color:#fff}.footer-desc{color:rgba(255,255,255,.55);font-size:12px;
       <a href="#overview">ภาพรวม</a>
       <a href="#business">การดำเนินงาน</a>
       <a href="#recent">ข้อมูลล่าสุด</a>
-      <a href="#contact">ติดต่อ</a>
     </nav>
     <div class="header-actions">
       <span class="lang">TH / EN</span>
@@ -399,7 +398,7 @@ footer .logo{color:#fff}.footer-desc{color:rgba(255,255,255,.55);font-size:12px;
 </section>
 </main>
 
-<footer id="contact">
+<footer>
   <div class="container">
     <div class="footer-grid">
       <div>
@@ -603,8 +602,8 @@ $('menuBtn').onclick=()=>{
   if(existing){existing.remove();return}
   const p=document.createElement('div');p.className='mobile-panel';
   p.style.cssText='display:flex;position:absolute;top:76px;left:14px;right:14px;background:#fff;border:1px solid #e5ebef;border-radius:18px;padding:12px;box-shadow:0 20px 50px rgba(8,32,54,.15);flex-direction:column';
-  ['หน้าหลัก','ภาพรวม','การดำเนินงาน','ข้อมูลล่าสุด','ติดต่อ'].forEach((t,i)=>{
-    const a=document.createElement('a');a.href=['#home','#overview','#business','#recent','#contact'][i];a.textContent=t;
+  ['หน้าหลัก','ภาพรวม','การดำเนินงาน','ข้อมูลล่าสุด'].forEach((t,i)=>{
+    const a=document.createElement('a');a.href=['#home','#overview','#business','#recent'][i];a.textContent=t;
     a.style.cssText='padding:12px;font-size:13px;font-weight:600';a.onclick=()=>p.remove();p.appendChild(a);
   });
   document.body.appendChild(p);
