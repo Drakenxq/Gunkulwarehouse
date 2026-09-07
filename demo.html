@@ -101,6 +101,7 @@ button{font-family:inherit;}
 .chip.active{ background:var(--primary); color:#fff; border-color:var(--primary); }
 .add-btn{ display:flex; align-items:center; gap:8px; background:var(--primary); color:#fff; border:none; border-radius:12px; padding:11px 18px; font-size:13px; font-weight:700; cursor:pointer; box-shadow:var(--shadow-sm); flex-shrink:0; transition:transform .15s ease, background .2s ease; }
 .add-btn:hover{ background:var(--primary-dark); transform:translateY(-1px); }
+.refresh-btn{ display:flex; align-items:center; gap:6px; }
 
 /* article grid */
 .kb-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:22px; }
@@ -152,6 +153,9 @@ html[data-theme="dark"] .toast{ background:var(--surface); color:var(--ink); bor
 
 .err-box{ display:flex; align-items:center; gap:10px; background:var(--danger-bg); color:var(--danger); border-radius:12px; padding:12px 14px; font-size:12.5px; font-weight:600; margin-bottom:16px; }
 
+/* set-name modal */
+.name-hint{ font-size:11.5px; color:var(--ink-faint); margin-top:4px; }
+
 @media (max-width:1080px){ .kb-grid{ grid-template-columns:repeat(2,1fr); } }
 @media (max-width:720px){ body{ padding:16px 14px 32px; } .hero{ padding:24px 20px; } .hero-brand .logo{ font-size:32px; } .hero-script{ display:none; } }
 @media (max-width:560px){ .kb-grid{ grid-template-columns:1fr; } .search-box{ display:none; } }
@@ -166,12 +170,13 @@ html[data-theme="dark"] .toast{ background:var(--surface); color:var(--ink); bor
     <input id="searchInput" type="text" placeholder="ค้นหาหัวข้อ, แท็ก, เนื้อหา...">
   </div>
   <div class="topbar-actions">
+    <button class="icon-btn refresh-btn" id="refreshBtn" title="รีเฟรชข้อมูล"><i class="ti ti-refresh"></i></button>
     <div class="theme-toggle" id="themeToggle" title="สลับโหมดแสง">
       <div class="seg" id="segLight"><i class="ti ti-sun"></i></div>
       <div class="seg" id="segDark"><i class="ti ti-moon"></i></div>
     </div>
     <a class="icon-btn" href="home.html" title="กลับหน้าแดชบอร์ด"><i class="ti ti-arrow-left"></i></a>
-    <div class="user-chip">
+    <div class="user-chip" id="userChip" title="แตะเพื่อเปลี่ยนชื่อ">
       <div class="avatar" id="userAvatar">?</div>
       <div>
         <div class="u-name" id="userNameTop">กำลังโหลด...</div>
@@ -188,7 +193,7 @@ html[data-theme="dark"] .toast{ background:var(--surface); color:var(--ink); bor
         <span class="logo">Knowledge<span>Base</span></span>
         <span class="sub">คลังความรู้ Noppawong</span>
       </div>
-      <div class="hero-tag">รวมขั้นตอน ข้อควรระวัง และเคล็ดลับการทำงานคลังไว้ที่เดียว ทุกคนในทีมเพิ่มหัวข้อเองได้และมองเห็นร่วมกันแบบเรียลไทม์</div>
+      <div class="hero-tag">รวมขั้นตอน ข้อควรระวัง และเคล็ดลับการทำงานคลังไว้ที่เดียว ทุกคนในทีมเพิ่มหัวข้อเองได้และมองเห็นร่วมกัน</div>
     </div>
     <div class="hero-script">Share What You Know<small>open to every teammate</small></div>
   </div>
@@ -272,6 +277,24 @@ html[data-theme="dark"] .toast{ background:var(--surface); color:var(--ink); bor
   </div>
 </div>
 
+<!-- SET NAME MODAL -->
+<div class="modal-overlay" id="nameModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>ชื่อของคุณ</h3>
+      <button class="modal-close" id="closeNameModal"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="field">
+      <label>ชื่อที่จะแสดงในคลังความรู้</label>
+      <input id="fMyName" type="text" placeholder="เช่น สมชาย">
+      <div class="name-hint">ใช้แสดงเป็นผู้เขียนหัวข้อที่คุณเพิ่ม เก็บไว้ในเบราว์เซอร์นี้เท่านั้น</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="saveNameBtn"><i class="ti ti-check"></i> บันทึก</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"><i class="ti ti-check"></i><span id="toastMsg">บันทึกแล้ว</span></div>
 
 <script type="module">
@@ -302,66 +325,101 @@ const CAT_STYLE = {
   'ปัญหาที่พบบ่อย':{bg:'var(--warn-bg)', fg:'var(--warn)'},
   'อื่นๆ':{bg:'var(--success-bg)', fg:'var(--success)'}
 };
-function toDate(v){ if(!v) return null; if(v.toDate){ try{ return v.toDate(); }catch(e){} } const d=new Date(v); return isNaN(d)?null:d; }
+function toDate(v){ if(!v) return null; const d=new Date(v); return isNaN(d)?null:d; }
 function fmtDate(d){ return d ? d.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'2-digit'}) : '—'; }
 function showToast(msg){ const t=document.getElementById('toast'); document.getElementById('toastMsg').textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
 
-/* ============ FIREBASE — same project as home.html ============ */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import {
-  getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+/* ============================================================
+   GOOGLE SHEETS BACKEND
+   ------------------------------------------------------------
+   ข้อมูลหัวข้อความรู้ทั้งหมดเก็บใน Google Sheet โดยเชื่อมผ่าน
+   Google Apps Script ที่ deploy เป็น Web App (ทำหน้าที่เป็น API
+   เล็กๆ ให้หน้านี้เรียก GET เพื่ออ่านและ POST เพื่อเพิ่มหัวข้อ)
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAkPFzgT7hLAxPVI129F-vRzA65MIx2VIs",
-  authDomain: "gunkul-my-task-system.firebaseapp.com",
-  projectId: "gunkul-my-task-system",
-  storageBucket: "gunkul-my-task-system.firebasestorage.app",
-  messagingSenderId: "877006770872",
-  appId: "1:877006770872:web:ec56ec0089512899811a4d"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+   ตั้งค่าตามขั้นตอนในคำตอบแชทที่มาพร้อมไฟล์นี้ แล้วนำ URL ของ
+   Web App มาใส่ในตัวแปร SHEETS_API_URL ด้านล่าง
+   ============================================================ */
+const SHEETS_API_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
 
-/* NOTE ON STORAGE: topics are saved to a new public Firestore collection
-   "knowledge_base" in the same project used by the rest of the site.
-   See the recommended security rules in the chat answer that shipped this file. */
-const KB_COLLECTION = 'knowledge_base';
+const POLL_INTERVAL_MS = 20000; // รีเฟรชข้อมูลอัตโนมัติทุก 20 วินาที (ไม่มี realtime แบบ Firebase)
 
-let currentUser = { uid:null, name:'ผู้ใช้งาน' };
-onAuthStateChanged(auth, async (user) => {
-  let displayName = 'ผู้ใช้งาน';
-  if (user) {
-    displayName = user.displayName || (user.email ? user.email.split('@')[0] : displayName);
-    try {
-      const snap = await getDoc(doc(db,'users',user.uid));
-      if (snap.exists() && snap.data().name) displayName = snap.data().name;
-    } catch(e){ /* ใช้ค่า fallback */ }
-    currentUser = { uid:user.uid, name:displayName };
-  }
-  document.getElementById('userNameTop').textContent = displayName;
-  document.getElementById('userAvatar').textContent = initials(displayName);
+/* ============ current user (local only, no auth backend) ============ */
+let currentUser = { name: localStorage.getItem('kb_user_name') || '' };
+
+function renderUserChip(){
+  const name = currentUser.name || 'ยังไม่ตั้งชื่อ';
+  document.getElementById('userNameTop').textContent = name;
+  document.getElementById('userAvatar').textContent = initials(name);
+}
+renderUserChip();
+if (!currentUser.name) {
+  setTimeout(() => document.getElementById('nameModal').classList.add('open'), 300);
+}
+document.getElementById('userChip').addEventListener('click', () => {
+  document.getElementById('fMyName').value = currentUser.name || '';
+  document.getElementById('nameModal').classList.add('open');
+});
+document.getElementById('closeNameModal').addEventListener('click', () => document.getElementById('nameModal').classList.remove('open'));
+document.getElementById('saveNameBtn').addEventListener('click', () => {
+  const n = document.getElementById('fMyName').value.trim();
+  if (!n) return;
+  currentUser.name = n;
+  localStorage.setItem('kb_user_name', n);
+  renderUserChip();
+  document.getElementById('nameModal').classList.remove('open');
 });
 
+/* ============ data layer ============ */
 let allTopics = [];
 let activeCategory = 'ทั้งหมด';
+let isLoading = false;
 
-const kbBase = collection(db, KB_COLLECTION);
-const kbQuery = query(kbBase, orderBy('createdAt','desc'));
-onSnapshot(kbQuery, (snap) => {
-  document.getElementById('errorBox').style.display = 'none';
-  allTopics = snap.docs.map(d => ({ id:d.id, ...d.data() }));
-  renderChips();
-  renderGrid();
-  renderStats();
-}, (err) => {
-  console.error('โหลดคลังความรู้ไม่สำเร็จ:', err);
-  document.getElementById('errorMsg').textContent = 'โหลดข้อมูลไม่สำเร็จ: ' + (err.message || 'unknown error');
+function showError(msg){
+  document.getElementById('errorMsg').textContent = msg;
   document.getElementById('errorBox').style.display = 'flex';
-  document.getElementById('kbGrid').innerHTML = '';
-});
+}
+function hideError(){ document.getElementById('errorBox').style.display = 'none'; }
+
+async function loadTopics(){
+  if (SHEETS_API_URL.includes('PASTE_YOUR')) {
+    showError('ยังไม่ได้ตั้งค่า SHEETS_API_URL — ใส่ลิงก์ Apps Script Web App ในโค้ดก่อนใช้งาน');
+    document.getElementById('kbGrid').innerHTML = '';
+    return;
+  }
+  if (isLoading) return;
+  isLoading = true;
+  try {
+    const res = await fetch(`${SHEETS_API_URL}?action=list`, { method: 'GET' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    allTopics = (data.topics || []).slice().sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    hideError();
+    renderChips();
+    renderGrid();
+    renderStats();
+  } catch (err) {
+    console.error('โหลดคลังความรู้ไม่สำเร็จ:', err);
+    showError('โหลดข้อมูลไม่สำเร็จ: ' + (err.message || 'unknown error'));
+  } finally {
+    isLoading = false;
+  }
+}
+
+async function addTopic(topic){
+  const res = await fetch(SHEETS_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoids CORS preflight on Apps Script
+    body: JSON.stringify({ action: 'add', ...topic })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+document.getElementById('refreshBtn').addEventListener('click', () => loadTopics());
+loadTopics();
+setInterval(loadTopics, POLL_INTERVAL_MS);
 
 function renderStats(){
   document.getElementById('statTotal').textContent = allTopics.length;
@@ -426,7 +484,7 @@ function renderGrid(){
 }
 
 function openView(id){
-  const t = allTopics.find(x => x.id === id);
+  const t = allTopics.find(x => String(x.id) === String(id));
   if (!t) return;
   const cat = t.category || 'อื่นๆ';
   const style = CAT_STYLE[cat] || CAT_STYLE['อื่นๆ'];
@@ -444,7 +502,13 @@ document.getElementById('viewModal').addEventListener('click', (e) => { if (e.ta
 
 /* ============ add topic modal ============ */
 const addModal = document.getElementById('addModal');
-function openAdd(){ addModal.classList.add('open'); document.getElementById('formErr').style.display='none'; }
+function openAdd(){
+  if (!currentUser.name) {
+    document.getElementById('nameModal').classList.add('open');
+    return;
+  }
+  addModal.classList.add('open'); document.getElementById('formErr').style.display='none';
+}
 function closeAdd(){
   addModal.classList.remove('open');
   ['fTitle','fContent','fTags'].forEach(id => document.getElementById(id).value = '');
@@ -462,20 +526,20 @@ document.getElementById('saveTopicBtn').addEventListener('click', async () => {
   const tags = document.getElementById('fTags').value.split(',').map(s=>s.trim()).filter(Boolean);
   const errBox = document.getElementById('formErr');
 
-  if (!title || !content) { errBox.style.display = 'block'; return; }
+  if (!title || !content) { errBox.textContent = 'กรุณากรอกหัวข้อและรายละเอียดให้ครบ'; errBox.style.display = 'block'; return; }
   errBox.style.display = 'none';
 
   const btn = document.getElementById('saveTopicBtn');
   btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2"></i> กำลังบันทึก...';
   try {
-    await addDoc(kbBase, {
+    await addTopic({
       title, content, category, tags,
       authorName: currentUser.name,
-      authorUid: currentUser.uid,
-      createdAt: serverTimestamp()
+      createdAt: new Date().toISOString()
     });
     closeAdd();
-    showToast('บันทึกหัวข้อเรียบร้อย — ทุกคนในทีมมองเห็นแล้ว');
+    showToast('บันทึกหัวข้อเรียบร้อย — กำลังรีเฟรชรายการ');
+    await loadTopics();
   } catch (err) {
     console.error('บันทึกหัวข้อไม่สำเร็จ:', err);
     errBox.textContent = 'บันทึกไม่สำเร็จ: ' + (err.message || 'unknown error');
