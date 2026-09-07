@@ -3,250 +3,316 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>คลังความรู้ | Knowledge Base</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+<title>Noppawong — คลังความรู้ (Knowledge Base)</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Caveat:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<script>
+  (function(){
+    var saved = localStorage.getItem('sf_theme');
+    if (saved === 'dark') document.documentElement.setAttribute('data-theme','dark');
+  })();
+</script>
+
 <style>
+/* ====== identical design tokens to home.html — keep in sync if the brand theme changes ====== */
 :root{
-  --bg:#0B1017;
-  --surface:#141B26;
-  --surface-2:#1B2431;
-  --surface-3:#222D3C;
-  --line:#2C3A4B;
-  --line-bright:#3D5266;
-  --gold:#F0A83C;
-  --gold-dim:#4A3A1F;
-  --teal:#2FC7B0;
-  --teal-dim:#1B3D38;
-  --slate:#7C93AE;
-  --slate-dim:#2A3644;
-  --blue:#5B8FD1;
-  --blue-dim:#20304A;
-  --vacant:#E2794F;
-  --vacant-dim:#3E2A20;
-  --danger:#E2554F;
-  --text:#E9EEF4;
-  --text-dim:#8A97AA;
-  --text-faint:#57677D;
-  --radius:10px;
+  --bg:#eef3fb; --bg-soft:#e4ecf9; --surface:#ffffff; --surface-alt:#f4f7fd;
+  --border:rgba(22,33,61,0.08); --border-strong:rgba(22,33,61,0.14);
+  --ink:#16213d; --ink-soft:#647089; --ink-faint:#9aa4ba;
+  --primary:#3266f2; --primary-dark:#1c3fae; --primary-soft:rgba(50,102,242,0.12);
+  --success:#17a668; --success-bg:rgba(23,166,104,0.12);
+  --warn:#e08c1a; --warn-bg:rgba(224,140,26,0.13);
+  --danger:#e1483f; --danger-bg:rgba(225,72,63,0.12);
+  --purple:#7c5cf0; --purple-bg:rgba(124,92,240,0.12);
+  --orange:#f2872f; --orange-bg:rgba(242,135,47,0.12);
+  --shadow: 0 20px 44px -26px rgba(22,33,61,0.28), 0 2px 8px rgba(22,33,61,0.05);
+  --shadow-sm: 0 8px 20px -13px rgba(22,33,61,0.2);
+  --r-lg:22px; --r-md:16px; --r-sm:10px;
+  --font-ui:'Plus Jakarta Sans','IBM Plex Sans Thai',sans-serif;
+  --font-script:'Caveat',cursive;
+  --font-mono:'Share Tech Mono',monospace;
+}
+html[data-theme="dark"]{
+  --bg:#0f1420; --bg-soft:#0b0f18; --surface:#161c2b; --surface-alt:#1c2333;
+  --border:rgba(255,255,255,0.08); --border-strong:rgba(255,255,255,0.14);
+  --ink:#eef1f8; --ink-soft:#98a2ba; --ink-faint:#616d87;
+  --primary:#5680ff; --primary-dark:#3a5fe0; --primary-soft:rgba(86,128,255,0.18);
+  --success:#2fcf8e; --success-bg:rgba(47,207,142,0.15);
+  --warn:#f0a53d; --warn-bg:rgba(240,165,61,0.15);
+  --danger:#f0665c; --danger-bg:rgba(240,102,92,0.16);
+  --purple:#9c85f8; --purple-bg:rgba(156,133,248,0.16);
+  --orange:#f5994f; --orange-bg:rgba(245,153,79,0.16);
+  --shadow: 0 24px 50px -24px rgba(0,0,0,0.65), 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-sm: 0 10px 22px -14px rgba(0,0,0,0.5);
 }
 *{box-sizing:border-box;}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;min-height:100vh;}
-::selection{background:var(--gold);color:#1a1200;}
-@media (prefers-reduced-motion: reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important;}}
+html,body{margin:0;padding:0;}
+body{ background:var(--bg); color:var(--ink); font-family:var(--font-ui); padding:22px 26px 46px; min-height:100vh; transition:background .35s ease, color .35s ease; }
+button{font-family:inherit;}
+::selection{background:var(--primary); color:#fff;}
+.wrap{max-width:1180px; margin:0 auto;}
+@media (prefers-reduced-motion: reduce){ *{animation-duration:.01ms !important; transition-duration:.01ms !important;} }
 
-.page{max-width:1280px;margin:0 auto;padding:40px 32px 90px;}
-.eyebrow{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gold);letter-spacing:.04em;margin-bottom:10px;font-weight:500;}
-.eyebrow svg{width:15px;height:15px;stroke:var(--gold);}
-h1{font-family:'Kanit',sans-serif;font-weight:700;font-size:34px;margin:0 0 12px;color:var(--text);letter-spacing:.01em;}
-.lede{color:var(--text-dim);font-size:15px;line-height:1.7;max-width:760px;margin:0 0 26px;}
-.lede b{color:var(--text);font-weight:600;}
+.card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--shadow-sm); transition:background .35s ease, border-color .35s ease, box-shadow .2s ease, transform .2s ease; }
+.fade-in{opacity:0; animation:fadeIn .5s ease forwards;}
+@keyframes fadeIn{to{opacity:1;}}
 
-.toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px;}
-.search-wrap{position:relative;flex:1;min-width:240px;max-width:420px;}
-.search-wrap svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--text-faint);pointer-events:none;}
-#search{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);color:var(--text);font-family:'Sarabun',sans-serif;font-size:14px;padding:11px 14px 11px 38px;outline:none;transition:border-color .15s;}
-#search:focus{border-color:var(--gold);}
-#search::placeholder{color:var(--text-faint);}
-.btn{display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--line);color:var(--text);font-family:'Sarabun',sans-serif;font-size:13.5px;font-weight:500;padding:10px 15px;border-radius:var(--radius);cursor:pointer;transition:border-color .15s, background .15s, transform .15s;white-space:nowrap;}
-.btn svg{width:15px;height:15px;stroke:currentColor;flex-shrink:0;}
-.btn:hover{border-color:var(--line-bright);background:var(--surface-2);}
-.btn.primary{background:var(--gold);border-color:var(--gold);color:#1a1200;}
-.btn.primary:hover{background:#f5b658;transform:translateY(-1px);}
-.btn.ghost-danger{color:var(--danger);}
-.btn.ghost-danger:hover{border-color:var(--danger);}
+/* topbar (same as home.html) */
+.topbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px; }
+.search-box{ display:flex; align-items:center; gap:9px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:11px 16px; flex:1; max-width:420px; box-shadow:var(--shadow-sm); }
+.search-box input{ border:none; outline:none; background:transparent; font-size:13.5px; color:var(--ink); font-family:inherit; width:100%; }
+.search-box i{ color:var(--ink-faint); font-size:17px; }
+.topbar-actions{ display:flex; align-items:center; gap:12px; }
+.icon-btn{ width:42px; height:42px; border-radius:13px; border:1px solid var(--border); background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-soft); box-shadow:var(--shadow-sm); transition:transform .15s ease, color .2s ease, border-color .2s ease; }
+.icon-btn:hover{ color:var(--primary); transform:translateY(-1px); border-color:var(--primary-soft); }
+.theme-toggle{ display:flex; align-items:center; gap:5px; padding:5px; border-radius:999px; background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-sm); cursor:pointer; }
+.theme-toggle .seg{ width:28px; height:28px; border-radius:999px; display:flex; align-items:center; justify-content:center; color:var(--ink-faint); font-size:13px; }
+.theme-toggle .seg.active{ background:var(--primary); color:#fff; }
+.user-chip{ display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:6px 14px 6px 6px; box-shadow:var(--shadow-sm); cursor:pointer; }
+.avatar{ width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; }
+.user-chip .u-name{ font-size:13px; font-weight:700; line-height:1.25; }
+.user-chip .u-role{ font-size:10.5px; color:var(--ink-faint); font-weight:600; }
 
-.hint-bar{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:var(--radius);padding:13px 16px;font-size:13.5px;color:var(--text-dim);margin-bottom:22px;line-height:1.6;}
-.hint-bar svg{width:16px;height:16px;stroke:var(--teal);flex-shrink:0;margin-top:1px;}
-.hint-bar b{color:var(--text);font-weight:600;}
+/* hero */
+.hero{ position:relative; overflow:hidden; border-radius:var(--r-lg); margin-bottom:20px;
+  background: radial-gradient(120% 160% at 100% 0%, rgba(255,255,255,0.14), transparent 55%), linear-gradient(120deg, var(--primary-dark) 0%, var(--primary) 55%, #4b7bf5 100%);
+  padding:34px 34px 30px; color:#fff; box-shadow:var(--shadow); }
+.hero::before{ content:""; position:absolute; inset:0; opacity:.5; pointer-events:none; background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 42px); }
+.hero::after{ content:""; position:absolute; right:-70px; top:-90px; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,0.16), transparent 70%); }
+.hero-row{ position:relative; z-index:1; display:flex; align-items:flex-start; justify-content:space-between; gap:18px; flex-wrap:wrap; }
+.hero-brand{ display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+.hero-brand .logo{ font-size:40px; font-weight:800; letter-spacing:-1px; line-height:1; }
+.hero-brand .logo span{ color:#ffe4b8; }
+.hero-brand .sub{ font-size:15px; font-weight:600; color:rgba(255,255,255,0.82); }
+.hero-tag{ font-size:13.5px; color:rgba(255,255,255,0.86); margin-top:9px; font-weight:500; max-width:520px; }
+.hero-script{ font-family:var(--font-script); font-size:22px; color:#ffe4b8; transform:rotate(-4deg); white-space:nowrap; text-align:right; }
+.hero-script small{ display:block; font-family:var(--font-ui); font-size:9.5px; letter-spacing:1px; color:rgba(255,255,255,0.6); font-weight:700; text-transform:uppercase; transform:none; margin-top:2px; }
+.hero-stats{ position:relative; z-index:1; display:flex; gap:26px; margin-top:22px; flex-wrap:wrap; }
+.hero-stat b{ display:block; font-family:var(--font-mono); font-size:22px; font-weight:700; }
+.hero-stat span{ font-size:11px; color:rgba(255,255,255,0.78); font-weight:600; }
 
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px;}
-.chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);color:var(--text-dim);font-size:12.5px;font-weight:500;padding:7px 13px;border-radius:999px;cursor:pointer;transition:border-color .15s,color .15s,background .15s;}
-.chip .dot{width:7px;height:7px;border-radius:50%;background:var(--slate);}
-.chip:hover{border-color:var(--line-bright);color:var(--text);}
-.chip.active{background:var(--surface-3);border-color:var(--gold);color:var(--text);}
-.chip .count{color:var(--text-faint);font-size:11px;}
+/* filter row */
+.filter-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:16px; flex-wrap:wrap; }
+.chip-scroll{ display:flex; gap:8px; overflow-x:auto; padding-bottom:2px; }
+.chip{ border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); font-size:12px; font-weight:700; padding:8px 14px; border-radius:999px; cursor:pointer; white-space:nowrap; transition:.2s; box-shadow:var(--shadow-sm); display:flex; align-items:center; gap:6px; }
+.chip .cnt{ font-family:var(--font-mono); font-size:10.5px; opacity:.7; }
+.chip.active{ background:var(--primary); color:#fff; border-color:var(--primary); }
+.add-btn{ display:flex; align-items:center; gap:8px; background:var(--primary); color:#fff; border:none; border-radius:12px; padding:11px 18px; font-size:13px; font-weight:700; cursor:pointer; box-shadow:var(--shadow-sm); flex-shrink:0; transition:transform .15s ease, background .2s ease; }
+.add-btn:hover{ background:var(--primary-dark); transform:translateY(-1px); }
 
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
-.card{
-  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);
-  border-left:3px solid var(--slate);overflow:hidden;transition:border-color .15s;
-  opacity:0;transform:translateY(10px);animation:cardIn .45s cubic-bezier(.16,1,.3,1) forwards;
-}
-@keyframes cardIn{to{opacity:1;transform:translateY(0);}}
-.card:hover{border-color:var(--line-bright);}
-.card.hidden{display:none;}
-.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:16px 16px 10px;cursor:pointer;}
-.card-head-main{min-width:0;flex:1;}
-.card-cat{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text-faint);margin-bottom:7px;font-weight:500;}
-.card-cat .dot{width:7px;height:7px;border-radius:50%;background:var(--slate);flex-shrink:0;}
-.card-title{
-  font-family:'Kanit',sans-serif;font-weight:600;font-size:16px;color:var(--text);
-  outline:none;border-radius:4px;padding:1px 3px;margin:-1px -3px;word-break:break-word;
-}
-.card-title:focus{background:var(--surface-3);box-shadow:0 0 0 1px var(--line-bright);}
-.card-preview{font-size:13px;color:var(--text-dim);line-height:1.6;margin-top:6px;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.card.expanded .card-preview{display:none;}
-.card-actions-top{display:flex;align-items:center;gap:4px;flex-shrink:0;}
-.icon-btn{background:none;border:none;color:var(--text-faint);cursor:pointer;padding:5px;border-radius:6px;display:flex;transition:color .15s,background .15s;}
-.icon-btn:hover{color:var(--danger);background:var(--surface-3);}
-.icon-btn.chevron{color:var(--text-dim);}
-.icon-btn.chevron:hover{color:var(--text);}
-.icon-btn svg{width:15px;height:15px;stroke:currentColor;}
-.icon-btn.chevron svg{transition:transform .3s cubic-bezier(.16,1,.3,1);}
-.card.expanded .icon-btn.chevron svg{transform:rotate(180deg);}
+/* article grid */
+.kb-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:22px; }
+.kb-card{ padding:20px; cursor:pointer; display:flex; flex-direction:column; gap:12px; }
+.kb-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow); border-color:var(--primary-soft); }
+.kb-cat{ display:inline-flex; align-items:center; gap:6px; font-size:10.5px; font-weight:800; padding:4px 10px; border-radius:20px; align-self:flex-start; }
+.kb-title{ font-size:15px; font-weight:700; line-height:1.4; color:var(--ink); }
+.kb-excerpt{ font-size:12.5px; color:var(--ink-soft); line-height:1.6; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.kb-meta{ display:flex; align-items:center; justify-content:space-between; margin-top:auto; padding-top:10px; border-top:1px solid var(--border); font-size:11px; color:var(--ink-faint); font-weight:600; }
+.kb-meta .m-author{ display:flex; align-items:center; gap:6px; }
+.kb-tags{ display:flex; gap:6px; flex-wrap:wrap; }
+.kb-tag{ font-size:10px; font-weight:700; color:var(--ink-faint); background:var(--surface-alt); padding:3px 8px; border-radius:6px; }
+.empty-kb{ grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--ink-faint); }
+.empty-kb i{ font-size:36px; margin-bottom:10px; display:block; }
 
-.card-body-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s cubic-bezier(.16,1,.3,1);}
-.card.expanded .card-body-wrap{grid-template-rows:1fr;}
-.card-body-inner{overflow:hidden;}
-.card-body{padding:0 16px 16px;border-top:1px solid var(--line);margin-top:2px;}
-.card-content{
-  font-size:13.5px;color:var(--text-dim);line-height:1.75;padding-top:12px;
-  outline:none;border-radius:6px;white-space:pre-wrap;word-break:break-word;
-}
-.card-content:focus{background:var(--surface-3);box-shadow:0 0 0 1px var(--line-bright);padding:8px;margin:12px -8px -8px;}
-.card-content ul{margin:6px 0;padding-left:20px;}
-.card-content li{margin-bottom:3px;}
-.card-content b{color:var(--text);}
-.card-content:empty::before{content:'ยังไม่มีเนื้อหา คลิกเพื่อพิมพ์...';color:var(--text-faint);}
-.card-meta-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);}
-.card-meta{font-size:11px;color:var(--text-faint);}
-.card-cat-edit{font-size:11px;color:var(--text-faint);outline:none;border-radius:4px;padding:2px 5px;margin:-2px -5px;}
-.card-cat-edit:focus{background:var(--surface-3);box-shadow:0 0 0 1px var(--line-bright);color:var(--text-dim);}
+.skel-card{ height:170px; }
+.skel-line{ background:var(--surface-alt); border-radius:6px; position:relative; overflow:hidden; }
+.skel-line::after{ content:""; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent); animation:shimmer 1.4s infinite; }
+html[data-theme="dark"] .skel-line::after{ background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent); }
+@keyframes shimmer{100%{transform:translateX(100%);}}
 
-.node.level-vp{border-left-color:var(--gold);}
-.cat-gold{border-left-color:var(--gold) !important;} .cat-gold .dot{background:var(--gold) !important;}
-.cat-teal{border-left-color:var(--teal) !important;} .cat-teal .dot{background:var(--teal) !important;}
-.cat-blue{border-left-color:var(--blue) !important;} .cat-blue .dot{background:var(--blue) !important;}
-.cat-vacant{border-left-color:var(--vacant) !important;} .cat-vacant .dot{background:var(--vacant) !important;}
-.cat-slate{border-left-color:var(--slate) !important;} .cat-slate .dot{background:var(--slate) !important;}
+/* modal (add topic + view article) */
+.modal-overlay{ position:fixed; inset:0; background:rgba(15,20,32,0.55); backdrop-filter:blur(3px); display:none; align-items:center; justify-content:center; z-index:100; padding:20px; opacity:0; transition:opacity .2s ease; }
+.modal-overlay.open{ display:flex; opacity:1; }
+.modal-box{ background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); width:100%; max-width:560px; max-height:88vh; overflow-y:auto; padding:26px; transform:translateY(14px) scale(.98); transition:transform .22s cubic-bezier(.2,.8,.2,1); border:1px solid var(--border); }
+.modal-overlay.open .modal-box{ transform:translateY(0) scale(1); }
+.modal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.modal-head h3{ margin:0; font-size:17px; font-weight:800; }
+.modal-close{ width:32px; height:32px; border-radius:9px; border:none; background:var(--surface-alt); color:var(--ink-soft); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.field{ margin-bottom:14px; }
+.field label{ display:block; font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; }
+.field input, .field textarea, .field select{ width:100%; border:1px solid var(--border-strong); background:var(--surface-alt); border-radius:10px; padding:10px 12px; font-size:13px; font-family:inherit; color:var(--ink); outline:none; transition:border-color .15s ease; }
+.field input:focus, .field textarea:focus, .field select:focus{ border-color:var(--primary); }
+.field textarea{ min-height:130px; resize:vertical; line-height:1.6; }
+.field-hint{ font-size:10.5px; color:var(--ink-faint); margin-top:5px; }
+.modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }
+.btn-ghost{ border:1px solid var(--border-strong); background:transparent; color:var(--ink-soft); padding:10px 16px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; }
+.btn-primary{ border:none; background:var(--primary); color:#fff; padding:10px 18px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; box-shadow:var(--shadow-sm); }
+.btn-primary:disabled{ opacity:.6; cursor:not-allowed; }
+.form-err{ font-size:11.5px; color:var(--danger); margin-top:6px; display:none; }
 
-.empty-state{
-  grid-column:1/-1;text-align:center;padding:70px 20px;border:1px dashed var(--line);
-  border-radius:14px;color:var(--text-faint);
-}
-.empty-state svg{width:34px;height:34px;stroke:var(--text-faint);margin-bottom:14px;}
-.empty-state p{font-size:14px;margin:0 0 16px;}
+.view-title{ font-size:20px; font-weight:800; margin:4px 0 10px; }
+.view-body{ font-size:13.5px; line-height:1.9; color:var(--ink-soft); white-space:pre-wrap; }
+.view-meta{ display:flex; align-items:center; gap:14px; font-size:11.5px; color:var(--ink-faint); font-weight:600; margin-bottom:16px; flex-wrap:wrap; }
 
-.overlay{
-  position:fixed;inset:0;background:rgba(6,9,14,.6);backdrop-filter:blur(2px);
-  display:flex;align-items:center;justify-content:center;padding:20px;z-index:50;
-  opacity:0;pointer-events:none;transition:opacity .2s ease;
-}
-.overlay.open{opacity:1;pointer-events:auto;}
-.modal{
-  width:100%;max-width:520px;background:var(--surface);border:1px solid var(--line-bright);
-  border-radius:14px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.45);
-  transform:translateY(14px) scale(.97);opacity:0;transition:transform .25s cubic-bezier(.16,1,.3,1),opacity .25s ease;
-}
-.overlay.open .modal{transform:translateY(0) scale(1);opacity:1;}
-.modal h2{font-family:'Kanit',sans-serif;font-size:19px;margin:0 0 4px;color:var(--text);}
-.modal .sub{font-size:12.5px;color:var(--text-faint);margin:0 0 20px;}
-.field{margin-bottom:14px;}
-.field label{display:block;font-size:12.5px;color:var(--text-dim);margin-bottom:6px;font-weight:500;}
-.field input, .field textarea{
-  width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;
-  color:var(--text);font-family:'Sarabun',sans-serif;font-size:14px;padding:10px 12px;
-  outline:none;transition:border-color .15s;resize:vertical;
-}
-.field input:focus, .field textarea:focus{border-color:var(--gold);}
-.field textarea{min-height:120px;line-height:1.6;}
-.field .hint{font-size:11px;color:var(--text-faint);margin-top:5px;}
-.field input[list]::-webkit-calendar-picker-indicator{filter:invert(.6);}
-.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:6px;}
+.toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--bg); padding:12px 20px; border-radius:12px; font-size:12.5px; font-weight:700; box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:.25s ease; z-index:200; display:flex; align-items:center; gap:8px; }
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+html[data-theme="dark"] .toast{ background:var(--surface); color:var(--ink); border:1px solid var(--border); }
 
-.toast{
-  position:fixed;bottom:22px;right:22px;background:var(--surface-3);border:1px solid var(--line-bright);
-  color:var(--text);font-size:13px;padding:11px 16px;border-radius:9px;display:flex;align-items:center;gap:9px;
-  box-shadow:0 10px 28px rgba(0,0,0,.4);transform:translateY(14px);opacity:0;transition:transform .25s,opacity .25s;
-  z-index:60;pointer-events:none;
-}
-.toast.show{transform:translateY(0);opacity:1;}
-.toast svg{width:15px;height:15px;stroke:var(--teal);flex-shrink:0;}
-.toast.saving svg{stroke:var(--gold);animation:spin 1s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
+.err-box{ display:flex; align-items:center; gap:10px; background:var(--danger-bg); color:var(--danger); border-radius:12px; padding:12px 14px; font-size:12.5px; font-weight:600; margin-bottom:16px; }
 
-.footer-note{text-align:center;color:var(--text-faint);font-size:12px;margin-top:44px;}
-
-@media (max-width:640px){
-  .page{padding:24px 16px 70px;}
-  h1{font-size:26px;}
-  .toolbar{flex-direction:column;align-items:stretch;}
-  .search-wrap{max-width:none;}
-  .grid{grid-template-columns:1fr;}
-}
+@media (max-width:1080px){ .kb-grid{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:720px){ body{ padding:16px 14px 32px; } .hero{ padding:24px 20px; } .hero-brand .logo{ font-size:32px; } .hero-script{ display:none; } }
+@media (max-width:560px){ .kb-grid{ grid-template-columns:1fr; } .search-box{ display:none; } }
 </style>
 </head>
 <body>
-<div class="page">
+<div class="wrap">
 
-  <div class="eyebrow">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-    ข้อมูลอ้างอิง
+<div class="topbar fade-in">
+  <div class="search-box">
+    <i class="ti ti-search"></i>
+    <input id="searchInput" type="text" placeholder="ค้นหาหัวข้อ, แท็ก, เนื้อหา...">
   </div>
-  <h1>Knowledge Base</h1>
-  <p class="lede">คลังความรู้และคู่มือการทำงานของฝ่ายคลังสินค้านพวงศ์ — <b>คลิกที่หัวข้อเพื่อเปิดอ่าน คลิกที่ข้อความเพื่อแก้ไขได้ทันที</b> เพิ่มหัวข้อใหม่ได้ตลอดเวลา ข้อมูลจะซิงก์และแสดงผลให้ทุกคนที่เข้าเว็บนี้เห็นแบบเรียลไทม์</p>
-
-  <div class="hint-bar">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-    <span><b>ข้อมูลนี้เป็นสาธารณะ</b> — ทุกคนที่เปิดหน้านี้จะเห็นหัวข้อและการแก้ไขล่าสุดเหมือนกัน เก็บด้วย Firebase Firestore โปรเจกต์เดียวกับหน้า Organization Chart</span>
-  </div>
-
-  <div class="toolbar">
-    <div class="search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="search" type="text" placeholder="ค้นหาหัวข้อ เนื้อหา หรือหมวดหมู่...">
+  <div class="topbar-actions">
+    <div class="theme-toggle" id="themeToggle" title="สลับโหมดแสง">
+      <div class="seg" id="segLight"><i class="ti ti-sun"></i></div>
+      <div class="seg" id="segDark"><i class="ti ti-moon"></i></div>
     </div>
-    <button class="btn primary" id="openAdd">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-      <span>เพิ่มหัวข้อใหม่</span>
-    </button>
+    <a class="icon-btn" href="home.html" title="กลับหน้าแดชบอร์ด"><i class="ti ti-arrow-left"></i></a>
+    <div class="user-chip">
+      <div class="avatar" id="userAvatar">?</div>
+      <div>
+        <div class="u-name" id="userNameTop">กำลังโหลด...</div>
+        <div class="u-role">Warehouse Staff</div>
+      </div>
+    </div>
   </div>
-
-  <div class="chips" id="chips"></div>
-
-  <div class="grid" id="grid"></div>
-
-  <p class="footer-note">© 2026 Gunkul Engineering Public Company Limited. All rights reserved.</p>
 </div>
 
-<div class="overlay" id="overlay">
-  <div class="modal">
-    <h2 id="modalTitle">เพิ่มหัวข้อใหม่</h2>
-    <p class="sub">กรอกรายละเอียดแล้วกดบันทึก หัวข้อนี้จะแสดงให้ทุกคนเห็นทันที</p>
-    <div class="field">
-      <label for="fTitle">ชื่อหัวข้อ</label>
-      <input id="fTitle" type="text" placeholder="เช่น ขั้นตอนการเบิกสินค้าออกจากคลัง">
+<div class="hero fade-in" style="animation-delay:.05s">
+  <div class="hero-row">
+    <div>
+      <div class="hero-brand">
+        <span class="logo">Knowledge<span>Base</span></span>
+        <span class="sub">คลังความรู้ Noppawong</span>
+      </div>
+      <div class="hero-tag">รวมขั้นตอน ข้อควรระวัง และเคล็ดลับการทำงานคลังไว้ที่เดียว ทุกคนในทีมเพิ่มหัวข้อเองได้และมองเห็นร่วมกันแบบเรียลไทม์</div>
+    </div>
+    <div class="hero-script">Share What You Know<small>open to every teammate</small></div>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><b id="statTotal">0</b><span>หัวข้อทั้งหมด</span></div>
+    <div class="hero-stat"><b id="statCats">0</b><span>หมวดหมู่</span></div>
+    <div class="hero-stat"><b id="statWeek">0</b><span>เพิ่มใหม่ 7 วันนี้</span></div>
+  </div>
+</div>
+
+<div id="errorBox" style="display:none;" class="err-box">
+  <i class="ti ti-alert-triangle"></i>
+  <span id="errorMsg">โหลดข้อมูลไม่สำเร็จ</span>
+</div>
+
+<div class="filter-row fade-in" style="animation-delay:.1s">
+  <div class="chip-scroll" id="chipScroll"></div>
+  <button class="add-btn" id="openAddBtn"><i class="ti ti-plus"></i> เพิ่มหัวข้อใหม่</button>
+</div>
+
+<div class="kb-grid" id="kbGrid">
+  <div class="card kb-card skel-card"><div class="skel-line" style="height:16px;width:60%;margin-bottom:10px;"></div><div class="skel-line" style="height:12px;width:100%;margin-bottom:6px;"></div><div class="skel-line" style="height:12px;width:80%;"></div></div>
+  <div class="card kb-card skel-card"><div class="skel-line" style="height:16px;width:50%;margin-bottom:10px;"></div><div class="skel-line" style="height:12px;width:100%;margin-bottom:6px;"></div><div class="skel-line" style="height:12px;width:70%;"></div></div>
+  <div class="card kb-card skel-card"><div class="skel-line" style="height:16px;width:65%;margin-bottom:10px;"></div><div class="skel-line" style="height:12px;width:90%;margin-bottom:6px;"></div><div class="skel-line" style="height:12px;width:75%;"></div></div>
+</div>
+
+</div>
+
+<!-- ADD TOPIC MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>เพิ่มหัวข้อความรู้ใหม่</h3>
+      <button class="modal-close" id="closeAddModal"><i class="ti ti-x"></i></button>
     </div>
     <div class="field">
-      <label for="fCat">หมวดหมู่</label>
-      <input id="fCat" type="text" list="catList" placeholder="เช่น กระบวนการคลังสินค้า, ระบบ IT, นโยบายบริษัท">
-      <datalist id="catList"></datalist>
-      <div class="hint">พิมพ์หมวดหมู่ใหม่ หรือเลือกจากหมวดที่มีอยู่แล้ว</div>
+      <label>หัวข้อ</label>
+      <input id="fTitle" type="text" placeholder="เช่น วิธีตรวจนับสินค้าเมื่อจำนวนไม่ตรงบิล">
     </div>
     <div class="field">
-      <label for="fContent">รายละเอียด</label>
-      <textarea id="fContent" placeholder="อธิบายรายละเอียด ขั้นตอน หรือข้อมูลอ้างอิง...&#10;ขึ้นบรรทัดใหม่ด้วย Enter, ใช้ &quot;- &quot; นำหน้าเพื่อทำเป็นบูลเลต"></textarea>
+      <label>หมวดหมู่</label>
+      <select id="fCategory">
+        <option value="ขั้นตอนงาน">ขั้นตอนงาน</option>
+        <option value="ความปลอดภัย">ความปลอดภัย</option>
+        <option value="ระบบ/ซอฟต์แวร์">ระบบ/ซอฟต์แวร์</option>
+        <option value="ปัญหาที่พบบ่อย">ปัญหาที่พบบ่อย</option>
+        <option value="อื่นๆ">อื่นๆ</option>
+      </select>
     </div>
+    <div class="field">
+      <label>รายละเอียด</label>
+      <textarea id="fContent" placeholder="อธิบายขั้นตอนหรือรายละเอียดที่อยากบันทึกไว้..."></textarea>
+    </div>
+    <div class="field">
+      <label>แท็ก (คั่นด้วยจุลภาค, ไม่บังคับ)</label>
+      <input id="fTags" type="text" placeholder="เช่น รับสินค้า, GR, สต๊อก">
+      <div class="field-hint">หัวข้อนี้จะแสดงให้ทุกคนในทีมเห็นทันที (สาธารณะภายในทีม)</div>
+    </div>
+    <div class="form-err" id="formErr">กรุณากรอกหัวข้อและรายละเอียดให้ครบ</div>
     <div class="modal-actions">
-      <button class="btn" id="cancelAdd">ยกเลิก</button>
-      <button class="btn primary" id="saveAdd">บันทึกหัวข้อ</button>
+      <button class="btn-ghost" id="cancelAddBtn">ยกเลิก</button>
+      <button class="btn-primary" id="saveTopicBtn"><i class="ti ti-device-floppy"></i> บันทึกหัวข้อ</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast">
-  <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
-  <span id="toastText">บันทึกแล้ว</span>
+<!-- VIEW ARTICLE MODAL -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="kb-cat" id="viewCat">หมวดหมู่</span>
+      <button class="modal-close" id="closeViewModal"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="view-title" id="viewTitle"></div>
+    <div class="view-meta">
+      <span id="viewAuthor"><i class="ti ti-user"></i></span>
+      <span id="viewDate"><i class="ti ti-calendar"></i></span>
+    </div>
+    <div class="view-body" id="viewBody"></div>
+    <div class="kb-tags" id="viewTags" style="margin-top:16px;"></div>
+  </div>
 </div>
+
+<div class="toast" id="toast"><i class="ti ti-check"></i><span id="toastMsg">บันทึกแล้ว</span></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+/* ============ THEME (identical behavior to home.html) ============ */
+const html = document.documentElement;
+function applyThemeUI(){
+  const dark = html.getAttribute('data-theme') === 'dark';
+  document.getElementById('segLight').classList.toggle('active', !dark);
+  document.getElementById('segDark').classList.toggle('active', dark);
+}
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const dark = html.getAttribute('data-theme') === 'dark';
+  if (dark) { html.removeAttribute('data-theme'); localStorage.setItem('sf_theme','light'); }
+  else { html.setAttribute('data-theme','dark'); localStorage.setItem('sf_theme','dark'); }
+  applyThemeUI();
+});
+applyThemeUI();
 
-// Same Firebase project used across the site (org-chart.html) — kept here for consistency.
+/* ============ helpers ============ */
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function initials(name){ const s=String(name||'?').trim(); if(!s) return '?'; const parts=s.split(/\s+/); return parts.length>1?(parts[0][0]+parts[1][0]).toUpperCase():s.slice(0,2).toUpperCase(); }
+const PALETTE = ['#3266f2','#17a668','#e08c1a','#7c5cf0','#e1483f','#2b9fc4','#f2872f'];
+function colorFor(name){ let h=0; for(let i=0;i<String(name).length;i++) h=(h*31+String(name).charCodeAt(i))>>>0; return PALETTE[h%PALETTE.length]; }
+const CAT_STYLE = {
+  'ขั้นตอนงาน':{bg:'var(--primary-soft)', fg:'var(--primary)'},
+  'ความปลอดภัย':{bg:'var(--danger-bg)', fg:'var(--danger)'},
+  'ระบบ/ซอฟต์แวร์':{bg:'var(--purple-bg)', fg:'var(--purple)'},
+  'ปัญหาที่พบบ่อย':{bg:'var(--warn-bg)', fg:'var(--warn)'},
+  'อื่นๆ':{bg:'var(--success-bg)', fg:'var(--success)'}
+};
+function toDate(v){ if(!v) return null; if(v.toDate){ try{ return v.toDate(); }catch(e){} } const d=new Date(v); return isNaN(d)?null:d; }
+function fmtDate(d){ return d ? d.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'2-digit'}) : '—'; }
+function showToast(msg){ const t=document.getElementById('toast'); document.getElementById('toastMsg').textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
+
+/* ============ FIREBASE — same project as home.html ============ */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyAkPFzgT7hLAxPVI129F-vRzA65MIx2VIs",
   authDomain: "gunkul-my-task-system.firebaseapp.com",
@@ -255,337 +321,171 @@ const firebaseConfig = {
   messagingSenderId: "877006770872",
   appId: "1:877006770872:web:ec56ec0089512899811a4d"
 };
-const fbApp = initializeApp(firebaseConfig);
-const db = getFirestore(fbApp);
-const kbDocRef = doc(db, 'knowledgebase', 'main');
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-(function(){
-  var uid = function(){ return 't'+Math.random().toString(36).slice(2,10); };
-  var CAT_COLORS = ['gold','teal','blue','vacant','slate'];
+/* NOTE ON STORAGE: topics are saved to a new public Firestore collection
+   "knowledge_base" in the same project used by the rest of the site.
+   See the recommended security rules in the chat answer that shipped this file. */
+const KB_COLLECTION = 'knowledge_base';
 
-  function sampleData(){
-    var now = Date.now();
-    return [
-      { id: uid(), title: 'วิธีเริ่มต้นใช้งานคลังความรู้นี้', category: 'เริ่มต้นใช้งาน',
-        content: 'กดปุ่ม "เพิ่มหัวข้อใหม่" มุมขวาบนเพื่อสร้างหัวข้อ\n- ตั้งชื่อหัวข้อให้ชัดเจน\n- ระบุหมวดหมู่ เพื่อให้กรองและค้นหาได้ง่าย\n- พิมพ์รายละเอียดหรือขั้นตอนการทำงาน\n\nคลิกที่ชื่อหัวข้อหรือเนื้อหาที่บันทึกไว้แล้วเพื่อแก้ไขได้ทันที ระบบจะบันทึกอัตโนมัติและแสดงผลให้ทุกคนเห็นเหมือนกัน',
-        updatedAt: now },
-      { id: uid(), title: 'ขั้นตอนการเบิกสินค้าออกจากคลัง', category: 'กระบวนการคลังสินค้า',
-        content: '1. ตรวจสอบใบขอเบิกจากระบบ\n- ยืนยันรหัสสินค้าและจำนวนให้ตรงกับใบขอเบิก\n- ตรวจสอบสต๊อกคงเหลือก่อนอนุมัติ\n2. จัดเตรียมสินค้าตามผังคลัง\n3. บันทึกรายการเบิกในระบบและแนบเอกสารอ้างอิง',
-        updatedAt: now },
-      { id: uid(), title: 'ช่องทางติดต่อฝ่าย IT เมื่อระบบมีปัญหา', category: 'ระบบ IT',
-        content: 'หากพบปัญหาการใช้งานระบบ ให้แจ้งผ่านช่องทางที่กำหนดไว้ พร้อมแนบภาพหน้าจอและอธิบายขั้นตอนที่ทำก่อนเกิดปัญหา เพื่อให้ทีมตรวจสอบได้รวดเร็วขึ้น',
-        updatedAt: now }
-    ];
+let currentUser = { uid:null, name:'ผู้ใช้งาน' };
+onAuthStateChanged(auth, async (user) => {
+  let displayName = 'ผู้ใช้งาน';
+  if (user) {
+    displayName = user.displayName || (user.email ? user.email.split('@')[0] : displayName);
+    try {
+      const snap = await getDoc(doc(db,'users',user.uid));
+      if (snap.exists() && snap.data().name) displayName = snap.data().name;
+    } catch(e){ /* ใช้ค่า fallback */ }
+    currentUser = { uid:user.uid, name:displayName };
   }
+  document.getElementById('userNameTop').textContent = displayName;
+  document.getElementById('userAvatar').textContent = initials(displayName);
+});
 
-  var data = null;
-  var activeCategory = 'ทั้งหมด';
-  var saveTimer = null;
-  var suppressNextSnapshot = false;
+let allTopics = [];
+let activeCategory = 'ทั้งหมด';
 
-  var gridEl = document.getElementById('grid');
-  var chipsEl = document.getElementById('chips');
-  var searchEl = document.getElementById('search');
-  var overlayEl = document.getElementById('overlay');
-  var toastEl = document.getElementById('toast');
-  var toastText = document.getElementById('toastText');
+const kbBase = collection(db, KB_COLLECTION);
+const kbQuery = query(kbBase, orderBy('createdAt','desc'));
+onSnapshot(kbQuery, (snap) => {
+  document.getElementById('errorBox').style.display = 'none';
+  allTopics = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+  renderChips();
+  renderGrid();
+  renderStats();
+}, (err) => {
+  console.error('โหลดคลังความรู้ไม่สำเร็จ:', err);
+  document.getElementById('errorMsg').textContent = 'โหลดข้อมูลไม่สำเร็จ: ' + (err.message || 'unknown error');
+  document.getElementById('errorBox').style.display = 'flex';
+  document.getElementById('kbGrid').innerHTML = '';
+});
 
-  function catColor(cat){
-    var str = cat || 'ทั่วไป';
-    var h = 0;
-    for(var i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) % 997; }
-    return CAT_COLORS[h % CAT_COLORS.length];
-  }
+function renderStats(){
+  document.getElementById('statTotal').textContent = allTopics.length;
+  document.getElementById('statCats').textContent = new Set(allTopics.map(t=>t.category||'อื่นๆ')).size;
+  const weekAgo = Date.now() - 7*24*60*60*1000;
+  document.getElementById('statWeek').textContent = allTopics.filter(t=>{
+    const d = toDate(t.createdAt); return d && d.getTime() >= weekAgo;
+  }).length;
+}
 
-  function showToast(text, saving){
-    toastText.textContent = text;
-    toastEl.classList.toggle('saving', !!saving);
-    toastEl.classList.add('show');
-    clearTimeout(showToast._t);
-    if(!saving){
-      showToast._t = setTimeout(function(){ toastEl.classList.remove('show'); }, 1800);
-    }
-  }
-
-  function persist(){
-    showToast('กำลังบันทึก...', true);
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(async function(){
-      try{
-        suppressNextSnapshot = true;
-        await setDoc(kbDocRef, { topics: JSON.stringify(data), updatedAt: Date.now() });
-        showToast('บันทึกแล้ว', false);
-      }catch(e){
-        console.warn('save failed', e);
-        showToast('บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง', false);
-      }
-    }, 400);
-  }
-
-  function startRealtimeSync(){
-    onSnapshot(kbDocRef, function(snap){
-      if(suppressNextSnapshot){ suppressNextSnapshot = false; return; }
-      if(snap.exists() && snap.data() && snap.data().topics){
-        try{
-          data = JSON.parse(snap.data().topics);
-          render();
-        }catch(e){ console.warn('parse failed', e); }
-      } else if(!data){
-        data = sampleData();
-        render();
-        persist();
-      }
-    }, function(err){
-      console.warn('realtime sync failed', err);
-      if(!data){ data = sampleData(); render(); }
-    });
-  }
-
-  function findTopic(id){
-    for(var i=0;i<data.length;i++){ if(data[i].id===id) return data[i]; }
-    return null;
-  }
-
-  function icon(name){
-    var icons = {
-      chevron:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>',
-      trash:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>',
-      book:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>'
-    };
-    return icons[name] || '';
-  }
-
-  function formatContent(raw){
-    var text = (raw||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    var lines = text.split('\n');
-    var html = '', inList = false;
-    lines.forEach(function(line){
-      var bullet = /^\s*-\s+(.*)/.exec(line);
-      if(bullet){
-        if(!inList){ html += '<ul>'; inList = true; }
-        html += '<li>'+bullet[1]+'</li>';
-      } else {
-        if(inList){ html += '</ul>'; inList = false; }
-        if(line.trim()==='') { html += '<br>'; } else { html += line + '<br>'; }
-      }
-    });
-    if(inList) html += '</ul>';
-    return html;
-  }
-
-  function buildCard(t, index){
-    var card = document.createElement('div');
-    card.className = 'card cat-' + catColor(t.category);
-    card.dataset.id = t.id;
-    card.style.animationDelay = Math.min(index*45, 360) + 'ms';
-
-    var head = document.createElement('div');
-    head.className = 'card-head';
-
-    var main = document.createElement('div');
-    main.className = 'card-head-main';
-
-    var catRow = document.createElement('div');
-    catRow.className = 'card-cat';
-    var dot = document.createElement('span'); dot.className='dot';
-    var catEdit = document.createElement('span');
-    catEdit.className = 'card-cat-edit';
-    catEdit.contentEditable = true;
-    catEdit.textContent = t.category || 'ทั่วไป';
-    catEdit.addEventListener('click', function(e){ e.stopPropagation(); });
-    catEdit.addEventListener('blur', function(){
-      var n = findTopic(t.id);
-      if(n){ n.category = catEdit.textContent.trim() || 'ทั่วไป'; renderChips(); refreshCardColor(card, n.category); persist(); }
-    });
-    catEdit.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); catEdit.blur(); } });
-    catRow.appendChild(dot); catRow.appendChild(catEdit);
-
-    var title = document.createElement('div');
-    title.className = 'card-title';
-    title.contentEditable = true;
-    title.textContent = t.title;
-    title.addEventListener('click', function(e){ e.stopPropagation(); });
-    title.addEventListener('blur', function(){
-      var n = findTopic(t.id);
-      if(n){ n.title = title.textContent.trim() || 'หัวข้อใหม่'; n.updatedAt = Date.now(); persist(); }
-    });
-    title.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); title.blur(); } });
-
-    var preview = document.createElement('div');
-    preview.className = 'card-preview';
-    preview.textContent = (t.content||'').replace(/\n/g,' ');
-
-    main.appendChild(catRow); main.appendChild(title); main.appendChild(preview);
-
-    var actionsTop = document.createElement('div');
-    actionsTop.className = 'card-actions-top';
-    var delBtn = document.createElement('button');
-    delBtn.className = 'icon-btn'; delBtn.innerHTML = icon('trash'); delBtn.title = 'ลบหัวข้อนี้';
-    delBtn.addEventListener('click', function(e){ e.stopPropagation(); deleteTopic(t.id); });
-    var chevBtn = document.createElement('button');
-    chevBtn.className = 'icon-btn chevron'; chevBtn.innerHTML = icon('chevron');
-    actionsTop.appendChild(delBtn); actionsTop.appendChild(chevBtn);
-
-    head.appendChild(main); head.appendChild(actionsTop);
-    head.addEventListener('click', function(){ card.classList.toggle('expanded'); });
-
-    var bodyWrap = document.createElement('div');
-    bodyWrap.className = 'card-body-wrap';
-    var bodyInner = document.createElement('div');
-    bodyInner.className = 'card-body-inner';
-    var body = document.createElement('div');
-    body.className = 'card-body';
-
-    var content = document.createElement('div');
-    content.className = 'card-content';
-    content.contentEditable = true;
-    content.innerHTML = formatContent(t.content);
-    content.addEventListener('click', function(e){ e.stopPropagation(); });
-    content.addEventListener('blur', function(){
-      var n = findTopic(t.id);
-      if(n){
-        var plain = content.innerText.replace(/\n{3,}/g,'\n\n').trim();
-        n.content = plain; n.updatedAt = Date.now();
-        preview.textContent = plain.replace(/\n/g,' ');
-        persist();
-      }
-    });
-
-    var metaRow = document.createElement('div');
-    metaRow.className = 'card-meta-row';
-    var meta = document.createElement('div');
-    meta.className = 'card-meta';
-    meta.textContent = 'อัปเดตล่าสุด ' + formatDate(t.updatedAt);
-    metaRow.appendChild(meta);
-
-    body.appendChild(content); body.appendChild(metaRow);
-    bodyInner.appendChild(body);
-    bodyWrap.appendChild(bodyInner);
-
-    card.appendChild(head); card.appendChild(bodyWrap);
-    return card;
-  }
-
-  function refreshCardColor(card, category){
-    card.className = card.className.replace(/cat-\w+/, 'cat-' + catColor(category));
-  }
-
-  function formatDate(ts){
-    if(!ts) return '-';
-    var d = new Date(ts);
-    var months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-    return d.getDate() + ' ' + months[d.getMonth()] + ' ' + (d.getFullYear()+543);
-  }
-
-  function getCategories(){
-    var set = {};
-    data.forEach(function(t){ set[t.category || 'ทั่วไป'] = (set[t.category || 'ทั่วไป']||0)+1; });
-    return set;
-  }
-
-  function renderChips(){
-    var cats = getCategories();
-    chipsEl.innerHTML = '';
-    var allChip = document.createElement('div');
-    allChip.className = 'chip' + (activeCategory==='ทั้งหมด' ? ' active' : '');
-    allChip.innerHTML = '<span class="dot" style="background:var(--text-faint)"></span><span>ทั้งหมด</span><span class="count">'+data.length+'</span>';
-    allChip.addEventListener('click', function(){ activeCategory='ทั้งหมด'; renderChips(); applyFilter(); });
-    chipsEl.appendChild(allChip);
-
-    Object.keys(cats).sort().forEach(function(cat){
-      var chip = document.createElement('div');
-      chip.className = 'chip' + (activeCategory===cat ? ' active' : '');
-      var color = catColor(cat);
-      var dotColorVar = {gold:'var(--gold)',teal:'var(--teal)',blue:'var(--blue)',vacant:'var(--vacant)',slate:'var(--slate)'}[color];
-      chip.innerHTML = '<span class="dot" style="background:'+dotColorVar+'"></span><span></span><span class="count">'+cats[cat]+'</span>';
-      chip.querySelector('span:nth-child(2)').textContent = cat;
-      chip.addEventListener('click', function(){ activeCategory=cat; renderChips(); applyFilter(); });
-      chipsEl.appendChild(chip);
-    });
-
-    var datalist = document.getElementById('catList');
-    datalist.innerHTML = '';
-    Object.keys(cats).sort().forEach(function(cat){
-      var opt = document.createElement('option'); opt.value = cat; datalist.appendChild(opt);
-    });
-  }
-
-  function render(){
-    gridEl.innerHTML = '';
-    if(!data.length){
-      var empty = document.createElement('div');
-      empty.className = 'empty-state';
-      empty.innerHTML = icon('book') + '<p>ยังไม่มีหัวข้อในคลังความรู้ — เริ่มเพิ่มหัวข้อแรกได้เลย</p>';
-      var btn = document.createElement('button');
-      btn.className = 'btn primary'; btn.textContent = 'เพิ่มหัวข้อใหม่';
-      btn.addEventListener('click', openModal);
-      empty.appendChild(btn);
-      gridEl.appendChild(empty);
-    } else {
-      data.slice().sort(function(a,b){ return (b.updatedAt||0)-(a.updatedAt||0); }).forEach(function(t, i){
-        gridEl.appendChild(buildCard(t, i));
-      });
-    }
-    renderChips();
-    applyFilter();
-  }
-
-  function applyFilter(){
-    var q = searchEl.value.trim().toLowerCase();
-    var cards = gridEl.querySelectorAll('.card');
-    cards.forEach(function(card){
-      var t = findTopic(card.dataset.id);
-      if(!t){ return; }
-      var matchesCat = activeCategory==='ทั้งหมด' || (t.category||'ทั่วไป')===activeCategory;
-      var text = (t.title+' '+(t.category||'')+' '+(t.content||'')).toLowerCase();
-      var matchesSearch = !q || text.indexOf(q)!==-1;
-      card.classList.toggle('hidden', !(matchesCat && matchesSearch));
-    });
-  }
-  searchEl.addEventListener('input', applyFilter);
-
-  function deleteTopic(id){
-    if(!confirm('ต้องการลบหัวข้อนี้หรือไม่?')) return;
-    data = data.filter(function(t){ return t.id!==id; });
-    render(); persist();
-  }
-
-  // --- Add modal ---
-  var fTitle = document.getElementById('fTitle');
-  var fCat = document.getElementById('fCat');
-  var fContent = document.getElementById('fContent');
-
-  function openModal(){
-    fTitle.value=''; fCat.value=''; fContent.value='';
-    overlayEl.classList.add('open');
-    setTimeout(function(){ fTitle.focus(); }, 200);
-  }
-  function closeModal(){ overlayEl.classList.remove('open'); }
-
-  document.getElementById('openAdd').addEventListener('click', openModal);
-  document.getElementById('cancelAdd').addEventListener('click', closeModal);
-  overlayEl.addEventListener('click', function(e){ if(e.target===overlayEl) closeModal(); });
-  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && overlayEl.classList.contains('open')) closeModal(); });
-
-  document.getElementById('saveAdd').addEventListener('click', function(){
-    var title = fTitle.value.trim();
-    if(!title){ fTitle.focus(); return; }
-    var newTopic = {
-      id: uid(),
-      title: title,
-      category: fCat.value.trim() || 'ทั่วไป',
-      content: fContent.value.trim(),
-      updatedAt: Date.now()
-    };
-    data.push(newTopic);
-    activeCategory = 'ทั้งหมด';
-    closeModal();
-    render();
-    persist();
+function renderChips(){
+  const counts = {};
+  allTopics.forEach(t => { const c = t.category || 'อื่นๆ'; counts[c] = (counts[c]||0)+1; });
+  const cats = ['ทั้งหมด', ...Object.keys(counts)];
+  const wrap = document.getElementById('chipScroll');
+  wrap.innerHTML = cats.map(c => {
+    const n = c === 'ทั้งหมด' ? allTopics.length : counts[c];
+    return `<button class="chip ${c===activeCategory?'active':''}" data-cat="${esc(c)}">${esc(c)} <span class="cnt">${n}</span></button>`;
+  }).join('');
+  wrap.querySelectorAll('.chip').forEach(btn => {
+    btn.addEventListener('click', () => { activeCategory = btn.dataset.cat; renderChips(); renderGrid(); });
   });
+}
 
-  startRealtimeSync();
-})();
+function renderGrid(){
+  const term = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+  let rows = [...allTopics];
+  if (activeCategory !== 'ทั้งหมด') rows = rows.filter(t => (t.category||'อื่นๆ') === activeCategory);
+  if (term) {
+    rows = rows.filter(t =>
+      String(t.title||'').toLowerCase().includes(term) ||
+      String(t.content||'').toLowerCase().includes(term) ||
+      (t.tags||[]).some(tag => String(tag).toLowerCase().includes(term))
+    );
+  }
+
+  const grid = document.getElementById('kbGrid');
+  if (rows.length === 0) {
+    grid.innerHTML = `<div class="empty-kb"><i class="ti ti-notebook"></i>ยังไม่มีหัวข้อในหมวดนี้ — เริ่มเพิ่มหัวข้อแรกได้เลย</div>`;
+    return;
+  }
+
+  grid.innerHTML = rows.map((t, i) => {
+    const cat = t.category || 'อื่นๆ';
+    const style = CAT_STYLE[cat] || CAT_STYLE['อื่นๆ'];
+    const created = toDate(t.createdAt);
+    return `
+      <div class="card kb-card fade-in" style="animation-delay:${Math.min(i*0.04,0.3)}s" data-id="${esc(t.id)}">
+        <span class="kb-cat" style="background:${style.bg}; color:${style.fg};">${esc(cat)}</span>
+        <div class="kb-title">${esc(t.title)}</div>
+        <div class="kb-excerpt">${esc(t.content)}</div>
+        <div class="kb-meta">
+          <span class="m-author"><span style="width:18px;height:18px;border-radius:50%;background:${colorFor(t.authorName||'?')};color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;">${esc(initials(t.authorName))}</span>${esc(t.authorName||'ไม่ระบุ')}</span>
+          <span>${fmtDate(created)}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.kb-card').forEach(card => {
+    card.addEventListener('click', () => openView(card.dataset.id));
+  });
+}
+
+function openView(id){
+  const t = allTopics.find(x => x.id === id);
+  if (!t) return;
+  const cat = t.category || 'อื่นๆ';
+  const style = CAT_STYLE[cat] || CAT_STYLE['อื่นๆ'];
+  const vc = document.getElementById('viewCat');
+  vc.textContent = cat; vc.style.background = style.bg; vc.style.color = style.fg;
+  document.getElementById('viewTitle').textContent = t.title;
+  document.getElementById('viewAuthor').innerHTML = `<i class="ti ti-user"></i> ${esc(t.authorName||'ไม่ระบุ')}`;
+  document.getElementById('viewDate').innerHTML = `<i class="ti ti-calendar"></i> ${fmtDate(toDate(t.createdAt))}`;
+  document.getElementById('viewBody').textContent = t.content;
+  document.getElementById('viewTags').innerHTML = (t.tags||[]).map(tag => `<span class="kb-tag">#${esc(tag)}</span>`).join('');
+  document.getElementById('viewModal').classList.add('open');
+}
+document.getElementById('closeViewModal').addEventListener('click', () => document.getElementById('viewModal').classList.remove('open'));
+document.getElementById('viewModal').addEventListener('click', (e) => { if (e.target.id==='viewModal') e.currentTarget.classList.remove('open'); });
+
+/* ============ add topic modal ============ */
+const addModal = document.getElementById('addModal');
+function openAdd(){ addModal.classList.add('open'); document.getElementById('formErr').style.display='none'; }
+function closeAdd(){
+  addModal.classList.remove('open');
+  ['fTitle','fContent','fTags'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fCategory').selectedIndex = 0;
+}
+document.getElementById('openAddBtn').addEventListener('click', openAdd);
+document.getElementById('closeAddModal').addEventListener('click', closeAdd);
+document.getElementById('cancelAddBtn').addEventListener('click', closeAdd);
+addModal.addEventListener('click', (e) => { if (e.target.id==='addModal') closeAdd(); });
+
+document.getElementById('saveTopicBtn').addEventListener('click', async () => {
+  const title = document.getElementById('fTitle').value.trim();
+  const content = document.getElementById('fContent').value.trim();
+  const category = document.getElementById('fCategory').value;
+  const tags = document.getElementById('fTags').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const errBox = document.getElementById('formErr');
+
+  if (!title || !content) { errBox.style.display = 'block'; return; }
+  errBox.style.display = 'none';
+
+  const btn = document.getElementById('saveTopicBtn');
+  btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2"></i> กำลังบันทึก...';
+  try {
+    await addDoc(kbBase, {
+      title, content, category, tags,
+      authorName: currentUser.name,
+      authorUid: currentUser.uid,
+      createdAt: serverTimestamp()
+    });
+    closeAdd();
+    showToast('บันทึกหัวข้อเรียบร้อย — ทุกคนในทีมมองเห็นแล้ว');
+  } catch (err) {
+    console.error('บันทึกหัวข้อไม่สำเร็จ:', err);
+    errBox.textContent = 'บันทึกไม่สำเร็จ: ' + (err.message || 'unknown error');
+    errBox.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<i class="ti ti-device-floppy"></i> บันทึกหัวข้อ';
+  }
+});
+
+document.getElementById('searchInput').addEventListener('input', renderGrid);
 </script>
 </body>
 </html>
