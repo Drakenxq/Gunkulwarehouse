@@ -11,6 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 
 <style>
+/* HOME ONLY — ไม่สร้าง Sidebar / Header เพื่อใช้ร่วมกับ Sidebar เดิม */
 :root{
   --home-navy:#102a4b;
   --home-blue:#1677d2;
@@ -30,7 +31,7 @@
 /* ถ้า Sidebar เดิมเป็น fixed width ~226px ให้ใช้ margin-left นี้
    หากระบบเดิมจัดพื้นที่ main ให้แล้ว สามารถลบ margin-left ได้ */
 .home-page{
-  margin-left:226px;
+  margin-left:0;
   min-height:100vh;
   background:var(--home-bg);
   color:var(--home-ink);
@@ -42,9 +43,9 @@
 .home-page button,.home-page input{font:inherit}
 
 .home-wrap{
-  width:calc(100% - 20px);
-  margin:0 10px;
-  padding:20px 0 36px;
+  width:100%;
+  margin:0;
+  padding:18px 18px 36px;
 }
 
 /* Hero */
@@ -341,7 +342,7 @@
 .home-d1{transition-delay:.06s}.home-d2{transition-delay:.12s}.home-d3{transition-delay:.18s}.home-d4{transition-delay:.24s}
 
 @media(max-width:1180px){
-  .home-page{margin-left:226px}
+  .home-page{margin-left:0}
   .home-hero-copy{width:58%;padding:35px}
   .home-hero-card{width:40%;right:24px}
   .home-kpi-grid,.home-operation-grid{grid-template-columns:repeat(2,1fr)}
@@ -374,7 +375,7 @@
       <div class="home-hero-copy">
         <span class="home-eyebrow"><i class="ti ti-bolt"></i> WAREHOUSE OPERATIONS & ANALYTICS</span>
         <h1>ภาพรวมของ<br><span>การรับเข้าอย่างครบถ้วน</span></h1>
-        <p>ติดตามเอกสารรับเข้า ตรวจสอบสถานะ และดูข้อมูลการรับสินค้าได้จากที่เดียว โดยใช้ข้อมูลจริงจากระบบ</p>
+        <p>ติดตามเอกสารรับเข้า ตรวจสอบสถานะ และดูข้อมูลการรับสินค้าได้จากที่เดียว โดยใช้ข้อมูลจริงจากระบบ Warehouse Noppawong</p>
         <div class="home-hero-actions">
           <a class="home-btn home-btn-primary" href="#home-overview">ดูภาพรวม <i class="ti ti-arrow-down"></i></a>
           <a class="home-btn home-btn-secondary" href="#home-recent">รายการล่าสุด <i class="ti ti-arrow-up-right"></i></a>
