@@ -266,7 +266,7 @@ button{font-family:inherit}
 <div class="app">
   <header class="topbar">
     <div class="exam-title">แบบจำลองสอบใบขับขี่รถสาธารณะ</div>
-    <div style="display:flex;align-items:center;gap:18px"><div class="progress-text" id="progressText">ข้อที่ 0 / 50</div><div id="liveScore" style="font-size:15px;font-weight:600">ตอบแล้ว 0</div></div>
+    <div style="display:flex;align-items:center;gap:18px"><div class="progress-text" id="progressText">ข้อที่ 0 / 30</div><div id="liveScore" style="font-size:15px;font-weight:600">ตอบแล้ว 0</div></div>
     <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
   </header>
 
@@ -278,7 +278,7 @@ button{font-family:inherit}
       <button class="start-btn" onclick="startExam()">เริ่มทำข้อสอบ</button>
       <div class="info">
         <b>ระบบในชุดนี้</b><br>
-        • 50 ข้อ / 4 ตัวเลือก<br>
+        • 30 ข้อ / 4 ตัวเลือก<br>
         • สุ่มข้อ + สุ่มตัวเลือก<br>
         • ฟังเสียงโจทย์ด้วยระบบอ่านออกเสียงของเบราว์เซอร์<br>
         • ตรวจคะแนนทันทีเมื่อส่ง<br>
@@ -411,7 +411,7 @@ function startExam(){
 
   // มี 50 ข้อพอดีในชุดนี้
   // สุ่มข้อสอบ 50 ข้อ จากฐานทั้งหมด และสุ่มตัวเลือกของแต่ละข้อ
-  examQuestions=shuffle(QUESTION_BANK).slice(0,50).map(makeQuestion);
+  examQuestions=shuffle(QUESTION_BANK).slice(0,30).map(makeQuestion);
 
   document.getElementById("startScreen").style.display="none";
   document.getElementById("result").classList.remove("show");
