@@ -3,576 +3,530 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Knowledge Base — Gunkul Warehouse</title>
+<title>จำลองสอบใบขับขี่รถสาธารณะ</title>
 <style>
-  /* ============================================================
-     Same token names and feel as the shell: navy→charcoal gradient,
-     gold accent, Segoe UI / Noto Sans Thai stack. This page lives on
-     a light content background (matches #content in the shell), so
-     the navy/gold pairing shows up as accents rather than the whole
-     surface.
-     ============================================================ */
-  :root{
-    --gold:#d0a154;
-    --gold-tint:rgba(208,161,84,0.12);
-    --navy-solid:#28305c;
-    --navy-tint:rgba(40,48,92,0.06);
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Prompt:wght@400;500;600;700&display=swap');
 
-    --bg:#f5f7fb;
-    --card:#ffffff;
-    --border:#e6e9f1;
-    --border-strong:#d7dbe6;
+:root{
+  --purple:#7417d7;
+  --purple2:#8e2de2;
+  --purple-dark:#5510a3;
+  --red:#ef3b32;
+  --green:#2fdf24;
+  --green-dark:#1f9f18;
+  --gray:#e7e7e7;
+  --gray2:#b7b7b7;
+  --text:#171717;
+  --muted:#777;
+  --bg:#f6f6f8;
+  --white:#fff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#ececf0;
+  color:var(--text);
+  font-family:"Prompt","Kanit",sans-serif;
+}
+button{font-family:inherit}
+.app{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+.topbar{
+  height:76px;
+  background:linear-gradient(90deg,var(--purple-dark),var(--purple),#7d19d8);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 34px;
+  box-shadow:0 2px 8px #0002;
+}
+.exam-title{font-size:20px;font-weight:500}
+.progress-text{font-size:17px;font-weight:500}
+.progress-wrap{
+  position:absolute;left:0;right:0;top:74px;height:4px;background:#ffffff2b
+}
+.progress-bar{height:100%;width:0;background:#fff;transition:.25s}
 
-    --text-primary:#20242f;
-    --text-secondary:#6c7180;
-    --text-tertiary:#9aa0ad;
+.main{
+  width:min(1120px,94vw);
+  margin:0 auto;
+  padding:34px 0 28px;
+  flex:1;
+}
+.question-card{
+  background:#fff;
+  border:1px solid #d7d7d7;
+  min-height:680px;
+  box-shadow:0 2px 9px #00000010;
+}
+.question-head{
+  min-height:230px;
+  padding:28px 42px 18px;
+  border-bottom:1px solid #d8d8d8;
+  position:relative;
+}
+.question-no{
+  font-size:18px;
+  color:#777;
+  margin-bottom:18px;
+}
+.question-text{
+  font-size:27px;
+  line-height:1.55;
+  font-weight:500;
+  max-width:900px;
+  padding-right:100px;
+}
+.question-image{
+  margin-top:18px;
+  display:flex;
+  justify-content:flex-start;
+}
+.sign{
+  width:150px;height:150px;
+  border:7px solid #bd1c2b;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:76px;font-weight:700;
+  line-height:.7;
+  gap:8px;
+}
+.audio-btn{
+  position:absolute;
+  right:42px;
+  top:30px;
+  width:64px;height:64px;
+  border:0;background:#fff;
+  cursor:pointer;
+  font-size:42px;
+}
+.audio-btn:hover{transform:scale(1.05)}
 
-    --danger:#d0554f;
-    --danger-tint:rgba(208,85,79,0.1);
-  }
+.answers{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+  border-bottom:1px solid #cfcfcf;
+}
+.answer{
+  min-height:150px;
+  border:0;
+  border-right:1px solid #cfcfcf;
+  border-bottom:1px solid #cfcfcf;
+  background:#fff;
+  padding:25px 34px;
+  text-align:left;
+  cursor:pointer;
+  display:flex;
+  align-items:flex-start;
+  gap:18px;
+  font-size:20px;
+  line-height:1.55;
+  transition:.12s;
+}
+.answer:nth-child(even){border-right:0}
+.answer:hover{background:#f8f8f8}
+.answer.selected{
+  background:var(--green);
+  color:#073b05;
+  box-shadow:inset 0 0 0 2px #20bd17;
+}
+.answer.correct{
+  background:#baf5b7;
+  box-shadow:inset 0 0 0 3px var(--green-dark);
+}
+.answer.wrong{
+  background:#ffd1cf;
+  box-shadow:inset 0 0 0 3px #e3342f;
+}
+.answer-letter{
+  width:35px;height:35px;
+  border:1px solid #999;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex:none;font-weight:600;
+}
+.answer.selected .answer-letter{border-color:#167d10;background:#fff}
+.answer-text{flex:1}
 
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    font-family:"Segoe UI","Noto Sans Thai",-apple-system,sans-serif;
-    background:var(--bg);
-    color:var(--text-primary);
-    line-height:1.55;
-  }
-  h1,h2,h3{margin:0;}
-  p{margin:0;}
-  button{font-family:inherit;}
+.nav{
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  padding:22px 28px;
+}
+.nav button,.primary{
+  border:0;
+  min-width:170px;
+  height:58px;
+  border-radius:4px;
+  font-size:19px;
+  cursor:pointer;
+}
+.btn-back{background:#a8a8b3;color:#fff}
+.btn-next{background:#7417d7;color:#fff}
+.btn-next:disabled,.btn-back:disabled{opacity:.45;cursor:not-allowed}
+.submit{background:#ef3b32;color:#fff;min-width:200px}
+.status{
+  text-align:center;
+  min-height:27px;
+  color:#777;
+  font-size:15px;
+}
 
-  @keyframes fadeSlideDown{
-    from{ opacity:0; transform:translateY(-8px); }
-    to{ opacity:1; transform:translateY(0); }
-  }
-  @keyframes revealOnScroll{
-    from{ opacity:0; transform:translateY(22px); }
-    to{ opacity:1; transform:translateY(0); }
-  }
-  @keyframes popIn{
-    from{ opacity:0; transform:scale(.96) translateY(6px); }
-    to{ opacity:1; transform:scale(1) translateY(0); }
-  }
-  @keyframes justAddedPulse{
-    0%{ box-shadow:0 0 0 0 rgba(208,161,84,.45); }
-    70%{ box-shadow:0 0 0 12px rgba(208,161,84,0); }
-    100%{ box-shadow:0 0 0 0 rgba(208,161,84,0); }
-  }
-  @media (prefers-reduced-motion: reduce){
-    *{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
-  }
+.result{
+  display:none;
+  background:#fff;
+  border:1px solid #ddd;
+  box-shadow:0 2px 10px #0001;
+  padding:45px;
+}
+.result.show{display:block}
+.result-title{text-align:center;font-size:38px;font-weight:700;margin:0 0 8px}
+.score{
+  text-align:center;
+  font-size:64px;
+  font-weight:700;
+  color:var(--purple);
+  margin:10px 0;
+}
+.pass{color:#1a9b20}
+.fail{color:#e43832}
+.result-sub{text-align:center;font-size:20px;color:#666}
+.result-actions{display:flex;justify-content:center;gap:12px;margin:30px 0}
+.result-actions button{
+  border:0;border-radius:4px;padding:14px 24px;font-size:17px;cursor:pointer;
+}
+.btn-retry{background:var(--purple);color:#fff}
+.btn-review{background:#ddd;color:#222}
 
-  /* ---------------- page shell ---------------- */
-  .kb-page{
-    max-width:1180px;
-    margin:0 auto;
-    padding:32px clamp(18px,4vw,40px) 64px;
-  }
+.review{
+  display:none;
+  margin-top:25px;
+}
+.review.show{display:block}
+.review-item{
+  border:1px solid #ddd;
+  margin:12px 0;
+  padding:18px 20px;
+  background:#fff;
+}
+.review-q{font-size:19px;font-weight:600;margin-bottom:12px}
+.review-row{padding:8px 12px;border-radius:3px;margin:5px 0}
+.review-row.good{background:#d5f8d2}
+.review-row.bad{background:#ffd9d7}
+.review-row.key{background:#e8ddff}
+.small{font-size:14px;color:#777}
 
-  .kb-header{
-    display:flex; align-items:flex-start; justify-content:space-between; gap:20px;
-    padding-bottom:22px; margin-bottom:22px;
-    border-bottom:1px solid var(--border);
-    opacity:0; animation:fadeSlideDown .5s ease .02s forwards;
-  }
-  .kb-header h1{ font-size:22px; font-weight:700; letter-spacing:-.01em; }
-  .kb-header p{ font-size:13.5px; color:var(--text-secondary); margin-top:6px; max-width:52ch; }
+.start-screen{
+  background:#fff;border:1px solid #ddd;padding:55px 40px;text-align:center;
+  box-shadow:0 2px 10px #0001;
+}
+.start-screen h1{font-size:40px;margin:0 0 8px;color:var(--purple)}
+.start-screen p{font-size:19px;color:#666;line-height:1.7}
+.start-btn{
+  background:var(--purple);color:#fff;border:0;border-radius:4px;
+  padding:17px 44px;font-size:21px;cursor:pointer;margin-top:18px;
+}
+.info{
+  margin:28px auto 0;
+  max-width:720px;
+  background:#f5f1fb;
+  border-left:4px solid var(--purple);
+  padding:15px 20px;
+  text-align:left;
+  line-height:1.7;
+}
 
-  .btn-gold{
-    display:inline-flex; align-items:center; gap:8px; flex-shrink:0;
-    background:var(--navy-solid); color:#fff; border:1px solid var(--navy-solid);
-    font-size:13.5px; font-weight:600; letter-spacing:.1px;
-    padding:11px 18px; border-radius:9px; cursor:pointer;
-    transition: background .18s ease, transform .12s ease, box-shadow .18s ease;
-  }
-  .btn-gold:hover{ background:#333e6f; box-shadow:0 6px 16px rgba(40,48,92,0.22); }
-  .btn-gold:active{ transform:scale(.97); }
-  .btn-gold svg{ width:15px; height:15px; stroke:currentColor; flex-shrink:0; }
-
-  .btn-ghost{
-    background:transparent; border:1px solid var(--border-strong); color:var(--text-secondary);
-    font-size:13.5px; font-weight:500; padding:10px 16px; border-radius:9px; cursor:pointer;
-    transition:border-color .15s ease, color .15s ease;
-  }
-  .btn-ghost:hover{ border-color:var(--navy-solid); color:var(--navy-solid); }
-
-  /* ---------------- toolbar ---------------- */
-  .kb-toolbar{
-    display:flex; flex-wrap:wrap; align-items:center; gap:14px;
-    margin-bottom:26px;
-    opacity:0; animation:fadeSlideDown .5s ease .08s forwards;
-  }
-  .kb-search{
-    display:flex; align-items:center; gap:9px;
-    background:var(--card); border:1px solid var(--border);
-    border-radius:10px; padding:10px 14px; min-width:240px; flex:1 1 240px;
-    transition:border-color .15s ease;
-  }
-  .kb-search:focus-within{ border-color:var(--gold); }
-  .kb-search svg{ width:16px; height:16px; stroke:var(--text-tertiary); flex-shrink:0; }
-  .kb-search input{
-    border:none; outline:none; background:transparent; font-size:13.5px; color:var(--text-primary);
-    width:100%; font-family:inherit;
-  }
-  .kb-search input::placeholder{ color:var(--text-tertiary); }
-
-  .kb-chips{ display:flex; flex-wrap:wrap; gap:8px; }
-  .kb-chip{
-    font-size:12.5px; font-weight:500; color:var(--text-secondary);
-    background:var(--card); border:1px solid var(--border);
-    padding:7px 14px; border-radius:20px; cursor:pointer; white-space:nowrap;
-    transition:all .15s ease;
-  }
-  .kb-chip:hover{ border-color:var(--gold); color:var(--text-primary); }
-  .kb-chip.is-active{ background:var(--navy-solid); border-color:var(--navy-solid); color:#fff; }
-
-  /* ---------------- grid & cards ---------------- */
-  .kb-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
-    gap:18px;
-  }
-
-  .kb-card{
-    background:var(--card); border:1px solid var(--border); border-radius:14px;
-    padding:20px; display:flex; flex-direction:column; gap:12px; cursor:pointer;
-    opacity:0; transform:translateY(22px);
-    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
-  }
-  .kb-card.is-visible{ animation:revealOnScroll .55s cubic-bezier(.22,.61,.36,1) forwards; }
-  .kb-card.just-added{ animation:popIn .4s cubic-bezier(.22,.61,.36,1) forwards, justAddedPulse 1.4s ease .3s; }
-  .kb-card:hover{ border-color:var(--gold); box-shadow:0 10px 26px rgba(32,36,47,0.07); transform:translateY(-2px); }
-
-  .kb-card__top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
-  .kb-tag{
-    font-size:11px; font-weight:600; letter-spacing:.1px;
-    padding:4px 10px; border-radius:20px; white-space:nowrap;
-  }
-  .kb-card__delete{
-    background:transparent; border:none; color:var(--text-tertiary); cursor:pointer;
-    width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center;
-    opacity:0; transition:opacity .15s ease, background .15s ease, color .15s ease; flex-shrink:0;
-  }
-  .kb-card:hover .kb-card__delete{ opacity:1; }
-  .kb-card__delete:hover{ background:var(--danger-tint); color:var(--danger); }
-  .kb-card__delete svg{ width:14px; height:14px; stroke:currentColor; }
-
-  .kb-card h3{ font-size:15.5px; font-weight:600; line-height:1.4; }
-  .kb-card__excerpt{
-    font-size:13px; color:var(--text-secondary); line-height:1.6;
-    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
-  }
-  .kb-card__meta{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    font-size:11.5px; color:var(--text-tertiary); margin-top:auto; padding-top:8px;
-    border-top:1px solid var(--border);
-  }
-
-  .kb-empty{
-    text-align:center; padding:70px 20px; color:var(--text-secondary);
-    display:flex; flex-direction:column; align-items:center; gap:14px;
-  }
-  .kb-empty svg{ width:40px; height:40px; stroke:var(--text-tertiary); }
-  .kb-empty p{ font-size:14px; max-width:40ch; }
-
-  /* ---------------- modals ---------------- */
-  .kb-modal{ position:fixed; inset:0; z-index:50; display:none; }
-  .kb-modal.is-open{ display:flex; align-items:center; justify-content:center; padding:20px; }
-  .kb-modal__backdrop{ position:absolute; inset:0; background:rgba(20,22,30,0.55); backdrop-filter:blur(3px); }
-  .kb-modal__panel{
-    position:relative; z-index:1; width:100%; max-width:560px; max-height:88vh; overflow-y:auto;
-    background:var(--card); border-radius:16px; padding:28px;
-    animation:popIn .22s cubic-bezier(.22,.61,.36,1);
-  }
-  .kb-modal__panel--view{ max-width:640px; }
-  .kb-modal__close{
-    position:absolute; top:18px; right:18px; width:30px; height:30px; border-radius:50%;
-    border:1px solid var(--border); background:transparent; color:var(--text-tertiary); cursor:pointer;
-    display:flex; align-items:center; justify-content:center; font-size:13px;
-    transition:border-color .15s ease, color .15s ease;
-  }
-  .kb-modal__close:hover{ border-color:var(--gold); color:var(--text-primary); }
-
-  .kb-modal__panel h2{ font-size:17px; font-weight:700; margin-bottom:20px; padding-right:30px; }
-
-  .kb-field{ margin-bottom:16px; }
-  .kb-field label{ display:block; font-size:12.5px; font-weight:600; color:var(--text-secondary); margin-bottom:6px; }
-  .kb-field input, .kb-field textarea{
-    width:100%; border:1px solid var(--border); border-radius:9px; padding:10px 13px;
-    font-family:inherit; font-size:13.5px; color:var(--text-primary); outline:none; resize:vertical;
-    transition:border-color .15s ease;
-  }
-  .kb-field input:focus, .kb-field textarea:focus{ border-color:var(--gold); }
-  .kb-field__error{ font-size:12px; color:var(--danger); margin-top:5px; display:none; }
-  .kb-field.has-error input, .kb-field.has-error textarea{ border-color:var(--danger); }
-  .kb-field.has-error .kb-field__error{ display:block; }
-
-  .kb-modal__actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:22px; }
-
-  .kb-view__tag{ display:inline-block; margin-bottom:14px; }
-  .kb-view__meta{ font-size:12px; color:var(--text-tertiary); margin-bottom:18px; }
-  .kb-view__body{ font-size:14px; color:var(--text-primary); white-space:pre-wrap; line-height:1.75; }
-
-  @media (max-width:600px){
-    .kb-header{ flex-direction:column; }
-    .kb-grid{ grid-template-columns:1fr; }
-  }
+@media(max-width:720px){
+  .topbar{height:62px;padding:0 16px}
+  .exam-title{font-size:15px}
+  .progress-text{font-size:14px}
+  .progress-wrap{top:60px}
+  .main{width:100%;padding:14px 0}
+  .question-card{border-left:0;border-right:0}
+  .question-head{padding:22px 18px 16px;min-height:210px}
+  .question-text{font-size:21px;padding-right:55px}
+  .question-no{font-size:15px}
+  .audio-btn{right:13px;top:19px;font-size:30px;width:45px;height:45px}
+  .answers{grid-template-columns:1fr}
+  .answer,.answer:nth-child(even){border-right:0;min-height:105px;padding:20px 17px;font-size:17px}
+  .nav{padding:14px 12px}
+  .nav button{min-width:0;flex:1;height:50px;font-size:16px}
+  .result{padding:30px 17px}
+  .result-title{font-size:30px}
+  .score{font-size:52px}
+}
 </style>
 </head>
 <body>
-
-<div class="kb-page">
-  <header class="kb-header">
-    <div>
-      <h1>คลังความรู้</h1>
-      <p>รวมขั้นตอนการทำงาน ข้อมูลอ้างอิง และบันทึกของทีมคลังสินค้า — เพิ่มบทความใหม่ได้ทุกเมื่อ</p>
-    </div>
-    <button class="btn-gold" id="btnAdd" type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-      เพิ่มบทความใหม่
-    </button>
+<div class="app">
+  <header class="topbar">
+    <div class="exam-title">แบบจำลองสอบใบขับขี่รถสาธารณะ</div>
+    <div style="display:flex;align-items:center;gap:18px"><div class="progress-text" id="progressText">ข้อที่ 0 / 50</div><div id="liveScore" style="font-size:15px;font-weight:600">ตอบแล้ว 0</div></div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
   </header>
 
-  <div class="kb-toolbar">
-    <div class="kb-search">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="kbSearch" type="text" placeholder="ค้นหาหัวข้อหรือเนื้อหา…">
-    </div>
-    <div class="kb-chips" id="kbChips"></div>
-  </div>
+  <main class="main">
+    <section id="startScreen" class="start-screen">
+      <h1>จำลองข้อสอบใบขับขี่รถสาธารณะ</h1>
+      <p>ชุดข้อสอบอ้างอิงจากแนวข้อสอบที่ส่งมา<br>
+      ระบบจะสุ่มข้อสอบและสุ่มลำดับตัวเลือกทุกครั้ง</p>
+      <button class="start-btn" onclick="startExam()">เริ่มทำข้อสอบ</button>
+      <div class="info">
+        <b>ระบบในชุดนี้</b><br>
+        • 50 ข้อ / 4 ตัวเลือก<br>
+        • สุ่มข้อ + สุ่มตัวเลือก<br>
+        • ฟังเสียงโจทย์ด้วยระบบอ่านออกเสียงของเบราว์เซอร์<br>
+        • ตรวจคะแนนทันทีเมื่อส่ง<br>
+        • ดูเฉลยย้อนหลังได้
+      </div>
+    </section>
 
-  <div class="kb-grid" id="kbGrid"></div>
+    <section id="exam" class="question-card" style="display:none">
+      <div class="question-head">
+        <div class="question-no" id="questionNo"></div>
+        <div class="question-text" id="questionText"></div>
+        <button class="audio-btn" onclick="speakQuestion()" title="อ่านโจทย์">🔊</button>
+        <div id="questionImage" class="question-image"></div>
+      </div>
+      <div class="answers" id="answers"></div>
+      <div class="nav">
+        <button class="btn-back" id="backBtn" onclick="prevQuestion()">‹ กลับ</button>
+        <button class="btn-next" id="nextBtn" onclick="nextQuestion()" disabled>ถัดไป ›</button>
+      </div>
+      <div class="status" id="status"></div>
+    </section>
 
-  <div class="kb-empty" id="kbEmpty" hidden>
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v18H6.5A2.5 2.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5v-13Z"/></svg>
-    <p id="kbEmptyText">ยังไม่มีบทความในคลังความรู้ — เริ่มเพิ่มบทความแรกของทีมได้เลย</p>
-    <button class="btn-gold" id="btnAddEmpty" type="button">เพิ่มบทความใหม่</button>
-  </div>
+    <section id="result" class="result">
+      <h2 class="result-title">สรุปผลการสอบ</h2>
+      <div class="score" id="scoreText">0 / 50</div>
+      <div class="result-sub" id="resultSub"></div>
+      <div class="result-actions">
+        <button class="btn-retry" onclick="startExam()">สอบใหม่</button>
+        <button class="btn-review" onclick="toggleReview()">ดูเฉลย</button>
+      </div>
+      <div id="review" class="review"></div>
+    </section>
+  </main>
 </div>
 
-<!-- Add article modal -->
-<div class="kb-modal" id="kbAddModal">
-  <div class="kb-modal__backdrop" data-close></div>
-  <div class="kb-modal__panel">
-    <button class="kb-modal__close" data-close type="button">✕</button>
-    <h2>เพิ่มบทความใหม่</h2>
+<script>
+/*
+  QUESTION BANK
+  answer = index ของคำตอบที่ถูกต้องใน choices ก่อนระบบสุ่ม
+*/
+const QUESTION_BANK = [
+  {q:"ขณะปฏิบัติหน้าที่ขับรถท่านห้ามสิ่งใด?", choices:["ห้ามใช้โทรศัพท์แม้จะถืออุปกรณ์เสริม","สามารถใช้โทรศัพท์ได้ตลอดเวลา","เปิดวิดีโอขณะขับรถได้","รับประทานอาหารขณะขับรถ"], answer:0},
+  {q:"ข้อใดไม่สามารถทำได้ขณะปฏิบัติหน้าที่?", choices:["ห้ามสูบบุหรี่","เปิดเพลงเบา ๆ","ตรวจสภาพรถก่อนออก","คาดเข็มขัดนิรภัย"], answer:0},
+  {q:"หากผู้โดยสารไม่ต้องการขึ้นทางด่วน ควรทำอย่างไร?", choices:["หาทางเลือกที่ไม่ผ่านทางด่วน","บังคับผู้โดยสารขึ้นทางด่วน","ยกเลิกงานทันที","ขับเร็วขึ้น"], answer:0},
+  {q:"ไม่ควรเปิดไฟหน้ารถในช่วงใด?", choices:["ทางร่วมทางแยก","ขณะฝนตกหนัก","ตอนกลางคืน","ในที่มืด"], answer:0},
+  {q:"ในสภาพอากาศหมอกลงหรือฝนตกหนัก ห้ามแซงเมื่อมองไม่เห็นทางในระยะเท่าใด?", choices:["60 เมตร","30 เมตร","100 เมตร","150 เมตร"], answer:0},
+  {q:"ฟิล์มกรองแสงติดตั้งได้ไม่เกินกี่เปอร์เซ็นต์?", choices:["50%","30%","70%","80%"], answer:0},
+  {q:"ข้อใดไม่สามารถปฏิเสธการรับผู้โดยสารได้?", choices:["การจราจรติดขัด","ผู้โดยสารมีสัมภาระ","ผู้โดยสารไปสถานที่สาธารณะ","ผู้โดยสารเรียกตามจุดรับที่ถูกต้อง"], answer:0},
+  {q:"เมื่อเติมน้ำมันในเครื่องยนต์ สิ่งใดควรทำ?", choices:["ดับเครื่องยนต์และให้ผู้โดยสารอยู่ในความปลอดภัย","เปิดเครื่องยนต์ทิ้งไว้","สูบบุหรี่ได้ตามปกติ","เร่งเครื่องยนต์"], answer:0},
+  {q:"การขับรถในทางสวนควรทำอย่างไร?", choices:["ขับชิดซ้ายของทางเดินรถ","ขับชิดขวาตลอดเวลา","ขับตรงกลางถนน","ขับบนไหล่ทาง"], answer:0},
+  {q:"กรณีใดสามารถแซงรถด้านขวามาทางหรือเลนอื่นได้?", choices:["เมื่อรถที่ถูกแซงกำลังจะเลี้ยวซ้ายหรือให้สัญญาณว่าจะเลี้ยวซ้าย","เมื่อรถคันหน้าเร็วกว่า","เมื่อถนนมีรถมาก","เมื่อมองไม่เห็นทาง"], answer:0},
+  {q:"สามารถใช้เสียงสัญญาณแตรได้ยกเว้นเมื่อใด?", choices:["เพื่อเร่งรถ เพื่อจะได้ไม่ถึงจุดหมายโดยเร็ว","เมื่อมีเหตุฉุกเฉิน","เพื่อป้องกันอุบัติเหตุ","เพื่อเตือนอันตราย"], answer:0},
+  {q:"เมื่อเล่นน้ำมัน ข้อใดไม่ควรปฏิบัติ?", choices:["ติดเครื่องยนต์","ดับเครื่องยนต์","ห้ามสูบบุหรี่","ปฏิบัติตามคำแนะนำของสถานี"], answer:0},
+  {q:"ข้อใดถูกต้องขณะปฏิบัติงานขับรถ?", choices:["ไม่ขับแซงรถโดยคาดเดา","ขับแซงทุกครั้งที่มีช่องว่าง","ขับเร็วเพื่อส่งผู้โดยสาร","ใช้โทรศัพท์ขณะขับรถ"], answer:0},
+  {q:"เมื่อผู้โดยสารเรียกรถบริเวณป้ายห้ามจอด ควรทำอย่างไร?", choices:["ไม่จอดรับผู้โดยสารตรงบริเวณนั้น","จอดทันที","จอดเปิดไฟฉุกเฉิน","จอดกีดขวางช่องทาง"], answer:0},
+  {q:"ผู้ขับรถรับจ้างต้องแสดงเครื่องหมายรถรับจ้างไว้ที่ตำแหน่งใด?", choices:["ด้านหน้าท้ายที่กำหนดให้เห็นชัดเจน","ใต้เบาะคนขับ","ในลิ้นชัก","หลังเครื่องยนต์"], answer:0},
+  {q:"รถยนต์รับจ้างที่สามารถใช้งานได้ไม่เกินกี่ปีนับตั้งแต่จดทะเบียน?", choices:["9 ปี","5 ปี","7 ปี","12 ปี"], answer:0},
+  {q:"ข้อใดไม่เกี่ยวกับหน้าที่ของผู้ขับรถ?", choices:["ป้ายทำตามมาตรฐาน","ขับรถอย่างปลอดภัย","ดูแลผู้โดยสาร","ปฏิบัติตามกฎหมายจราจร"], answer:0},
+  {q:"อุปกรณ์ใดไม่สามารถคลาด/ถอดออกจากรถได้ตามที่กำหนด?", choices:["โลโก้กันสนิมรถ","อุปกรณ์ความปลอดภัยที่กฎหมายกำหนด","เข็มขัดนิรภัย","เครื่องหมายรถ"], answer:0},
+  {q:"ชุดปฐมพยาบาลควรมีสิ่งใด?", choices:["เสื้อเชือก กางเกงขายาว รองเท้าหุ้มส้น","อุปกรณ์ปฐมพยาบาลที่จำเป็น","อุปกรณ์ทำอาหาร","เครื่องมือช่างหนัก"], answer:0},
+  {q:"ขณะปฏิบัติงานรถรับจ้างต้องติดเครื่องหมายชื่อ-นามสกุลอย่างไร?", choices:["ชื่อ-นามสกุล ภาษาไทยและอังกฤษ 1.5 ขึ้นไป","เฉพาะชื่อเล่น","เฉพาะภาษาอังกฤษ","ไม่ต้องแสดง"], answer:0},
+  {q:"ขณะปฏิบัติงานบริการธุรกิจต้องแสดงข้อมูลใด?", choices:["ชื่อ-นามสกุล ภาษาไทยและอังกฤษ บนเสื้อ","เลขบัตรประชาชนไว้บนกระจก","ชื่อเล่นอย่างเดียว","ไม่ต้องแสดงข้อมูล"], answer:0},
+  {q:"Where would you like to go?", choices:["อยากไปที่ไหน","มาจากประเทศอะไร","ไกลจากตรงนี้มากหรือไม่","โรงแรมอยู่ที่ไหน"], answer:0},
+  {q:"Can you take me to the nearest hotel?", choices:["คุณพาฉันไปที่โรงแรมใกล้ที่สุดได้ไหม","คุณมาจากประเทศอะไร","ไกลจากตรงนี้ไหม","คุณจะไปไหน"], answer:0},
+  {q:"Is it far from here?", choices:["ไกลจากตรงนี้มากหรือไม่","อยากไปที่ไหน","มาจากประเทศอะไร","ไปโรงแรมที่ใกล้ที่สุดได้ไหม"], answer:0},
+  {q:"Where do you come from?", choices:["มาจากประเทศอะไร","อยากไปที่ไหน","ไกลจากตรงนี้หรือไม่","ไปโรงแรมได้ไหม"], answer:0},
+  {q:"เมื่อกำลังปฏิบัติงานไม่บริการท่านควรทำอย่างไร?", choices:["ขายชื่อ ติดด้านหลังพนักงานนั่งข้างหน้า","รับผู้โดยสารทุกคน","เปิดรับงานตลอดเวลา","ขับวนหาผู้โดยสาร"], answer:0},
+  {q:"ขีดตรงประจำลำขับรถสาธารณะ ข้อใดถูกต้อง?", choices:["ไม่คร่อมติดด้านในรถ ด้านหน้าข่าย","ติดบนกระจกหน้ารถเท่านั้น","ติดใต้เบาะ","ไม่ต้องมี"], answer:0},
+  {q:"แสดงเครื่องหมายงดรับจ้าง ควรติดไว้ที่ใด?", choices:["ด้านหน้าซ้ายมือ","ด้านหลังขวา","ใต้รถ","กระจกหลังเท่านั้น"], answer:0},
+  {q:"โหมดการเดินรถของ Google Maps ข้อใดไม่ใช่?", choices:["จักรยาน","รถยนต์","เดิน","ขนส่งสาธารณะ"], answer:0},
+  {q:"อยากทราบทางที่ใกล้ที่สุดใน Google Maps กดปุ่มใด?", choices:["เส้นทาง","ตั้งค่า","แชร์","บันทึก"], answer:0},
+  {q:"ข้อใดไม่ใช่แอปพลิเคชันนำทาง?", choices:["my move","Google Maps","Waze","แอปนำทาง"], answer:0},
+  {q:"ขณะขับรถปฏิบัติงานตอนกลางคืน ถ้าไม่ต้องการรับผู้โดยสาร ข้อใดถูกต้อง?", choices:["ปิดไฟ \"ว่าง\" และโคมไฟทุกดวงภายในรถและกรอบบังแสง TAXI METER","เปิดไฟว่างไว้ตลอด","เปิดไฟฉุกเฉินตลอด","ปิดเฉพาะไฟหน้ารถ"], answer:0},
+  {q:"ขณะกำลังขับรถปฏิบัติงานตอนกลางวัน ถ้าไม่ต้องการรับผู้โดยสาร ข้อใดถูกต้อง?", choices:["ปิดไฟ \"ว่าง\" และไม่รับงานจากแอปพลิเคชัน","เปิดไฟว่างและรับงานทันที","เปิดไฟฉุกเฉิน","ปิดเครื่องยนต์"], answer:0},
+  {q:"พูดเสียงดังล้อเล่นเกี่ยวกับ “พล” ควรหลีกเลี่ยงเพราะเหตุใด?", choices:["อาจทำให้ผู้โดยสารอึดอัด","ทำให้รถประหยัดน้ำมันน้อยลง","ทำให้แผนที่เปลี่ยนเส้นทาง","ทำให้เครื่องยนต์ร้อน"], answer:0},
+  {q:"กระทัด/การกระทำที่ไม่เหมาะสมกับผู้โดยสารคือข้อใด?", choices:["ไม่เล่นสมาร์ทโฟนขณะขับรถ","เปิดเพลงดัง","ขับรถเร็ว","พูดเสียงดัง"], answer:0},
+  {q:"เมื่อพบผู้โดยสารเรียกให้หยุดรถในบริเวณห้ามหยุดรถ ควรทำอย่างไร?", choices:["ไม่หยุดรับคนโดยสาร","หยุดทันที","หยุดกลางถนน","จอดขวางทาง"], answer:0},
+  {q:"ผู้ขับรถรับจ้างต้องระวังเรื่องใดเมื่อเรียกเก็บค่าโดยสารเกินอัตรา?", choices:["เพิกถอนใบอนุญาตขับรถ","ลดค่าโดยสารให้ครึ่งหนึ่ง","ไม่ต้องรับผิด","เพียงตักเตือน"], answer:0},
+  {q:"ข้อใดไม่ใช่อุปกรณ์เพื่อความปลอดภัยของรถยนต์รับจ้าง?", choices:["เครื่องหมายห้ามสูบบุหรี่","เข็มขัดนิรภัย","อุปกรณ์ฉุกเฉิน","อุปกรณ์ตามที่กฎหมายกำหนด"], answer:0},
+  {q:"ขณะขับรถยนต์รับจ้าง ท่านต้องติดเครื่องหมายอย่างไร?", choices:["ขนาดตัวอักษรสูงไม่น้อยกว่า 1.50 เซนติเมตรตามที่กำหนด","ขนาดใดก็ได้","ไม่ต้องติด","ติดเฉพาะตอนกลางคืน"], answer:0},
+  {q:"รถยนต์รับจ้างอายุเท่าใดตามแนวข้อสอบชุดนี้?", choices:["รถยนต์ 9 ปี","รถยนต์ 3 ปี","รถยนต์ 5 ปี","รถยนต์ 15 ปี"], answer:0},
+  {q:"มาตรฐานฟิล์มกรองแสงตามแนวข้อสอบชุดนี้คือเท่าใด?", choices:["ไม่น้อยกว่าร้อยละ 50","ไม่เกินร้อยละ 10","ร้อยละ 25","ร้อยละ 80"], answer:0},
+  {q:"ลูกค้า/ผู้โดยสารที่ถูกยกเลิกในใบอนุญาต ต้องส่งคืนใบขับขี่ภายในกี่วัน?", choices:["15 วัน","7 วัน","30 วัน","60 วัน"], answer:0},
+  {q:"ผู้เรียกเก็บค่าโดยสารเกินอัตราที่กำหนด มีโทษตามแนวข้อสอบนี้อย่างไร?", choices:["ปรับไม่เกิน 5,000 บาท","ปรับไม่เกิน 500 บาท","จำคุกทันทีทุกกรณี","ไม่มีโทษ"], answer:0},
+  {q:"ห้ามมิให้ผู้ขับรถยนต์รับจ้างขึ้นหน้ารถคันอื่น ขณะที่มีหมอก ฝน หรือควันจนไม่อาจเห็นทางในระยะเท่าใด?", choices:["60 เมตร","20 เมตร","100 เมตร","150 เมตร"], answer:0},
+  {q:"อัตราค่าโดยสาร 2 กิโลเมตรแรกตามแนวข้อสอบชุดนี้?", choices:["ไม่เกิน 25 บาท","ไม่เกิน 10 บาท","ไม่เกิน 40 บาท","ไม่เกิน 50 บาท"], answer:0},
+  {q:"อัตราค่าโดยสารกิโลเมตรต่อไปจาก 2 กิโลเมตรแรก?", choices:["ไม่เกินกิโลเมตรละ 5 บาท","ไม่เกินกิโลเมตรละ 1 บาท","ไม่เกินกิโลเมตรละ 10 บาท","คิดฟรี"], answer:0},
+  {q:"ระยะทางเกิน 5 กิโลเมตรขึ้นไป อัตราค่าโดยสารคิดอย่างไร?", choices:["ตามที่ตกลงกัน","ฟรี","คิดกิโลเมตรละ 1 บาทเสมอ","คิดราคาเดียว 25 บาท"], answer:0},
+  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะต้องปฏิบัติ?", choices:["รู้จักมีความคิดในลักษณะเอาใจเขามาใส่ใจเรา","โต้เถียงผู้โดยสาร","ขับรถประมาท","ปฏิเสธผู้โดยสารทุกคน"], answer:0},
+  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะต้องปฏิบัติ?", choices:["แนะนำช่วยเหลือผู้โดยสารเพื่อมิให้เกิดอันตราย","ปล่อยผู้โดยสารขึ้นลงเองโดยไม่ดูแล","เร่งรถเมื่อผู้โดยสารลง","ละเลยสัมภาระ"], answer:0},
+  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะต้องปฏิบัติ?", choices:["ไม่บีบแตรให้เสียเกียรติยา/รบกวนผู้อื่นโดยไม่จำเป็น","บีบแตรเรียกผู้โดยสารทุกครั้ง","บีบแตรยาวตลอดทาง","บีบแตรเพื่อเร่งรถ"], answer:0},
+  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะต้องปฏิบัติด้านการแต่งกาย?", choices:["แต่งกายด้วยความสุภาพถูกต้องตามระเบียบ สะอาด เรียบร้อยอยู่เสมอ","ใส่เสื้อผ้าใดก็ได้","ใส่รองเท้าแตะเสมอ","ไม่ต้องแต่งเครื่องแบบ"], answer:0},
+  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะไม่ควรปฏิบัติ?", choices:["ไม่ใช้กิริยาขับขี่ข้ามทางผู้โดยสารอย่างไร้การยาท","ขับรถอย่างสุภาพ","ช่วยเหลือผู้โดยสาร","พูดจาสุภาพ"], answer:0},
+  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะไม่ควรปฏิบัติ?", choices:["ไม่พูดจาหรือกระทำให้ผู้โดยสารได้รับความอับอายด้วยวิธีการต่าง ๆ","พูดจาสุภาพ","ให้ข้อมูลเส้นทาง","ช่วยยกสัมภาระ"], answer:0},
+  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะต้องปฏิบัติ?", choices:["ไม่ล่วงล้ำ แคะ แกะ เกา ต่อหน้าผู้โดยสาร","นั่งพักระหว่างขับรถ","ใช้งานโทรศัพท์","รับประทานอาหารต่อหน้าผู้โดยสาร"], answer:0},
+  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะต้องปฏิบัติ?", choices:["ไม่ส่งสิ่งของให้ผู้อื่นด้วยกิริยาที่ไม่เหมาะสม","โยนสิ่งของให้ผู้โดยสาร","ส่งของข้ามตัวผู้โดยสาร","วางของกีดขวาง"], answer:0},
+  {q:"เมื่อผู้โดยสารต้องการความช่วยเหลือ ผู้ขับรถควรมีหลักการใด?", choices:["ช่วยเหลือผู้โดยสารเพื่อมิให้เกิดอันตราย","ปฏิเสธทุกกรณี","ให้ผู้โดยสารช่วยตัวเอง","เร่งรถหนี"], answer:0},
+  {q:"ขณะขับรถสาธารณะต้องแสดงบัตรประจำตัวผู้ขับรถอย่างไร?", choices:["ใส่กรอบติดตั้งภายในรถด้านหน้าตอนบน","เก็บไว้ในกระเป๋า","วางใต้เบาะ","ติดไว้ท้ายรถ"], answer:0},
+  {q:"ขณะขับรถบริการทัศนาจร ต้องแสดงบัตรประจำตัวผู้ขับรถอย่างไร?", choices:["ด้านหลังของพนักพิงที่นั่งตอนหลัง โดยไม่มีสิ่งใดปิดบัง","ใต้เบาะคนขับ","ที่กระจกหน้า","ในช่องเก็บของ"], answer:0},
+  {q:"ขณะขับรถ ห้ามมิให้ผู้ขับรถแท็กซี่กระทำสิ่งใด?", choices:["สูบบุหรี่","คาดเข็มขัดนิรภัย","เปิดไฟตามกฎหมาย","ตรวจเส้นทางก่อนเดินทาง"], answer:0},
+  {q:"รถยนต์รับจ้างเมื่อเกิดเพลิงไหม้ ผู้ขับรถควรปฏิบัติเป็นลำดับแรกอย่างไร?", choices:["ดูแลคนโดยสารให้ได้รับความปลอดภัย","ขับรถต่อทันที","เก็บสัมภาระก่อน","ถ่ายรูปเหตุการณ์"], answer:0},
+  {q:"ในการขับรถสวนทางกัน ผู้ขับรถยนต์รับจ้างต้องขับขี่อย่างไร?", choices:["ให้ขับรถชิดด้านซ้ายของทางเดินรถ","ชิดด้านขวา","ตรงกลางถนน","บนไหล่ทาง"], answer:0},
+  {q:"เมื่อพบเครื่องหมายลูกศรสวนทาง ผู้ขับขี่ควรทำอย่างไร?", choices:["ต้องหยุดรถตรงตำแหน่งป้ายและให้รถที่กำลังสวนทางมาผ่านไปก่อน","ห้ามหยุดรถ","เร่งความเร็วผ่านไป","ขับสวนด้านขวา"], answer:0}
+];
 
-    <div class="kb-field" id="fieldTitle">
-      <label for="fTitle">หัวข้อ</label>
-      <input id="fTitle" type="text" placeholder="เช่น ขั้นตอนการรับสินค้าเข้าคลัง">
-      <span class="kb-field__error">กรุณากรอกหัวข้อ</span>
-    </div>
+let examQuestions=[];
+let current=0;
+let selected=[];
+let submitted=false;
 
-    <div class="kb-field" id="fieldCategory">
-      <label for="fCategory">หมวดหมู่</label>
-      <input id="fCategory" list="kbCategoryList" type="text" placeholder="เช่น คลังสินค้า, ระบบ IT, นโยบายบริษัท">
-      <datalist id="kbCategoryList"></datalist>
-      <span class="kb-field__error">กรุณาระบุหมวดหมู่</span>
-    </div>
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
 
-    <div class="kb-field" id="fieldContent">
-      <label for="fContent">เนื้อหา</label>
-      <textarea id="fContent" rows="7" placeholder="อธิบายรายละเอียด ขั้นตอน หรือหมายเหตุ…"></textarea>
-      <span class="kb-field__error">กรุณากรอกเนื้อหา</span>
-    </div>
+function makeQuestion(q){
+  const items=q.choices.map((text,i)=>({text,correct:i===q.answer}));
+  return {...q, options:shuffle(items)};
+}
 
-    <div class="kb-modal__actions">
-      <button class="btn-ghost" type="button" data-close>ยกเลิก</button>
-      <button class="btn-gold" id="fSave" type="button">บันทึกบทความ</button>
-    </div>
-  </div>
-</div>
+function startExam(){
+  speechSynthesis.cancel();
+  submitted=false;
+  current=0;
+  selected=new Array(50).fill(null);
 
-<!-- View article modal -->
-<div class="kb-modal" id="kbViewModal">
-  <div class="kb-modal__backdrop" data-close></div>
-  <div class="kb-modal__panel kb-modal__panel--view">
-    <button class="kb-modal__close" data-close type="button">✕</button>
-    <span class="kb-tag kb-view__tag" id="viewTag">หมวดหมู่</span>
-    <h2 id="viewTitle" style="margin-bottom:6px;">หัวข้อบทความ</h2>
-    <p class="kb-view__meta" id="viewMeta">–</p>
-    <div class="kb-view__body" id="viewBody">–</div>
-  </div>
-</div>
+  // มี 50 ข้อพอดีในชุดนี้
+  // สุ่มข้อสอบ 50 ข้อ จากฐานทั้งหมด และสุ่มตัวเลือกของแต่ละข้อ
+  examQuestions=shuffle(QUESTION_BANK).slice(0,50).map(makeQuestion);
 
-<script type="module">
-  import { auth } from "./src/js/firebase.js";
-  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import {
-    getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  document.getElementById("startScreen").style.display="none";
+  document.getElementById("result").classList.remove("show");
+  document.getElementById("exam").style.display="block";
+  renderQuestion();
+}
 
-  const db = getFirestore(auth.app);
-  const COLLECTION = "knowledge_base";
+function renderQuestion(){
+  const q=examQuestions[current];
+  document.getElementById("questionNo").textContent=`ข้อที่ ${current+1}`;
+  document.getElementById("progressText").textContent=`ข้อที่ ${current+1} / ${examQuestions.length}`;
+  document.getElementById("liveScore").textContent=`ตอบแล้ว ${selected.filter(v=>v!==null).length}`;
+  document.getElementById("progressBar").style.width=((current+1)/examQuestions.length*100)+"%";
+  document.getElementById("questionText").textContent=q.q;
 
-  let ARTICLES = [];
-  let currentUserLabel = "ผู้ใช้งาน";
-  let activeCategory = "";
-  let searchTerm = "";
-
-  const TAG_PALETTE = [
-    { bg:"rgba(208,161,84,0.14)", fg:"#8a6528" },
-    { bg:"rgba(40,48,92,0.10)",  fg:"#28305c" },
-    { bg:"rgba(59,146,120,0.12)", fg:"#28714f" },
-    { bg:"rgba(80,130,200,0.12)", fg:"#2a5f9e" },
-    { bg:"rgba(190,90,140,0.12)", fg:"#9e3f6f" },
-    { bg:"rgba(200,120,60,0.12)", fg:"#985a24" }
-  ];
-  function tagColor(category){
-    let hash = 0;
-    for(const ch of category) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-    return TAG_PALETTE[hash % TAG_PALETTE.length];
+  const img=document.getElementById("questionImage");
+  img.innerHTML="";
+  // ภาพป้ายสำหรับคำถามเรื่องลูกศรสวนทาง
+  if(q.q.includes("เครื่องหมายลูกศรสวนทาง")){
+    img.innerHTML=`<div class="sign"><span style="color:#d62232">↑</span><span style="color:#111">↓</span></div>`;
   }
 
-  function escapeHtml(s){
-    return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
-  }
-  function toDateSafe(v){
-    if(!v) return null;
-    if(v.toDate) return v.toDate();
-    if(v.seconds) return new Date(v.seconds * 1000);
-    return null;
-  }
-  function fmtDateThai(d){
-    if(!d) return "เพิ่งเพิ่ม";
-    return d.toLocaleDateString("th-TH", { day:"2-digit", month:"short", year:"numeric" });
-  }
-
-  onAuthStateChanged(auth, (user) => {
-    if(user){
-      currentUserLabel = user.displayName || (user.email ? user.email.split("@")[0] : "ผู้ใช้งาน");
-    }
+  const answers=document.getElementById("answers");
+  answers.innerHTML="";
+  q.options.forEach((opt,i)=>{
+    const btn=document.createElement("button");
+    btn.className="answer";
+    if(selected[current]===i) btn.classList.add("selected");
+    btn.innerHTML=`<span class="answer-letter">${i+1}</span><span class="answer-text">${escapeHtml(opt.text)}</span>`;
+    btn.onclick=()=>selectAnswer(i);
+    answers.appendChild(btn);
   });
 
-  async function loadArticles(){
-    try{
-      const snap = await getDocs(collection(db, COLLECTION));
-      ARTICLES = snap.docs.map(d => {
-        const data = d.data();
-        return {
-          id: d.id,
-          title: data.title || "ไม่มีหัวข้อ",
-          category: data.category || "ทั่วไป",
-          content: data.content || "",
-          author: data.author || "ผู้ใช้งาน",
-          createdAt: toDateSafe(data.createdAt)
-        };
-      });
-      ARTICLES.sort((a,b) => (b.createdAt?.getTime()||0) - (a.createdAt?.getTime()||0));
-    }catch(err){
-      console.error("โหลดคลังความรู้ไม่สำเร็จ:", err);
-      ARTICLES = [];
-    }
-    renderChips();
-    renderGrid();
+  document.getElementById("backBtn").disabled=current===0;
+  document.getElementById("nextBtn").disabled=selected[current]===null;
+  document.getElementById("nextBtn").textContent=current===examQuestions.length-1?"ส่งข้อสอบ":"ถัดไป ›";
+  document.getElementById("status").textContent=selected[current]===null?"กรุณาเลือกคำตอบ":"เลือกคำตอบแล้ว";
+}
+
+function selectAnswer(i){
+  if(submitted)return;
+  selected[current]=i;
+  renderQuestion();
+}
+
+function prevQuestion(){
+  if(current>0){current--;renderQuestion();}
+}
+
+function nextQuestion(){
+  if(selected[current]===null)return;
+  if(current<examQuestions.length-1){
+    current++;
+    renderQuestion();
+  }else{
+    submitExam();
   }
+}
 
-  function renderChips(){
-    const chips = document.getElementById("kbChips");
-    const categories = [...new Set(ARTICLES.map(a => a.category))].sort();
-
-    const datalist = document.getElementById("kbCategoryList");
-    datalist.innerHTML = categories.map(c => `<option value="${escapeHtml(c)}">`).join("");
-
-    const all = [{ label:"ทั้งหมด", value:"" }, ...categories.map(c => ({ label:c, value:c }))];
-    chips.innerHTML = all.map(c => `
-      <button type="button" class="kb-chip ${activeCategory === c.value ? "is-active" : ""}" data-cat="${escapeHtml(c.value)}">${escapeHtml(c.label)}</button>
-    `).join("");
-
-    chips.querySelectorAll(".kb-chip").forEach(btn => {
-      btn.addEventListener("click", () => {
-        activeCategory = btn.dataset.cat;
-        renderChips();
-        renderGrid();
-      });
-    });
-  }
-
-  function filteredArticles(){
-    const q = searchTerm.trim().toLowerCase();
-    return ARTICLES.filter(a => {
-      if(activeCategory && a.category !== activeCategory) return false;
-      if(q && !(a.title.toLowerCase().includes(q) || a.content.toLowerCase().includes(q) || a.category.toLowerCase().includes(q))) return false;
-      return true;
-    });
-  }
-
-  let observer;
-  function renderGrid(highlightId){
-    const grid = document.getElementById("kbGrid");
-    const empty = document.getElementById("kbEmpty");
-    const list = filteredArticles();
-
-    if(!ARTICLES.length){
-      grid.innerHTML = "";
-      empty.hidden = false;
-      document.getElementById("kbEmptyText").textContent = "ยังไม่มีบทความในคลังความรู้ — เริ่มเพิ่มบทความแรกของทีมได้เลย";
-      return;
-    }
-    if(!list.length){
-      grid.innerHTML = "";
-      empty.hidden = false;
-      document.getElementById("kbEmptyText").textContent = "ไม่พบบทความที่ตรงกับการค้นหาหรือหมวดหมู่นี้";
-      return;
-    }
-    empty.hidden = true;
-
-    grid.innerHTML = list.map(a => {
-      const c = tagColor(a.category);
-      return `
-        <article class="kb-card" data-id="${escapeHtml(a.id)}">
-          <div class="kb-card__top">
-            <span class="kb-tag" style="background:${c.bg}; color:${c.fg};">${escapeHtml(a.category)}</span>
-            <button class="kb-card__delete" data-delete="${escapeHtml(a.id)}" type="button" aria-label="ลบบทความ" title="ลบบทความ">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
-            </button>
-          </div>
-          <h3>${escapeHtml(a.title)}</h3>
-          <p class="kb-card__excerpt">${escapeHtml(a.content)}</p>
-          <div class="kb-card__meta">
-            <span>${escapeHtml(a.author)}</span>
-            <span>${fmtDateThai(a.createdAt)}</span>
-          </div>
-        </article>
-      `;
-    }).join("");
-
-    grid.querySelectorAll(".kb-card").forEach(card => {
-      card.addEventListener("click", (e) => {
-        if(e.target.closest("[data-delete]")) return;
-        openViewModal(card.dataset.id);
-      });
-    });
-    grid.querySelectorAll("[data-delete]").forEach(btn => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        confirmDelete(btn.dataset.delete);
-      });
-    });
-
-    // Scroll-reveal: cards fade + rise into place as they enter the
-    // viewport, rather than all animating on load.
-    if(observer) observer.disconnect();
-    observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry, i) => {
-        if(entry.isIntersecting){
-          entry.target.style.transitionDelay = `${(i % 6) * 45}ms`;
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
-    grid.querySelectorAll(".kb-card").forEach(card => observer.observe(card));
-
-    if(highlightId){
-      const el = grid.querySelector(`.kb-card[data-id="${highlightId}"]`);
-      if(el){
-        el.classList.add("is-visible", "just-added");
-        el.scrollIntoView({ behavior:"smooth", block:"center" });
-      }
-    }
-  }
-
-  function openViewModal(id){
-    const a = ARTICLES.find(x => x.id === id);
-    if(!a) return;
-    const c = tagColor(a.category);
-    const tagEl = document.getElementById("viewTag");
-    tagEl.textContent = a.category;
-    tagEl.style.background = c.bg;
-    tagEl.style.color = c.fg;
-    document.getElementById("viewTitle").textContent = a.title;
-    document.getElementById("viewMeta").textContent = `${a.author} · ${fmtDateThai(a.createdAt)}`;
-    document.getElementById("viewBody").textContent = a.content;
-    document.getElementById("kbViewModal").classList.add("is-open");
-  }
-
-  async function confirmDelete(id){
-    if(!confirm("ต้องการลบบทความนี้ใช่หรือไม่?")) return;
-    try{
-      await deleteDoc(doc(db, COLLECTION, id));
-      ARTICLES = ARTICLES.filter(a => a.id !== id);
-      renderChips();
-      renderGrid();
-    }catch(err){
-      console.error("ลบบทความไม่สำเร็จ:", err);
-      alert("ลบบทความไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
-    }
-  }
-
-  // ---- add modal ----
-  const addModal = document.getElementById("kbAddModal");
-  function openAddModal(){
-    document.getElementById("fTitle").value = "";
-    document.getElementById("fCategory").value = "";
-    document.getElementById("fContent").value = "";
-    ["fieldTitle","fieldCategory","fieldContent"].forEach(id => document.getElementById(id).classList.remove("has-error"));
-    addModal.classList.add("is-open");
-    setTimeout(() => document.getElementById("fTitle").focus(), 50);
-  }
-  document.getElementById("btnAdd").addEventListener("click", openAddModal);
-  document.getElementById("btnAddEmpty").addEventListener("click", openAddModal);
-
-  document.getElementById("fSave").addEventListener("click", async () => {
-    const titleEl = document.getElementById("fTitle");
-    const catEl = document.getElementById("fCategory");
-    const contentEl = document.getElementById("fContent");
-
-    const title = titleEl.value.trim();
-    const category = catEl.value.trim();
-    const content = contentEl.value.trim();
-
-    document.getElementById("fieldTitle").classList.toggle("has-error", !title);
-    document.getElementById("fieldCategory").classList.toggle("has-error", !category);
-    document.getElementById("fieldContent").classList.toggle("has-error", !content);
-    if(!title || !category || !content) return;
-
-    const saveBtn = document.getElementById("fSave");
-    saveBtn.disabled = true;
-    saveBtn.textContent = "กำลังบันทึก…";
-
-    try{
-      const ref = await addDoc(collection(db, COLLECTION), {
-        title, category, content,
-        author: currentUserLabel,
-        createdAt: serverTimestamp()
-      });
-      addModal.classList.remove("is-open");
-      ARTICLES.unshift({ id: ref.id, title, category, content, author: currentUserLabel, createdAt: new Date() });
-      activeCategory = "";
-      searchTerm = "";
-      document.getElementById("kbSearch").value = "";
-      renderChips();
-      renderGrid(ref.id);
-    }catch(err){
-      console.error("บันทึกบทความไม่สำเร็จ:", err);
-      alert("บันทึกบทความไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
-    }finally{
-      saveBtn.disabled = false;
-      saveBtn.textContent = "บันทึกบทความ";
-    }
+function submitExam(){
+  submitted=true;
+  speechSynthesis.cancel();
+  let score=0;
+  examQuestions.forEach((q,i)=>{
+    if(selected[i]!==null && q.options[selected[i]].correct)score++;
   });
+  document.getElementById("exam").style.display="none";
+  document.getElementById("result").classList.add("show");
+  document.getElementById("scoreText").textContent=`${score} / ${examQuestions.length} (${percentage}%)`;
+  const passed=score>=45;
+  document.getElementById("scoreText").className="score "+(passed?"pass":"fail");
+  document.getElementById("resultSub").innerHTML=passed
+    ? "🎉 <b>ผ่าน</b> — คะแนนถึงเกณฑ์ 90%"
+    : "ยังไม่ผ่าน — ลองทำข้อสอบใหม่แล้วทบทวนเฉลย";
+  buildReview(score);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
 
-  // ---- shared modal close handling ----
-  document.querySelectorAll(".kb-modal").forEach(modal => {
-    modal.querySelectorAll("[data-close]").forEach(el =>
-      el.addEventListener("click", () => modal.classList.remove("is-open"))
-    );
+function buildReview(score){
+  const review=document.getElementById("review");
+  review.innerHTML="";
+  examQuestions.forEach((q,i)=>{
+    const chosen=selected[i];
+    const correctIndex=q.options.findIndex(x=>x.correct);
+    const div=document.createElement("div");
+    div.className="review-item";
+    const resultText=chosen!==null && q.options[chosen].correct?"✓ ถูก":"✗ ผิด";
+    div.innerHTML=`<div class="review-q">${i+1}. ${escapeHtml(q.q)} <span class="small">${resultText}</span></div>`;
+    if(chosen!==null){
+      div.innerHTML+=`<div class="review-row ${q.options[chosen].correct?"good":"bad"}">คำตอบของคุณ: ${escapeHtml(q.options[chosen].text)}</div>`;
+    }else{
+      div.innerHTML+=`<div class="review-row bad">คำตอบของคุณ: ไม่ได้ตอบ</div>`;
+    }
+    div.innerHTML+=`<div class="review-row key">เฉลย: ${escapeHtml(q.options[correctIndex].text)}</div>`;
+    review.appendChild(div);
   });
-  document.addEventListener("keydown", (e) => {
-    if(e.key === "Escape") document.querySelectorAll(".kb-modal.is-open").forEach(m => m.classList.remove("is-open"));
-  });
+}
 
-  // ---- search ----
-  document.getElementById("kbSearch").addEventListener("input", (e) => {
-    searchTerm = e.target.value;
-    renderGrid();
-  });
+function toggleReview(){
+  document.getElementById("review").classList.toggle("show");
+}
 
-  loadArticles();
+function speakQuestion(){
+  const q=examQuestions[current];
+  if(!q)return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(q.q);
+  u.lang="th-TH";
+  u.rate=.88;
+  speechSynthesis.speak(u);
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
 </script>
-
 </body>
 </html>
