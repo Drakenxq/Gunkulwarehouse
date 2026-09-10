@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PR / PA / PO Tracking Sheet</title>
+<title>Tracking Sheet Status</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -225,13 +225,13 @@
 
   <div class="breadcrumb">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v4h6V3"/></svg>
-    PR / PA / PO TRACKING
+    STATUS TRACKING
   </div>
 
   <div class="header-row">
     <div>
       <h1>Tracking Sheet — Overview</h1>
-      <p class="subtitle">รวมข้อมูลจาก Google Sheet กลาง แสดงสถานะ PO แบบ real-time ต่อบริษัท ค้นหาและกรองได้จากหน้านี้โดยตรง</p>
+      <p class="subtitle">รวมข้อมูลจาก Google Sheet กลาง แสดงสถานะ PO แบบ real-time ค้นหาและกรองได้จากหน้านี้โดยตรง</p>
     </div>
     <div style="display:flex; gap:10px; align-items:center;">
       <div class="sync-pill" id="syncPill"><span class="dot" id="syncDot"></span> <span id="syncText">กำลังเชื่อมต่อ Google Sheet...</span></div>
@@ -297,14 +297,9 @@
   </div>
 
 <script>
-/* ============================================================
-   LIVE GOOGLE SHEETS CONFIG
-   แต่ละแท็บคือแต่ละ tab (gid) ในไฟล์ "[CHECKER] In-Out" ที่ publish to web แล้ว
-   ถ้าต้องเพิ่ม/แก้แท็บ ให้แก้ที่ SHEETS ด้านล่างนี้ที่เดียว
-   ============================================================ */
 const PUB_KEY = "2PACX-1vQO2Zmaf732SKWQQD-0tMPim5w0MywaUCraFGhHJGmBRQr5qPLKH4s2mZer3UFkUyCyJIopG4T7amOP";
 const EDIT_URL = "https://docs.google.com/spreadsheets/d/1NJ0gGymv26ZF1ceDd1_LPLCT3KiWHQgOEcWcXf8BKLU/edit";
-const REFRESH_MS = 60000; // auto-refresh ทุก 60 วินาที
+const REFRESH_MS = 60000;
 
 const SHEETS = [
   { company: "GSC",  gid: "0" },
