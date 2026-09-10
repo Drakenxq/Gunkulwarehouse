@@ -3,530 +3,418 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>จำลองสอบใบขับขี่รถสาธารณะ</title>
+<title>PR / PA / PO Tracking Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Prompt:wght@400;500;600;700&display=swap');
+  :root{
+    --bg-0:#0d1321;
+    --bg-1:#131b30;
+    --bg-2:#1a2440;
+    --bg-3:#212c4d;
+    --line:#2a3660;
+    --line-soft:#212b4a;
+    --text-hi:#eef1fb;
+    --text-mid:#a6b0d1;
+    --text-low:#6c7699;
+    --gold:#e0a730;
+    --gold-soft:#3a331f;
+    --green:#3fbf7f;
+    --green-soft:#173225;
+    --amber:#e0a730;
+    --amber-soft:#332a15;
+    --red:#e0616f;
+    --red-soft:#331a1e;
+    --radius-card: 14px;
+    --radius-pill: 999px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(1200px 600px at 10% -10%, #182142 0%, var(--bg-0) 45%), var(--bg-0);
+    color:var(--text-hi);
+    font-family:'Noto Sans Thai','Inter',sans-serif;
+    min-height:100vh;
+    padding: 32px 36px 60px;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
 
-:root{
-  --purple:#7417d7;
-  --purple2:#8e2de2;
-  --purple-dark:#5510a3;
-  --red:#ef3b32;
-  --green:#2fdf24;
-  --green-dark:#1f9f18;
-  --gray:#e7e7e7;
-  --gray2:#b7b7b7;
-  --text:#171717;
-  --muted:#777;
-  --bg:#f6f6f8;
-  --white:#fff;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;
-  background:#ececf0;
-  color:var(--text);
-  font-family:"Prompt","Kanit",sans-serif;
-}
-button{font-family:inherit}
-.app{
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-}
-.topbar{
-  height:76px;
-  background:linear-gradient(90deg,var(--purple-dark),var(--purple),#7d19d8);
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 34px;
-  box-shadow:0 2px 8px #0002;
-}
-.exam-title{font-size:20px;font-weight:500}
-.progress-text{font-size:17px;font-weight:500}
-.progress-wrap{
-  position:absolute;left:0;right:0;top:74px;height:4px;background:#ffffff2b
-}
-.progress-bar{height:100%;width:0;background:#fff;transition:.25s}
+  /* ---------- Header ---------- */
+  .breadcrumb{
+    display:flex; align-items:center; gap:8px;
+    color:var(--gold); font-size:13px; font-weight:600;
+    letter-spacing:.02em; margin-bottom:14px;
+  }
+  .breadcrumb svg{width:14px;height:14px;}
 
-.main{
-  width:min(1120px,94vw);
-  margin:0 auto;
-  padding:34px 0 28px;
-  flex:1;
-}
-.question-card{
-  background:#fff;
-  border:1px solid #d7d7d7;
-  min-height:680px;
-  box-shadow:0 2px 9px #00000010;
-}
-.question-head{
-  min-height:230px;
-  padding:28px 42px 18px;
-  border-bottom:1px solid #d8d8d8;
-  position:relative;
-}
-.question-no{
-  font-size:18px;
-  color:#777;
-  margin-bottom:18px;
-}
-.question-text{
-  font-size:27px;
-  line-height:1.55;
-  font-weight:500;
-  max-width:900px;
-  padding-right:100px;
-}
-.question-image{
-  margin-top:18px;
-  display:flex;
-  justify-content:flex-start;
-}
-.sign{
-  width:150px;height:150px;
-  border:7px solid #bd1c2b;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:76px;font-weight:700;
-  line-height:.7;
-  gap:8px;
-}
-.audio-btn{
-  position:absolute;
-  right:42px;
-  top:30px;
-  width:64px;height:64px;
-  border:0;background:#fff;
-  cursor:pointer;
-  font-size:42px;
-}
-.audio-btn:hover{transform:scale(1.05)}
+  .header-row{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    flex-wrap:wrap; gap:20px; margin-bottom:28px;
+  }
+  h1{
+    font-size:34px; font-weight:800; margin:0 0 6px 0; letter-spacing:-0.01em;
+  }
+  .subtitle{color:var(--text-mid); font-size:14.5px; margin:0; max-width:560px; line-height:1.5;}
+  .sync-pill{
+    display:flex; align-items:center; gap:8px;
+    background:var(--bg-2); border:1px solid var(--line);
+    padding:8px 14px; border-radius:var(--radius-pill);
+    font-size:12.5px; color:var(--text-mid); white-space:nowrap;
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green); box-shadow:0 0 0 3px rgba(63,191,127,.18);}
 
-.answers{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:0;
-  border-bottom:1px solid #cfcfcf;
-}
-.answer{
-  min-height:150px;
-  border:0;
-  border-right:1px solid #cfcfcf;
-  border-bottom:1px solid #cfcfcf;
-  background:#fff;
-  padding:25px 34px;
-  text-align:left;
-  cursor:pointer;
-  display:flex;
-  align-items:flex-start;
-  gap:18px;
-  font-size:20px;
-  line-height:1.55;
-  transition:.12s;
-}
-.answer:nth-child(even){border-right:0}
-.answer:hover{background:#f8f8f8}
-.answer.selected{
-  background:var(--green);
-  color:#073b05;
-  box-shadow:inset 0 0 0 2px #20bd17;
-}
-.answer.correct{
-  background:#baf5b7;
-  box-shadow:inset 0 0 0 3px var(--green-dark);
-}
-.answer.wrong{
-  background:#ffd1cf;
-  box-shadow:inset 0 0 0 3px #e3342f;
-}
-.answer-letter{
-  width:35px;height:35px;
-  border:1px solid #999;
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  flex:none;font-weight:600;
-}
-.answer.selected .answer-letter{border-color:#167d10;background:#fff}
-.answer-text{flex:1}
+  /* ---------- Stat cards ---------- */
+  .stats{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px;
+  }
+  .stat-card{
+    background:linear-gradient(180deg, var(--bg-2), var(--bg-1));
+    border:1px solid var(--line-soft);
+    border-radius:var(--radius-card);
+    padding:18px 20px;
+    position:relative;
+    overflow:hidden;
+  }
+  .stat-card::before{
+    content:""; position:absolute; inset:0 auto 0 0; width:3px;
+  }
+  .stat-card.total::before{background:var(--gold);}
+  .stat-card.done::before{background:var(--green);}
+  .stat-card.pending::before{background:var(--amber);}
+  .stat-card.issue::before{background:var(--red);}
+  .stat-label{color:var(--text-mid); font-size:12.5px; font-weight:600; letter-spacing:.02em; margin-bottom:10px;}
+  .stat-value{font-size:28px; font-weight:800; font-family:'IBM Plex Mono',monospace;}
+  .stat-value span{font-size:13px; color:var(--text-low); font-weight:500; margin-left:6px;}
 
-.nav{
-  display:flex;
-  justify-content:space-between;
-  gap:18px;
-  padding:22px 28px;
-}
-.nav button,.primary{
-  border:0;
-  min-width:170px;
-  height:58px;
-  border-radius:4px;
-  font-size:19px;
-  cursor:pointer;
-}
-.btn-back{background:#a8a8b3;color:#fff}
-.btn-next{background:#7417d7;color:#fff}
-.btn-next:disabled,.btn-back:disabled{opacity:.45;cursor:not-allowed}
-.submit{background:#ef3b32;color:#fff;min-width:200px}
-.status{
-  text-align:center;
-  min-height:27px;
-  color:#777;
-  font-size:15px;
-}
+  /* ---------- Tabs ---------- */
+  .tabs{
+    display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;
+  }
+  .tab{
+    background:transparent; border:1px solid var(--line);
+    color:var(--text-mid); padding:9px 18px; border-radius:var(--radius-pill);
+    font-size:13.5px; font-weight:600; cursor:pointer;
+    transition:all .15s ease;
+  }
+  .tab:hover{border-color:var(--gold); color:var(--text-hi);}
+  .tab.active{
+    background:var(--gold); border-color:var(--gold); color:#1a1206;
+  }
+  .tab .count{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; opacity:.75; margin-left:6px;
+  }
 
-.result{
-  display:none;
-  background:#fff;
-  border:1px solid #ddd;
-  box-shadow:0 2px 10px #0001;
-  padding:45px;
-}
-.result.show{display:block}
-.result-title{text-align:center;font-size:38px;font-weight:700;margin:0 0 8px}
-.score{
-  text-align:center;
-  font-size:64px;
-  font-weight:700;
-  color:var(--purple);
-  margin:10px 0;
-}
-.pass{color:#1a9b20}
-.fail{color:#e43832}
-.result-sub{text-align:center;font-size:20px;color:#666}
-.result-actions{display:flex;justify-content:center;gap:12px;margin:30px 0}
-.result-actions button{
-  border:0;border-radius:4px;padding:14px 24px;font-size:17px;cursor:pointer;
-}
-.btn-retry{background:var(--purple);color:#fff}
-.btn-review{background:#ddd;color:#222}
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    display:flex; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap;
+  }
+  .search-box{
+    flex:1 1 280px; display:flex; align-items:center; gap:10px;
+    background:var(--bg-2); border:1px solid var(--line);
+    border-radius:10px; padding:10px 14px;
+  }
+  .search-box svg{width:16px;height:16px; color:var(--text-low); flex-shrink:0;}
+  .search-box input{
+    background:transparent; border:none; outline:none; color:var(--text-hi);
+    font-family:inherit; font-size:14px; width:100%;
+  }
+  .search-box input::placeholder{color:var(--text-low);}
 
-.review{
-  display:none;
-  margin-top:25px;
-}
-.review.show{display:block}
-.review-item{
-  border:1px solid #ddd;
-  margin:12px 0;
-  padding:18px 20px;
-  background:#fff;
-}
-.review-q{font-size:19px;font-weight:600;margin-bottom:12px}
-.review-row{padding:8px 12px;border-radius:3px;margin:5px 0}
-.review-row.good{background:#d5f8d2}
-.review-row.bad{background:#ffd9d7}
-.review-row.key{background:#e8ddff}
-.small{font-size:14px;color:#777}
+  select.status-filter{
+    background:var(--bg-2); border:1px solid var(--line); color:var(--text-hi);
+    border-radius:10px; padding:10px 14px; font-family:inherit; font-size:13.5px;
+    outline:none; cursor:pointer;
+  }
 
-.start-screen{
-  background:#fff;border:1px solid #ddd;padding:55px 40px;text-align:center;
-  box-shadow:0 2px 10px #0001;
-}
-.start-screen h1{font-size:40px;margin:0 0 8px;color:var(--purple)}
-.start-screen p{font-size:19px;color:#666;line-height:1.7}
-.start-btn{
-  background:var(--purple);color:#fff;border:0;border-radius:4px;
-  padding:17px 44px;font-size:21px;cursor:pointer;margin-top:18px;
-}
-.info{
-  margin:28px auto 0;
-  max-width:720px;
-  background:#f5f1fb;
-  border-left:4px solid var(--purple);
-  padding:15px 20px;
-  text-align:left;
-  line-height:1.7;
-}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    border-radius:10px; padding:10px 16px; font-size:13.5px; font-weight:600;
+    cursor:pointer; border:1px solid var(--line); background:var(--bg-2); color:var(--text-hi);
+    white-space:nowrap; transition:all .15s ease;
+  }
+  .btn:hover{border-color:var(--text-low);}
+  .btn.primary{
+    background:var(--gold); border-color:var(--gold); color:#1a1206;
+  }
+  .btn.primary:hover{filter:brightness(1.08);}
+  .btn svg{width:15px;height:15px;}
 
-@media(max-width:720px){
-  .topbar{height:62px;padding:0 16px}
-  .exam-title{font-size:15px}
-  .progress-text{font-size:14px}
-  .progress-wrap{top:60px}
-  .main{width:100%;padding:14px 0}
-  .question-card{border-left:0;border-right:0}
-  .question-head{padding:22px 18px 16px;min-height:210px}
-  .question-text{font-size:21px;padding-right:55px}
-  .question-no{font-size:15px}
-  .audio-btn{right:13px;top:19px;font-size:30px;width:45px;height:45px}
-  .answers{grid-template-columns:1fr}
-  .answer,.answer:nth-child(even){border-right:0;min-height:105px;padding:20px 17px;font-size:17px}
-  .nav{padding:14px 12px}
-  .nav button{min-width:0;flex:1;height:50px;font-size:16px}
-  .result{padding:30px 17px}
-  .result-title{font-size:30px}
-  .score{font-size:52px}
-}
+  /* ---------- Table ---------- */
+  .table-wrap{
+    background:var(--bg-1);
+    border:1px solid var(--line-soft);
+    border-radius:var(--radius-card);
+    overflow:hidden;
+  }
+  .table-scroll{ overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; min-width:920px; }
+  thead th{
+    position:sticky; top:0; background:var(--bg-2);
+    text-align:left; font-size:12px; font-weight:700; letter-spacing:.03em;
+    color:var(--text-mid); padding:14px 16px; border-bottom:1px solid var(--line);
+    white-space:nowrap; cursor:pointer; user-select:none;
+  }
+  thead th:hover{color:var(--text-hi);}
+  thead th .arrow{opacity:.4; margin-left:4px; font-size:10px;}
+  tbody td{
+    padding:13px 16px; font-size:13.5px; border-bottom:1px solid var(--line-soft);
+    color:var(--text-hi); vertical-align:middle;
+  }
+  tbody tr{transition:background .12s ease;}
+  tbody tr:hover{background:var(--bg-2);}
+  tbody tr:last-child td{border-bottom:none;}
+  .po-no{font-family:'IBM Plex Mono',monospace; font-weight:600; color:var(--gold); font-size:13px;}
+  .supplier{color:var(--text-hi); max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .desc{color:var(--text-low); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-style:italic;}
+  .date-cell{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--text-mid);}
+  .date-missing{color:var(--text-low); opacity:.6;}
+
+  .badge{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:5px 12px; border-radius:var(--radius-pill);
+    font-size:12px; font-weight:600; white-space:nowrap;
+  }
+  .badge::before{content:""; width:6px;height:6px;border-radius:50%;}
+  .badge.done{background:var(--green-soft); color:var(--green);}
+  .badge.done::before{background:var(--green);}
+  .badge.pending{background:var(--amber-soft); color:var(--amber);}
+  .badge.pending::before{background:var(--amber);}
+  .badge.issue{background:var(--red-soft); color:var(--red);}
+  .badge.issue::before{background:var(--red);}
+
+  .row-no{color:var(--text-low); font-family:'IBM Plex Mono',monospace; font-size:12.5px;}
+
+  .empty-state{
+    padding:70px 20px; text-align:center; color:var(--text-low);
+  }
+  .empty-state svg{width:38px;height:38px; margin-bottom:14px; opacity:.5;}
+  .empty-state p{font-size:14px; margin:0;}
+
+  .footer-bar{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 18px; border-top:1px solid var(--line-soft);
+    font-size:12.5px; color:var(--text-low);
+  }
+
+  @media (max-width: 900px){
+    body{padding:20px 16px 40px;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    h1{font-size:26px;}
+  }
 </style>
 </head>
 <body>
-<div class="app">
-  <header class="topbar">
-    <div class="exam-title">แบบจำลองสอบใบขับขี่รถสาธารณะ</div>
-    <div style="display:flex;align-items:center;gap:18px"><div class="progress-text" id="progressText">ข้อที่ 0 / 30</div><div id="liveScore" style="font-size:15px;font-weight:600">ตอบแล้ว 0</div></div>
-    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
-  </header>
 
-  <main class="main">
-    <section id="startScreen" class="start-screen">
-      <h1>จำลองข้อสอบใบขับขี่รถสาธารณะ</h1>
-      <p>ชุดข้อสอบอ้างอิงจากแนวข้อสอบที่ส่งมา<br>
-      ระบบจะสุ่มข้อสอบและสุ่มลำดับตัวเลือกทุกครั้ง</p>
-      <button class="start-btn" onclick="startExam()">เริ่มทำข้อสอบ</button>
-      <div class="info">
-        <b>ระบบในชุดนี้</b><br>
-        • 30 ข้อ / 4 ตัวเลือก<br>
-        • สุ่มข้อ + สุ่มตัวเลือก<br>
-        • ฟังเสียงโจทย์ด้วยระบบอ่านออกเสียงของเบราว์เซอร์<br>
-        • ตรวจคะแนนทันทีเมื่อส่ง<br>
-        • ดูเฉลยย้อนหลังได้
-      </div>
-    </section>
+  <div class="breadcrumb">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v4h6V3"/></svg>
+    PR / PA / PO TRACKING
+  </div>
 
-    <section id="exam" class="question-card" style="display:none">
-      <div class="question-head">
-        <div class="question-no" id="questionNo"></div>
-        <div class="question-text" id="questionText"></div>
-        <button class="audio-btn" onclick="speakQuestion()" title="อ่านโจทย์">🔊</button>
-        <div id="questionImage" class="question-image"></div>
-      </div>
-      <div class="answers" id="answers"></div>
-      <div class="nav">
-        <button class="btn-back" id="backBtn" onclick="prevQuestion()">‹ กลับ</button>
-        <button class="btn-next" id="nextBtn" onclick="nextQuestion()" disabled>ถัดไป ›</button>
-      </div>
-      <div class="status" id="status"></div>
-    </section>
+  <div class="header-row">
+    <div>
+      <h1>Tracking Sheet — Overview</h1>
+      <p class="subtitle">รวมข้อมูลจาก Google Sheet กลาง แสดงสถานะ PO แบบ real-time ต่อบริษัท ค้นหาและกรองได้จากหน้านี้โดยตรง</p>
+    </div>
+    <div class="sync-pill"><span class="dot"></span> ซิงก์ล่าสุด: เมื่อสักครู่</div>
+  </div>
 
-    <section id="result" class="result">
-      <h2 class="result-title">สรุปผลการสอบ</h2>
-      <div class="score" id="scoreText">0 / 50</div>
-      <div class="result-sub" id="resultSub"></div>
-      <div class="result-actions">
-        <button class="btn-retry" onclick="startExam()">สอบใหม่</button>
-        <button class="btn-review" onclick="toggleReview()">ดูเฉลย</button>
-      </div>
-      <div id="review" class="review"></div>
-    </section>
-  </main>
-</div>
+  <div class="stats" id="stats"></div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" id="searchInput" placeholder="ค้นหา PO, Supplier, Description...">
+    </div>
+    <select class="status-filter" id="statusFilter">
+      <option value="all">ทุกสถานะ</option>
+      <option value="done">ทำรับเข้าสมบูรณ์</option>
+      <option value="pending">รอดำเนินการ</option>
+      <option value="issue">มีปัญหา</option>
+    </select>
+    <button class="btn" id="exportBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+      Export CSV
+    </button>
+    <button class="btn primary" id="sheetBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
+      แก้ไขใน Google Sheet
+    </button>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th data-key="no">No <span class="arrow">▾</span></th>
+            <th data-key="po">PO No.</th>
+            <th data-key="product">Product</th>
+            <th data-key="date">วันที่</th>
+            <th data-key="supplier">Supplier</th>
+            <th data-key="status">Status Process</th>
+            <th data-key="description">Description</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <p>ยังไม่มีข้อมูลในบริษัทนี้ หรือไม่พบผลลัพธ์ที่ค้นหา</p>
+    </div>
+    <div class="footer-bar">
+      <span id="rowCount">— รายการ</span>
+      <span>อัปเดตจาก Sheet: [CHECKER] In-Out</span>
+    </div>
+  </div>
 
 <script>
-/*
-  QUESTION BANK
-  answer = index ของคำตอบที่ถูกต้องใน choices ก่อนระบบสุ่ม
-*/
-const QUESTION_BANK = [
-  {q:"ขณะปฏิบัติหน้าที่ขับรถท่านห้ามสิ่งใด?", choices:["ห้ามใช้โทรศัพท์แม้จะถืออุปกรณ์เสริม","สามารถใช้โทรศัพท์ได้ตลอดเวลา","เปิดวิดีโอขณะขับรถได้","รับประทานอาหารขณะขับรถ"], answer:0},
-  {q:"ข้อใดไม่สามารถทำได้ขณะปฏิบัติหน้าที่?", choices:["ห้ามสูบบุหรี่","เปิดเพลงเบา ๆ","ตรวจสภาพรถก่อนออก","คาดเข็มขัดนิรภัย"], answer:0},
-  {q:"หากผู้โดยสารไม่ต้องการขึ้นทางด่วน ควรทำอย่างไร?", choices:["หาทางเลือกที่ไม่ผ่านทางด่วน","บังคับผู้โดยสารขึ้นทางด่วน","ยกเลิกงานทันที","ขับเร็วขึ้น"], answer:0},
-  {q:"ไม่ควรเปิดไฟหน้ารถในช่วงใด?", choices:["ทางร่วมทางแยก","ขณะฝนตกหนัก","ตอนกลางคืน","ในที่มืด"], answer:0},
-  {q:"ในสภาพอากาศหมอกลงหรือฝนตกหนัก ห้ามแซงเมื่อมองไม่เห็นทางในระยะเท่าใด?", choices:["60 เมตร","30 เมตร","100 เมตร","150 เมตร"], answer:0},
-  {q:"ฟิล์มกรองแสงติดตั้งได้ไม่เกินกี่เปอร์เซ็นต์?", choices:["50%","30%","70%","80%"], answer:0},
-  {q:"ข้อใดไม่สามารถปฏิเสธการรับผู้โดยสารได้?", choices:["การจราจรติดขัด","ผู้โดยสารมีสัมภาระ","ผู้โดยสารไปสถานที่สาธารณะ","ผู้โดยสารเรียกตามจุดรับที่ถูกต้อง"], answer:0},
-  {q:"เมื่อเติมน้ำมันในเครื่องยนต์ สิ่งใดควรทำ?", choices:["ดับเครื่องยนต์และให้ผู้โดยสารอยู่ในความปลอดภัย","เปิดเครื่องยนต์ทิ้งไว้","สูบบุหรี่ได้ตามปกติ","เร่งเครื่องยนต์"], answer:0},
-  {q:"การขับรถในทางสวนควรทำอย่างไร?", choices:["ขับชิดซ้ายของทางเดินรถ","ขับชิดขวาตลอดเวลา","ขับตรงกลางถนน","ขับบนไหล่ทาง"], answer:0},
-  {q:"กรณีใดสามารถแซงรถด้านขวามาทางหรือเลนอื่นได้?", choices:["เมื่อรถที่ถูกแซงกำลังจะเลี้ยวซ้ายหรือให้สัญญาณว่าจะเลี้ยวซ้าย","เมื่อรถคันหน้าเร็วกว่า","เมื่อถนนมีรถมาก","เมื่อมองไม่เห็นทาง"], answer:0},
-  {q:"สามารถใช้เสียงสัญญาณแตรได้ยกเว้นเมื่อใด?", choices:["เพื่อเร่งรถ เพื่อจะได้ไม่ถึงจุดหมายโดยเร็ว","เมื่อมีเหตุฉุกเฉิน","เพื่อป้องกันอุบัติเหตุ","เพื่อเตือนอันตราย"], answer:0},
-  {q:"เมื่อเล่นน้ำมัน ข้อใดไม่ควรปฏิบัติ?", choices:["ติดเครื่องยนต์","ดับเครื่องยนต์","ห้ามสูบบุหรี่","ปฏิบัติตามคำแนะนำของสถานี"], answer:0},
-  {q:"ข้อใดถูกต้องขณะปฏิบัติงานขับรถ?", choices:["ไม่ขับแซงรถโดยคาดเดา","ขับแซงทุกครั้งที่มีช่องว่าง","ขับเร็วเพื่อส่งผู้โดยสาร","ใช้โทรศัพท์ขณะขับรถ"], answer:0},
-  {q:"เมื่อผู้โดยสารเรียกรถบริเวณป้ายห้ามจอด ควรทำอย่างไร?", choices:["ไม่จอดรับผู้โดยสารตรงบริเวณนั้น","จอดทันที","จอดเปิดไฟฉุกเฉิน","จอดกีดขวางช่องทาง"], answer:0},
-  {q:"ผู้ขับรถรับจ้างต้องแสดงเครื่องหมายรถรับจ้างไว้ที่ตำแหน่งใด?", choices:["ด้านหน้าท้ายที่กำหนดให้เห็นชัดเจน","ใต้เบาะคนขับ","ในลิ้นชัก","หลังเครื่องยนต์"], answer:0},
-  {q:"รถยนต์รับจ้างที่สามารถใช้งานได้ไม่เกินกี่ปีนับตั้งแต่จดทะเบียน?", choices:["9 ปี","5 ปี","7 ปี","12 ปี"], answer:0},
-  {q:"ข้อใดไม่เกี่ยวกับหน้าที่ของผู้ขับรถ?", choices:["ป้ายทำตามมาตรฐาน","ขับรถอย่างปลอดภัย","ดูแลผู้โดยสาร","ปฏิบัติตามกฎหมายจราจร"], answer:0},
-  {q:"อุปกรณ์ใดไม่สามารถคลาด/ถอดออกจากรถได้ตามที่กำหนด?", choices:["โลโก้กันสนิมรถ","อุปกรณ์ความปลอดภัยที่กฎหมายกำหนด","เข็มขัดนิรภัย","เครื่องหมายรถ"], answer:0},
-  {q:"ชุดปฐมพยาบาลควรมีสิ่งใด?", choices:["เสื้อเชือก กางเกงขายาว รองเท้าหุ้มส้น","อุปกรณ์ปฐมพยาบาลที่จำเป็น","อุปกรณ์ทำอาหาร","เครื่องมือช่างหนัก"], answer:0},
-  {q:"ขณะปฏิบัติงานรถรับจ้างต้องติดเครื่องหมายชื่อ-นามสกุลอย่างไร?", choices:["ชื่อ-นามสกุล ภาษาไทยและอังกฤษ 1.5 ขึ้นไป","เฉพาะชื่อเล่น","เฉพาะภาษาอังกฤษ","ไม่ต้องแสดง"], answer:0},
-  {q:"ขณะปฏิบัติงานบริการธุรกิจต้องแสดงข้อมูลใด?", choices:["ชื่อ-นามสกุล ภาษาไทยและอังกฤษ บนเสื้อ","เลขบัตรประชาชนไว้บนกระจก","ชื่อเล่นอย่างเดียว","ไม่ต้องแสดงข้อมูล"], answer:0},
-  {q:"Where would you like to go?", choices:["อยากไปที่ไหน","มาจากประเทศอะไร","ไกลจากตรงนี้มากหรือไม่","โรงแรมอยู่ที่ไหน"], answer:0},
-  {q:"Can you take me to the nearest hotel?", choices:["คุณพาฉันไปที่โรงแรมใกล้ที่สุดได้ไหม","คุณมาจากประเทศอะไร","ไกลจากตรงนี้ไหม","คุณจะไปไหน"], answer:0},
-  {q:"Is it far from here?", choices:["ไกลจากตรงนี้มากหรือไม่","อยากไปที่ไหน","มาจากประเทศอะไร","ไปโรงแรมที่ใกล้ที่สุดได้ไหม"], answer:0},
-  {q:"Where do you come from?", choices:["มาจากประเทศอะไร","อยากไปที่ไหน","ไกลจากตรงนี้หรือไม่","ไปโรงแรมได้ไหม"], answer:0},
-  {q:"เมื่อกำลังปฏิบัติงานไม่บริการท่านควรทำอย่างไร?", choices:["ขายชื่อ ติดด้านหลังพนักงานนั่งข้างหน้า","รับผู้โดยสารทุกคน","เปิดรับงานตลอดเวลา","ขับวนหาผู้โดยสาร"], answer:0},
-  {q:"ขีดตรงประจำลำขับรถสาธารณะ ข้อใดถูกต้อง?", choices:["ไม่คร่อมติดด้านในรถ ด้านหน้าข่าย","ติดบนกระจกหน้ารถเท่านั้น","ติดใต้เบาะ","ไม่ต้องมี"], answer:0},
-  {q:"แสดงเครื่องหมายงดรับจ้าง ควรติดไว้ที่ใด?", choices:["ด้านหน้าซ้ายมือ","ด้านหลังขวา","ใต้รถ","กระจกหลังเท่านั้น"], answer:0},
-  {q:"โหมดการเดินรถของ Google Maps ข้อใดไม่ใช่?", choices:["จักรยาน","รถยนต์","เดิน","ขนส่งสาธารณะ"], answer:0},
-  {q:"อยากทราบทางที่ใกล้ที่สุดใน Google Maps กดปุ่มใด?", choices:["เส้นทาง","ตั้งค่า","แชร์","บันทึก"], answer:0},
-  {q:"ข้อใดไม่ใช่แอปพลิเคชันนำทาง?", choices:["my move","Google Maps","Waze","แอปนำทาง"], answer:0},
-  {q:"ขณะขับรถปฏิบัติงานตอนกลางคืน ถ้าไม่ต้องการรับผู้โดยสาร ข้อใดถูกต้อง?", choices:["ปิดไฟ \"ว่าง\" และโคมไฟทุกดวงภายในรถและกรอบบังแสง TAXI METER","เปิดไฟว่างไว้ตลอด","เปิดไฟฉุกเฉินตลอด","ปิดเฉพาะไฟหน้ารถ"], answer:0},
-  {q:"ขณะกำลังขับรถปฏิบัติงานตอนกลางวัน ถ้าไม่ต้องการรับผู้โดยสาร ข้อใดถูกต้อง?", choices:["ปิดไฟ \"ว่าง\" และไม่รับงานจากแอปพลิเคชัน","เปิดไฟว่างและรับงานทันที","เปิดไฟฉุกเฉิน","ปิดเครื่องยนต์"], answer:0},
-  {q:"พูดเสียงดังล้อเล่นเกี่ยวกับ “พล” ควรหลีกเลี่ยงเพราะเหตุใด?", choices:["อาจทำให้ผู้โดยสารอึดอัด","ทำให้รถประหยัดน้ำมันน้อยลง","ทำให้แผนที่เปลี่ยนเส้นทาง","ทำให้เครื่องยนต์ร้อน"], answer:0},
-  {q:"กระทัด/การกระทำที่ไม่เหมาะสมกับผู้โดยสารคือข้อใด?", choices:["ไม่เล่นสมาร์ทโฟนขณะขับรถ","เปิดเพลงดัง","ขับรถเร็ว","พูดเสียงดัง"], answer:0},
-  {q:"เมื่อพบผู้โดยสารเรียกให้หยุดรถในบริเวณห้ามหยุดรถ ควรทำอย่างไร?", choices:["ไม่หยุดรับคนโดยสาร","หยุดทันที","หยุดกลางถนน","จอดขวางทาง"], answer:0},
-  {q:"ผู้ขับรถรับจ้างต้องระวังเรื่องใดเมื่อเรียกเก็บค่าโดยสารเกินอัตรา?", choices:["เพิกถอนใบอนุญาตขับรถ","ลดค่าโดยสารให้ครึ่งหนึ่ง","ไม่ต้องรับผิด","เพียงตักเตือน"], answer:0},
-  {q:"ข้อใดไม่ใช่อุปกรณ์เพื่อความปลอดภัยของรถยนต์รับจ้าง?", choices:["เครื่องหมายห้ามสูบบุหรี่","เข็มขัดนิรภัย","อุปกรณ์ฉุกเฉิน","อุปกรณ์ตามที่กฎหมายกำหนด"], answer:0},
-  {q:"ขณะขับรถยนต์รับจ้าง ท่านต้องติดเครื่องหมายอย่างไร?", choices:["ขนาดตัวอักษรสูงไม่น้อยกว่า 1.50 เซนติเมตรตามที่กำหนด","ขนาดใดก็ได้","ไม่ต้องติด","ติดเฉพาะตอนกลางคืน"], answer:0},
-  {q:"รถยนต์รับจ้างอายุเท่าใดตามแนวข้อสอบชุดนี้?", choices:["รถยนต์ 9 ปี","รถยนต์ 3 ปี","รถยนต์ 5 ปี","รถยนต์ 15 ปี"], answer:0},
-  {q:"มาตรฐานฟิล์มกรองแสงตามแนวข้อสอบชุดนี้คือเท่าใด?", choices:["ไม่น้อยกว่าร้อยละ 50","ไม่เกินร้อยละ 10","ร้อยละ 25","ร้อยละ 80"], answer:0},
-  {q:"ลูกค้า/ผู้โดยสารที่ถูกยกเลิกในใบอนุญาต ต้องส่งคืนใบขับขี่ภายในกี่วัน?", choices:["15 วัน","7 วัน","30 วัน","60 วัน"], answer:0},
-  {q:"ผู้เรียกเก็บค่าโดยสารเกินอัตราที่กำหนด มีโทษตามแนวข้อสอบนี้อย่างไร?", choices:["ปรับไม่เกิน 5,000 บาท","ปรับไม่เกิน 500 บาท","จำคุกทันทีทุกกรณี","ไม่มีโทษ"], answer:0},
-  {q:"ห้ามมิให้ผู้ขับรถยนต์รับจ้างขึ้นหน้ารถคันอื่น ขณะที่มีหมอก ฝน หรือควันจนไม่อาจเห็นทางในระยะเท่าใด?", choices:["60 เมตร","20 เมตร","100 เมตร","150 เมตร"], answer:0},
-  {q:"อัตราค่าโดยสาร 2 กิโลเมตรแรกตามแนวข้อสอบชุดนี้?", choices:["ไม่เกิน 25 บาท","ไม่เกิน 10 บาท","ไม่เกิน 40 บาท","ไม่เกิน 50 บาท"], answer:0},
-  {q:"อัตราค่าโดยสารกิโลเมตรต่อไปจาก 2 กิโลเมตรแรก?", choices:["ไม่เกินกิโลเมตรละ 5 บาท","ไม่เกินกิโลเมตรละ 1 บาท","ไม่เกินกิโลเมตรละ 10 บาท","คิดฟรี"], answer:0},
-  {q:"ระยะทางเกิน 5 กิโลเมตรขึ้นไป อัตราค่าโดยสารคิดอย่างไร?", choices:["ตามที่ตกลงกัน","ฟรี","คิดกิโลเมตรละ 1 บาทเสมอ","คิดราคาเดียว 25 บาท"], answer:0},
-  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะต้องปฏิบัติ?", choices:["รู้จักมีความคิดในลักษณะเอาใจเขามาใส่ใจเรา","โต้เถียงผู้โดยสาร","ขับรถประมาท","ปฏิเสธผู้โดยสารทุกคน"], answer:0},
-  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะต้องปฏิบัติ?", choices:["แนะนำช่วยเหลือผู้โดยสารเพื่อมิให้เกิดอันตราย","ปล่อยผู้โดยสารขึ้นลงเองโดยไม่ดูแล","เร่งรถเมื่อผู้โดยสารลง","ละเลยสัมภาระ"], answer:0},
-  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะต้องปฏิบัติ?", choices:["ไม่บีบแตรให้เสียเกียรติยา/รบกวนผู้อื่นโดยไม่จำเป็น","บีบแตรเรียกผู้โดยสารทุกครั้ง","บีบแตรยาวตลอดทาง","บีบแตรเพื่อเร่งรถ"], answer:0},
-  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะต้องปฏิบัติด้านการแต่งกาย?", choices:["แต่งกายด้วยความสุภาพถูกต้องตามระเบียบ สะอาด เรียบร้อยอยู่เสมอ","ใส่เสื้อผ้าใดก็ได้","ใส่รองเท้าแตะเสมอ","ไม่ต้องแต่งเครื่องแบบ"], answer:0},
-  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะไม่ควรปฏิบัติ?", choices:["ไม่ใช้กิริยาขับขี่ข้ามทางผู้โดยสารอย่างไร้การยาท","ขับรถอย่างสุภาพ","ช่วยเหลือผู้โดยสาร","พูดจาสุภาพ"], answer:0},
-  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะไม่ควรปฏิบัติ?", choices:["ไม่พูดจาหรือกระทำให้ผู้โดยสารได้รับความอับอายด้วยวิธีการต่าง ๆ","พูดจาสุภาพ","ให้ข้อมูลเส้นทาง","ช่วยยกสัมภาระ"], answer:0},
-  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะต้องปฏิบัติ?", choices:["ไม่ล่วงล้ำ แคะ แกะ เกา ต่อหน้าผู้โดยสาร","นั่งพักระหว่างขับรถ","ใช้งานโทรศัพท์","รับประทานอาหารต่อหน้าผู้โดยสาร"], answer:0},
-  {q:"ข้อใดคือการกระทำที่ผู้ขับรถสาธารณะต้องปฏิบัติ?", choices:["ไม่ส่งสิ่งของให้ผู้อื่นด้วยกิริยาที่ไม่เหมาะสม","โยนสิ่งของให้ผู้โดยสาร","ส่งของข้ามตัวผู้โดยสาร","วางของกีดขวาง"], answer:0},
-  {q:"เมื่อผู้โดยสารต้องการความช่วยเหลือ ผู้ขับรถควรมีหลักการใด?", choices:["ช่วยเหลือผู้โดยสารเพื่อมิให้เกิดอันตราย","ปฏิเสธทุกกรณี","ให้ผู้โดยสารช่วยตัวเอง","เร่งรถหนี"], answer:0},
-  {q:"ขณะขับรถสาธารณะต้องแสดงบัตรประจำตัวผู้ขับรถอย่างไร?", choices:["ใส่กรอบติดตั้งภายในรถด้านหน้าตอนบน","เก็บไว้ในกระเป๋า","วางใต้เบาะ","ติดไว้ท้ายรถ"], answer:0},
-  {q:"ขณะขับรถบริการทัศนาจร ต้องแสดงบัตรประจำตัวผู้ขับรถอย่างไร?", choices:["ด้านหลังของพนักพิงที่นั่งตอนหลัง โดยไม่มีสิ่งใดปิดบัง","ใต้เบาะคนขับ","ที่กระจกหน้า","ในช่องเก็บของ"], answer:0},
-  {q:"ขณะขับรถ ห้ามมิให้ผู้ขับรถแท็กซี่กระทำสิ่งใด?", choices:["สูบบุหรี่","คาดเข็มขัดนิรภัย","เปิดไฟตามกฎหมาย","ตรวจเส้นทางก่อนเดินทาง"], answer:0},
-  {q:"รถยนต์รับจ้างเมื่อเกิดเพลิงไหม้ ผู้ขับรถควรปฏิบัติเป็นลำดับแรกอย่างไร?", choices:["ดูแลคนโดยสารให้ได้รับความปลอดภัย","ขับรถต่อทันที","เก็บสัมภาระก่อน","ถ่ายรูปเหตุการณ์"], answer:0},
-  {q:"ในการขับรถสวนทางกัน ผู้ขับรถยนต์รับจ้างต้องขับขี่อย่างไร?", choices:["ให้ขับรถชิดด้านซ้ายของทางเดินรถ","ชิดด้านขวา","ตรงกลางถนน","บนไหล่ทาง"], answer:0},
-  {q:"เมื่อพบเครื่องหมายลูกศรสวนทาง ผู้ขับขี่ควรทำอย่างไร?", choices:["ต้องหยุดรถตรงตำแหน่งป้ายและให้รถที่กำลังสวนทางมาผ่านไปก่อน","ห้ามหยุดรถ","เร่งความเร็วผ่านไป","ขับสวนด้านขวา"], answer:0}
+const RAW_DATA = [
+  {po:"CDPO26-000388", product:"ลงบันทึกผล", date:"16/7/2026", supplier:"INTERLINK COMMUNICATION", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000386", product:"ลงบันทึกผล", date:"16/7/2026", supplier:"บริษัท สิริกุลการไฟฟ้า และบุตร จำกัด", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000387", product:"ลงบันทึกผล", date:"16/7/2026", supplier:"บริษัท เอพีเค โปรเกส จำกัด", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000385", product:"ลงบันทึกผล", date:"17/7/2026", supplier:"บริษัท บางกอก แอมโซลูท อีเลคทริค แอนด์ คอน จำกัด", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000314", product:"ลงบันทึกผล", date:"17/7/2026", supplier:"บริษัท อินโดไชน่า เอ็นจิเนียริ่ง ซีสเท็ม ดีไอ ไอล์ จำกัด", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000391", product:"OCC", date:"17/7/2026", supplier:"บริษัท ไทยเทคนิด เพาเวอร์ แอนด์ เซอร์วิส จำกัด", status:"issue", description:"บิม Groof แจ้งให้ทำไม่ผ่านคลัง", company:"GSC"},
+  {po:"CDPO26-000344", product:"ลงบันทึกผล", date:"11/8/2026", supplier:"SUNFORSUN", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000414", product:"ลงบันทึกผล", date:"11/8/2026", supplier:"บริษัท อินโดไชน่า เอ็นจิเนียริ่ง ซีสเท็ม ดีไอ ไอล์ จำกัด", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000344", product:"ลงบันทึกผล", date:"11/8/2026", supplier:"SUNFORSUN", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000422", product:"ลงบันทึกผล", date:"17/8/2026", supplier:"INTEGRA R.E COMPANY LIMITED", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000438", product:"ลงบันทึกผล", date:"17/8/2026", supplier:"บริษัท แสงชัยมิเตอร์ จำกัด", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000460", product:"ลงบันทึกผล", date:"19/8/2026", supplier:"บริษัท สิริกุลการไฟฟ้า และบุตร จำกัด", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000419", product:"ลงบันทึกผล", date:"20/8/2026", supplier:"SUNFORSUN", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000449", product:"ลงบันทึกผล", date:"20/8/2026", supplier:"SUNFORSUN", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000458", product:"ลงบันทึกผล", date:"20/8/2026", supplier:"SUNFORSUN", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000400", product:"ลงบันทึกผล", date:"20/8/2026", supplier:"INTEGRA R.E COMPANY LIMITED", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000401", product:"ลงบันทึกผล", date:"20/8/2026", supplier:"INTEGRA R.E COMPANY LIMITED", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000470", product:"ลงบันทึกผล", date:"24/8/2026", supplier:"บริษัท สิริกุลการไฟฟ้า และบุตร จำกัด", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000443", product:"ลงบันทึกผล", date:"30/8/2026", supplier:"บจก. ไทยนิเทค เพาเวอร์ แอนด์ เซอร์วิส", status:"done", description:"2 ชุด", company:"GSC"},
+  {po:"CDPO26-000401", product:"ลงบันทึกผล", date:"24/8/2026", supplier:"INTEGRA R.E COMPANY LIMITED", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000477", product:"ลงบันทึกผล", date:"26/8/2026", supplier:"บริษัท เค.เอ็น.พี ซัพพลาย จำกัด", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000478", product:"ลงบันทึกผล", date:"26/8/2026", supplier:"บริษัท เค.เอ็น.พี ซัพพลาย จำกัด", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO266-000474", product:"ยังไม่ลงบันทึกผล", date:"", supplier:"บริษัท แสงชัยมิเตอร์ จำกัด", status:"pending", description:"เอกสารรอทำรับ", company:"GSC"},
+  {po:"CDPO26-000451", product:"ลงบันทึกผล", date:"", supplier:"บริษัท เจ.ซี.ซี เทสท์ แมเนจเมนท์ จำกัด", status:"done", description:"Description", company:"GSC"},
+  {po:"CDPO26-000499", product:"ยังไม่ลงบันทึกผล", date:"", supplier:"บริษัท เอ็ม.ที.ที เอ็นเตอร์ไพรส์ จำกัด", status:"pending", description:"เอกสารรอทำรับ", company:"GSC"},
+  {po:"CDPO26-000515", product:"ยังไม่ลงบันทึกผล", date:"", supplier:"บริษัท บางกอก เสสเทิร์น คอมมิวนิเคชั่น จำกัด", status:"pending", description:"เอกสารรอทำรับ", company:"GSC"},
 ];
 
-let examQuestions=[];
-let current=0;
-let selected=[];
-let submitted=false;
+const COMPANIES = ["ทั้งหมด", "GSC", "GDFF", "GUE", "RNS", "FNC"];
 
-function shuffle(arr){
-  const a=[...arr];
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
-}
+let state = { company: "ทั้งหมด", search: "", status: "all", sortKey: "no", sortDir: 1 };
 
-function makeQuestion(q){
-  const items=q.choices.map((text,i)=>({text,correct:i===q.answer}));
-  return {...q, options:shuffle(items)};
-}
+const statusMeta = {
+  done:    { label: "ทำรับเข้าสมบูรณ์", cls: "done" },
+  pending: { label: "เอกสารรอทำรับ",     cls: "pending" },
+  issue:   { label: "ไม่ผ่านคลัง",        cls: "issue" },
+};
 
-function startExam(){
-  speechSynthesis.cancel();
-  submitted=false;
-  current=0;
-  selected=new Array(50).fill(null);
-
-  // มี 50 ข้อพอดีในชุดนี้
-  // สุ่มข้อสอบ 50 ข้อ จากฐานทั้งหมด และสุ่มตัวเลือกของแต่ละข้อ
-  examQuestions=shuffle(QUESTION_BANK).slice(0,30).map(makeQuestion);
-
-  document.getElementById("startScreen").style.display="none";
-  document.getElementById("result").classList.remove("show");
-  document.getElementById("exam").style.display="block";
-  renderQuestion();
-}
-
-function renderQuestion(){
-  const q=examQuestions[current];
-  document.getElementById("questionNo").textContent=`ข้อที่ ${current+1}`;
-  document.getElementById("progressText").textContent=`ข้อที่ ${current+1} / ${examQuestions.length}`;
-  document.getElementById("liveScore").textContent=`ตอบแล้ว ${selected.filter(v=>v!==null).length}`;
-  document.getElementById("progressBar").style.width=((current+1)/examQuestions.length*100)+"%";
-  document.getElementById("questionText").textContent=q.q;
-
-  const img=document.getElementById("questionImage");
-  img.innerHTML="";
-  // ภาพป้ายสำหรับคำถามเรื่องลูกศรสวนทาง
-  if(q.q.includes("เครื่องหมายลูกศรสวนทาง")){
-    img.innerHTML=`<div class="sign"><span style="color:#d62232">↑</span><span style="color:#111">↓</span></div>`;
-  }
-
-  const answers=document.getElementById("answers");
-  answers.innerHTML="";
-  q.options.forEach((opt,i)=>{
-    const btn=document.createElement("button");
-    btn.className="answer";
-    if(selected[current]===i) btn.classList.add("selected");
-    btn.innerHTML=`<span class="answer-letter">${i+1}</span><span class="answer-text">${escapeHtml(opt.text)}</span>`;
-    btn.onclick=()=>selectAnswer(i);
-    answers.appendChild(btn);
-  });
-
-  document.getElementById("backBtn").disabled=current===0;
-  document.getElementById("nextBtn").disabled=selected[current]===null;
-  document.getElementById("nextBtn").textContent=current===examQuestions.length-1?"ส่งข้อสอบ":"ถัดไป ›";
-  document.getElementById("status").textContent=selected[current]===null?"กรุณาเลือกคำตอบ":"เลือกคำตอบแล้ว";
-}
-
-function selectAnswer(i){
-  if(submitted)return;
-  selected[current]=i;
-  renderQuestion();
-}
-
-function prevQuestion(){
-  if(current>0){current--;renderQuestion();}
-}
-
-function nextQuestion(){
-  if(selected[current]===null)return;
-  if(current<examQuestions.length-1){
-    current++;
-    renderQuestion();
-  }else{
-    submitExam();
-  }
-}
-
-function submitExam(){
-  submitted=true;
-  speechSynthesis.cancel();
-  let score=0;
-  examQuestions.forEach((q,i)=>{
-    if(selected[i]!==null && q.options[selected[i]].correct)score++;
-  });
-  document.getElementById("exam").style.display="none";
-  document.getElementById("result").classList.add("show");
-  document.getElementById("scoreText").textContent=`${score} / ${examQuestions.length} (${percentage}%)`;
-  const passed=score>=45;
-  document.getElementById("scoreText").className="score "+(passed?"pass":"fail");
-  document.getElementById("resultSub").innerHTML=passed
-    ? "🎉 <b>ผ่าน</b> — คะแนนถึงเกณฑ์ 90%"
-    : "ยังไม่ผ่าน — ลองทำข้อสอบใหม่แล้วทบทวนเฉลย";
-  buildReview(score);
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-
-function buildReview(score){
-  const review=document.getElementById("review");
-  review.innerHTML="";
-  examQuestions.forEach((q,i)=>{
-    const chosen=selected[i];
-    const correctIndex=q.options.findIndex(x=>x.correct);
-    const div=document.createElement("div");
-    div.className="review-item";
-    const resultText=chosen!==null && q.options[chosen].correct?"✓ ถูก":"✗ ผิด";
-    div.innerHTML=`<div class="review-q">${i+1}. ${escapeHtml(q.q)} <span class="small">${resultText}</span></div>`;
-    if(chosen!==null){
-      div.innerHTML+=`<div class="review-row ${q.options[chosen].correct?"good":"bad"}">คำตอบของคุณ: ${escapeHtml(q.options[chosen].text)}</div>`;
-    }else{
-      div.innerHTML+=`<div class="review-row bad">คำตอบของคุณ: ไม่ได้ตอบ</div>`;
-    }
-    div.innerHTML+=`<div class="review-row key">เฉลย: ${escapeHtml(q.options[correctIndex].text)}</div>`;
-    review.appendChild(div);
+function buildTabs(){
+  const wrap = document.getElementById("tabs");
+  wrap.innerHTML = "";
+  COMPANIES.forEach(c => {
+    const n = c === "ทั้งหมด" ? RAW_DATA.length : RAW_DATA.filter(r => r.company === c).length;
+    const btn = document.createElement("button");
+    btn.className = "tab" + (state.company === c ? " active" : "");
+    btn.innerHTML = `${c}<span class="count">${n}</span>`;
+    btn.onclick = () => { state.company = c; render(); };
+    wrap.appendChild(btn);
   });
 }
 
-function toggleReview(){
-  document.getElementById("review").classList.toggle("show");
+function buildStats(list){
+  const total = list.length;
+  const done = list.filter(r => r.status === "done").length;
+  const pending = list.filter(r => r.status === "pending").length;
+  const issue = list.filter(r => r.status === "issue").length;
+  const stats = [
+    { cls:"total",   label:"PO ทั้งหมด",      value: total },
+    { cls:"done",    label:"รับเข้าสมบูรณ์",   value: done,    pct: total ? Math.round(done/total*100) : 0 },
+    { cls:"pending", label:"รอดำเนินการ",     value: pending, pct: total ? Math.round(pending/total*100) : 0 },
+    { cls:"issue",   label:"มีปัญหา",         value: issue,   pct: total ? Math.round(issue/total*100) : 0 },
+  ];
+  document.getElementById("stats").innerHTML = stats.map(s => `
+    <div class="stat-card ${s.cls}">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value">${s.value}${s.pct !== undefined ? `<span>${s.pct}%</span>` : ""}</div>
+    </div>
+  `).join("");
 }
 
-function speakQuestion(){
-  const q=examQuestions[current];
-  if(!q)return;
-  speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(q.q);
-  u.lang="th-TH";
-  u.rate=.88;
-  speechSynthesis.speak(u);
+function applyFilters(){
+  let list = RAW_DATA.filter(r => state.company === "ทั้งหมด" || r.company === state.company);
+  if(state.status !== "all") list = list.filter(r => r.status === state.status);
+  if(state.search.trim()){
+    const q = state.search.trim().toLowerCase();
+    list = list.filter(r =>
+      r.po.toLowerCase().includes(q) ||
+      r.supplier.toLowerCase().includes(q) ||
+      r.description.toLowerCase().includes(q) ||
+      r.product.toLowerCase().includes(q)
+    );
+  }
+  return list;
 }
 
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+function render(){
+  buildTabs();
+  const list = applyFilters();
+  buildStats(RAW_DATA.filter(r => state.company === "ทั้งหมด" || r.company === state.company));
+
+  const tbody = document.getElementById("tbody");
+  const emptyState = document.getElementById("emptyState");
+  const rowCount = document.getElementById("rowCount");
+
+  if(list.length === 0){
+    tbody.innerHTML = "";
+    emptyState.style.display = "block";
+  } else {
+    emptyState.style.display = "none";
+    tbody.innerHTML = list.map((r, i) => {
+      const meta = statusMeta[r.status];
+      const dateHtml = r.date ? `<span class="date-cell">${r.date}</span>` : `<span class="date-cell date-missing mono">d/m/yyyy</span>`;
+      return `
+        <tr>
+          <td class="row-no">${i + 1}</td>
+          <td class="po-no">${r.po}</td>
+          <td>${r.product}</td>
+          <td>${dateHtml}</td>
+          <td class="supplier" title="${r.supplier}">${r.supplier}</td>
+          <td><span class="badge ${meta.cls}">${meta.label}</span></td>
+          <td class="desc" title="${r.description}">${r.description}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+  rowCount.textContent = `${list.length} รายการ`;
 }
+
+document.getElementById("searchInput").addEventListener("input", e => {
+  state.search = e.target.value;
+  render();
+});
+document.getElementById("statusFilter").addEventListener("change", e => {
+  state.status = e.target.value;
+  render();
+});
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const list = applyFilters();
+  const header = ["No","PO No.","Product","วันที่","Supplier","Status","Description"];
+  const rows = list.map((r, i) => [i+1, r.po, r.product, r.date || "d/m/yyyy", r.supplier, statusMeta[r.status].label, r.description]);
+  const csv = [header, ...rows].map(row => row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `tracking-sheet-${state.company}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+document.getElementById("sheetBtn").addEventListener("click", () => {
+  window.open("https://docs.google.com/spreadsheets/d/1NJ0gGymv26ZF1ceDd1_LPLCT3KiWHQgOEcWcXf8BKLU/edit", "_blank");
+});
+
+render();
 </script>
 </body>
 </html>
