@@ -664,7 +664,7 @@ function vendorItemBreakdown(vendor){
   return top.map(([label,value],i)=>({label, value, color: segColor(i)}));
 }
 
-function vendorMonthlyCounts(vendor, monthsBack=6){
+function vendorMonthlyCounts(vendor, monthsBack=13){
   const counts = new Map();
   vendor.pos.forEach(po=>po.deliveries.forEach(d=>{
     const ym = (d.date||'').slice(0,7);
@@ -683,33 +683,96 @@ function vendorMonthlyCounts(vendor, monthsBack=6){
   return months;
 }
 
-function monthlyBarSVG(data){
+// Catmull-Rom -> cubic Bezier smoothing so the trend line reads as a soft
+// curve instead of jagged straight segments.
+function smoothLinePath(points){
+  if(points.length < 2) return `M${points[0].x},${points[0].y}`;
+  let d = `M${points[0].x.toFixed(1)},${points[0].y.toFixed(1)}`;
+  for(let i=0;i<points.length-1;i++){
+    const p0 = points[i-1] || points[i];
+    const p1 = points[i];
+    const p2 = points[i+1];
+    const p3 = points[i+2] || p2;
+    const cp1x = p1.x + (p2.x-p0.x)/6;
+    const cp1y = p1.y + (p2.y-p0.y)/6;
+    const cp2x = p2.x - (p3.x-p1.x)/6;
+    const cp2y = p2.y - (p3.y-p1.y)/6;
+    d += ` C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+  }
+  return d;
+}
+
+function niceCeil(x){
+  if(x<=0) return 1;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(x)));
+  const norm = x/magnitude;
+  let n;
+  if(norm<=1) n=1; else if(norm<=2) n=2; else if(norm<=5) n=5; else n=10;
+  return n*magnitude;
+}
+
+// smooth filled line/area chart with gridlines + sparse month labels,
+// styled after the reference "ยอดซื้อรายเดือน" chart
+function monthlyAreaSVG(data){
   if(!data.length) return `<div class="po-empty" style="text-align:center;">ยังไม่มีข้อมูล</div>`;
-  const w=260, h=112, padT=18, padB=22, padX=12;
-  const innerW = w - padX*2, innerH = h - padT - padB;
-  const max = Math.max(...data.map(d=>d.count), 1);
-  const gap = 8;
-  const barW = (innerW - gap*(data.length-1)) / data.length;
-  const bars = data.map((d,i)=>{
-    const x = padX + i*(barW+gap);
-    const monthLabel = new Date(d.month+'-01').toLocaleDateString('th-TH',{month:'short', year:'2-digit'});
-    if(d.count === 0){
-      // zero month: a thin baseline tick instead of an invisible/misleading bar
-      const y = padT + innerH - 3;
-      return `
-        <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="3" rx="1.5" fill="rgba(255,255,255,.08)"/>
-        <text x="${(x+barW/2).toFixed(1)}" y="${h-7}" text-anchor="middle" font-size="8.5" fill="#5f7590" font-family="IBM Plex Mono, monospace">${monthLabel}</text>`;
-    }
-    const bh = Math.max((d.count/max)*innerH, 6);
-    const y = padT + innerH - bh;
+  const w=280, h=150;
+  const padL=30, padR=8, padT=14, padB=22;
+  const innerW = w-padL-padR, innerH = h-padT-padB;
+  const rawMax = Math.max(...data.map(d=>d.count), 0);
+  const niceMax = niceCeil(rawMax || 1);
+  const n = data.length;
+  const stepX = n>1 ? innerW/(n-1) : innerW;
+  const baseY = padT+innerH;
+
+  const points = data.map((d,i)=>({
+    x: padL + i*stepX,
+    y: padT + innerH - (d.count/niceMax)*innerH,
+    ...d
+  }));
+
+  const lineD = smoothLinePath(points);
+  const areaD = `${lineD} L${points[points.length-1].x.toFixed(1)},${baseY} L${points[0].x.toFixed(1)},${baseY} Z`;
+
+  // 4 horizontal gridlines (0%, 33%, 66%, 100%) with value labels on the left
+  const gridCount = 3;
+  const grid = Array.from({length: gridCount+1}, (_, gi) => {
+    const frac = gi/gridCount;
+    const y = padT + innerH*(1-frac);
+    const val = Math.round(niceMax*frac);
     return `
-      <text x="${(x+barW/2).toFixed(1)}" y="${(y-6).toFixed(1)}" text-anchor="middle" font-size="9.5" fill="#eaf1f8" font-weight="600" font-family="IBM Plex Mono, monospace">${d.count}</text>
-      <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="4" fill="#e8c468"/>
-      <text x="${(x+barW/2).toFixed(1)}" y="${h-7}" text-anchor="middle" font-size="8.5" fill="#8fa3b8" font-family="IBM Plex Mono, monospace">${monthLabel}</text>`;
+      <line x1="${padL}" y1="${y.toFixed(1)}" x2="${w-padR}" y2="${y.toFixed(1)}" stroke="rgba(232,196,104,.10)" stroke-width="1"/>
+      <text x="${(padL-6).toFixed(1)}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="8" fill="#5f7590" font-family="IBM Plex Mono, monospace">${val}</text>`;
   }).join('');
+
+  // sparse x-axis labels (about 5 across the range), always including the last month
+  const maxLabels = 5;
+  const labelEvery = Math.max(1, Math.ceil(n/maxLabels));
+  const xLabels = points.map((p,i)=>{
+    const show = i%labelEvery===0 || i===points.length-1;
+    if(!show) return '';
+    const label = new Date(p.month+'-01').toLocaleDateString('th-TH',{month:'short', year:'2-digit'});
+    return `<text x="${p.x.toFixed(1)}" y="${h-6}" text-anchor="middle" font-size="8.5" fill="#8fa3b8" font-family="IBM Plex Mono, monospace">${label}</text>`;
+  }).join('');
+
+  // dot + value callout on the peak month so the spike still reads clearly
+  const peak = points.reduce((a,b)=> b.count>a.count ? b : a, points[0]);
+  const peakDot = peak.count>0
+    ? `<circle cx="${peak.x.toFixed(1)}" cy="${peak.y.toFixed(1)}" r="3" fill="#60a5fa" stroke="#0a1929" stroke-width="1.5"/>
+       <text x="${peak.x.toFixed(1)}" y="${(peak.y-8).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="600" fill="#eaf1f8" font-family="IBM Plex Mono, monospace">${peak.count}</text>`
+    : '';
+
   return `<svg viewBox="0 0 ${w} ${h}" width="100%" style="display:block;">
-    <line x1="${padX}" y1="${padT+innerH}" x2="${w-padX}" y2="${padT+innerH}" stroke="rgba(232,196,104,.15)" stroke-width="1"/>
-    ${bars}
+    <defs>
+      <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.35"/>
+        <stop offset="100%" stop-color="#60a5fa" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    ${grid}
+    <path d="${areaD}" fill="url(#areaFill)"/>
+    <path d="${lineD}" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    ${peakDot}
+    ${xLabels}
   </svg>`;
 }
 
@@ -760,7 +823,7 @@ function openVendorModal(id){
         </div>
         <div class="m-panel">
           <h4>จำนวนครั้งที่ส่งของรายเดือน</h4>
-          ${monthlyBarSVG(monthly)}
+          ${monthlyAreaSVG(monthly)}
         </div>
       </div>
 
@@ -877,10 +940,6 @@ const refreshBtn = document.getElementById('refreshBtn');
 function fmtTime(d){
   return d.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
 }
-
-// one-time fetch — replaces the old onSnapshot real-time listener so the page
-// only reads from Firestore when it first loads or when the user explicitly
-// clicks "รีเฟรช", instead of on every keystroke/re-render/remote write.
 async function fetchData(){
   refreshBtn.disabled = true;
   refreshBtn.classList.add('spinning');
