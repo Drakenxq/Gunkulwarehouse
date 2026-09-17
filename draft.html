@@ -370,7 +370,7 @@
           <div class="pdf-drop-icon">📄</div>
           <div class="pdf-drop-text">
             <div class="main" id="pdf-drop-label">แตะเพื่อเลือกไฟล์ PDF</div>
-            <div class="sub">ดึงข้อมูล ผู้ส่ง, เลขที่ใบสั่งซื้อ และรายการสินค้า (ชื่อสินค้า) — จำนวนกรอกเอง</div>
+            <div class="sub">ดึงข้อมูล ผู้ส่ง, เลขที่ใบสั่งซื้อ และรายการสินค้า (รหัส + ชื่อสินค้า) — จำนวนกรอกเอง</div>
           </div>
         </div>
         <div id="pdf-status"></div>
@@ -613,26 +613,62 @@ function parsePdfFields(lines) {
   return { sender, invoice };
 }
 
-// Pull the item rows (ลำดับ + ชื่อสินค้า only — not condition/inspection/
-// signature/reference/note columns) out of the reconstructed lines.
+// Pull the item rows out of the reconstructed lines.
+// Each item row looks like: "<ลำดับ> <รหัสสินค้า> <หน่วย> <ซื้อ> <ส่ง>",
+// e.g. "1 1REIV000346/HUAWEIIN SETS 35.00 1/1" — group 1 is the running
+// number, group 2 is the product code. The product's description text
+// (e.g. "HUAWEI INVERTER SUN2000-30K-MC0 (5Y)") sits on the line(s)
+// right after that row, so we collect it there and prefix it with the
+// product code: "1REIV000346/HUAWEIIN - HUAWEI INVERTER SUN2000-30K-MC0 (5Y)".
+//
+// Documents can span multiple pages, and a long item can have its
+// description continue after a page break. When that happens, the page
+// footer/header (company name, date, "Page X of Y", repeated document
+// fields, and the table's own column headers) gets reprinted in between
+// — none of that belongs in the item name, so it's skipped rather than
+// treated as a stop condition, and collection resumes once the table's
+// column-header row ("...ผู้ตรวจ ผู้รับ") reappears.
 function parsePdfItems(lines) {
-  const rowRe = /^(\d{1,4})\s+\S+\s+\S+\s+[\d,.]+\s+\d+\/\d+\s*$/;
-  const stopRe = /(เงื่อนไข|^\d+\.\s|^หมายเหตุ\s*:)/;
+  const rowRe = /^(\d{1,4})\s+(\S+)\s+\S+\s+[\d,.]+\s+\d+\/\d+\s*$/;
+  const stopRe = /(เงื่อนไข|^\d+\.\s)/;
+  const pageBreakRe = /Page\s*\d+\s*of\s*\d+/i;
+  const headerEndRe = /ผู้ตรวจ/;
   const items = [];
+
   for (let i = 0; i < lines.length; i++) {
-    if (!rowRe.test(lines[i])) continue;
+    const rowMatch = lines[i].match(rowRe);
+    if (!rowMatch) continue;
+    const code = rowMatch[2];
+
     const nameParts = [];
     let j = i + 1;
+    let skippingHeader = false;
+    let skipGuard = 0;
     while (j < lines.length && !rowRe.test(lines[j])) {
       const l = lines[j].trim();
       if (!l) { j++; continue; }
+
+      if (skippingHeader) {
+        skipGuard++;
+        if (headerEndRe.test(l) || skipGuard > 30) skippingHeader = false;
+        j++;
+        continue;
+      }
+      if (pageBreakRe.test(l)) { skippingHeader = true; skipGuard = 0; j++; continue; }
       if (stopRe.test(l)) break;
       if (/^ผู้ขอซื้อ/.test(l) || /ขอซื้อ\s*:/.test(l)) { j++; continue; }
+      // A page-level note (e.g. a running footer repeated on every page)
+      // rather than a description line — skip it, don't stop on it, since
+      // the item's real description can still continue after it.
+      if (/^หมายเหตุ\s*:/.test(l)) { j++; continue; }
+
       nameParts.push(l);
       j++;
     }
-    const name = nameParts.join(' ').replace(/\s+/g, ' ').trim();
-    if (name) items.push({ name });
+
+    const desc = nameParts.join(' ').replace(/\s+/g, ' ').trim();
+    if (code && desc) items.push({ code, name: `${code} - ${desc}` });
+    else if (desc) items.push({ code: '', name: desc });
   }
   return items;
 }
