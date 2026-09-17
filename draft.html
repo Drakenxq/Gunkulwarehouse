@@ -616,29 +616,43 @@ function parsePdfFields(lines) {
 // Pull the item rows out of the reconstructed lines.
 // Each item row looks like: "<ลำดับ> <รหัสสินค้า> <หน่วย> <ซื้อ> <ส่ง>",
 // e.g. "1 1REIV000346/HUAWEIIN SETS 35.00 1/1" — group 1 is the running
-// number, group 2 is the product code. The product's description text
-// (e.g. "HUAWEI INVERTER SUN2000-30K-MC0 (5Y)") sits on the line(s)
-// right after that row, so we collect it there and prefix it with the
-// product code: "1REIV000346/HUAWEIIN - HUAWEI INVERTER SUN2000-30K-MC0 (5Y)".
+// number, group 2 is the product code. The code is matched lazily
+// instead of as a single \S+ token, because some PDFs render a stray
+// gap in the middle of a code (e.g. "1PETR000280/CT 200/5") that would
+// otherwise make the row go unrecognized.
 //
-// Documents can span multiple pages, and a long item can have its
-// description continue after a page break. When that happens, the page
-// footer/header (company name, date, "Page X of Y", repeated document
-// fields, and the table's own column headers) gets reprinted in between
-// — none of that belongs in the item name, so it's skipped rather than
-// treated as a stop condition, and collection resumes once the table's
-// column-header row ("...ผู้ตรวจ ผู้รับ") reappears.
+// The product's own description (e.g. "HUAWEI INVERTER SUN2000-30K-MC0
+// (5Y)") sits on the line(s) right after that row, so it's collected
+// there and prefixed with the product code:
+// "1REIV000346/HUAWEIIN - HUAWEI INVERTER SUN2000-30K-MC0 (5Y)".
+// Only the first couple of lines are kept as the "main" name — long
+// items often continue with a full parts/BOM list or warranty terms,
+// which would make the name unusably long, so collection stops once a
+// short main description has been gathered.
+//
+// Documents can span multiple pages, and an item's description can
+// continue after a page break. When that happens, the page
+// footer/header (company name, date, "Page X of Y", the repeated
+// per-page note, document fields, and the table's own column headers)
+// gets reprinted in between — none of that belongs in the item name.
+// The skip starts as soon as either the page-break marker OR the
+// per-page footer note that precedes it is seen (whichever comes
+// first — the footer note can appear before "Page X of Y" is reached),
+// and resumes once the table's column-header row ("...ผู้ตรวจ ผู้รับ")
+// reappears.
 function parsePdfItems(lines) {
-  const rowRe = /^(\d{1,4})\s+(\S+)\s+\S+\s+[\d,.]+\s+\d+\/\d+\s*$/;
+  const rowRe = /^(\d{1,4})\s+(.+?)\s+(\S+)\s+([\d,.]+)\s+(\d+\/\d+)\s*$/;
   const stopRe = /(เงื่อนไข|^\d+\.\s)/;
   const pageBreakRe = /Page\s*\d+\s*of\s*\d+/i;
+  const footerNoteRe = /^หมายเหตุ\s*:/;
   const headerEndRe = /ผู้ตรวจ/;
+  const MAX_DESC_LINES = 2; // keep just the main name, not the full spec/BOM list
   const items = [];
 
   for (let i = 0; i < lines.length; i++) {
     const rowMatch = lines[i].match(rowRe);
     if (!rowMatch) continue;
-    const code = rowMatch[2];
+    const code = rowMatch[2].trim();
 
     const nameParts = [];
     let j = i + 1;
@@ -654,15 +668,12 @@ function parsePdfItems(lines) {
         j++;
         continue;
       }
-      if (pageBreakRe.test(l)) { skippingHeader = true; skipGuard = 0; j++; continue; }
+      if (pageBreakRe.test(l) || footerNoteRe.test(l)) { skippingHeader = true; skipGuard = 0; j++; continue; }
       if (stopRe.test(l)) break;
       if (/^ผู้ขอซื้อ/.test(l) || /ขอซื้อ\s*:/.test(l)) { j++; continue; }
-      // A page-level note (e.g. a running footer repeated on every page)
-      // rather than a description line — skip it, don't stop on it, since
-      // the item's real description can still continue after it.
-      if (/^หมายเหตุ\s*:/.test(l)) { j++; continue; }
 
       nameParts.push(l);
+      if (nameParts.length >= MAX_DESC_LINES) break;
       j++;
     }
 
