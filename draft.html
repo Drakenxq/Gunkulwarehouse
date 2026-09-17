@@ -3,368 +3,481 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GUNKUL Warehouse | Vendor Delivery Tracker</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Sarabun:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<title>Admin — ระบบรับสินค้า</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-  :root{
-    --navy-950:#060f1c;
-    --navy-900:#0a1929;
-    --navy-800:#0f2540;
-    --navy-700:#16324f;
-    --navy-600:#1d3f61;
-    --navy-500:#2a4f76;
-    --gold-300:#f0d896;
-    --gold-400:#e8c468;
-    --gold-600:#c89b3c;
-    --text-light:#eaf1f8;
-    --text-muted:#8fa3b8;
-    --text-dim:#5f7590;
-    --success:#34d399;
-    --success-dim:rgba(52,211,153,.14);
-    --warning:#fbbf24;
-    --warning-dim:rgba(251,191,36,.14);
-    --danger:#f87171;
-    --danger-dim:rgba(248,113,113,.14);
-    --info:#60a5fa;
-    --info-dim:rgba(96,165,250,.14);
-    --glass-bg:rgba(255,255,255,.035);
-    --glass-bg-hover:rgba(255,255,255,.06);
-    --glass-border:rgba(232,196,104,.14);
-    --radius:16px;
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2333;
+    --border: #2a3048;
+    --accent: #4f8ef7;
+    --accent2: #7c5cfc;
+    --text: #e8eaf0;
+    --muted: #6b7299;
+    --success: #2dd4a0;
+    --danger: #f75f5f;
+    --warn: #f7a94f;
+    --radius: 10px;
   }
-  @media (prefers-reduced-motion: reduce){
-    *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
-  }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  html,body{height:100%;}
-  body{
-    font-family:'Sarabun',sans-serif;
-    background:
-      radial-gradient(ellipse 900px 500px at 85% -10%, rgba(232,196,104,.08), transparent 60%),
-      radial-gradient(ellipse 700px 500px at -10% 110%, rgba(96,165,250,.05), transparent 60%),
-      linear-gradient(180deg, var(--navy-950), var(--navy-900) 40%, var(--navy-950));
-    color:var(--text-light);
-    min-height:100vh;
-    background-attachment:fixed;
-  }
-  .wrap{position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:0 24px 64px;}
-
-  /* header */
-  header{
-    display:flex; align-items:center; justify-content:space-between; gap:16px;
-    padding:28px 0 24px; flex-wrap:wrap;
-  }
-  .brand{display:flex; align-items:center; gap:14px;}
-  .brand-mark{
-    width:55px; height:50px; border-radius:12px;
-    background:linear-gradient(135deg, var(--gold-300), var(--gold-600));
-    display:flex; align-items:center; justify-content:center;
-    box-shadow:0 0 0 1px rgba(232,196,104,.25), 0 8px 20px -6px rgba(232,196,104,.4);
-    flex-shrink:0;
-  }
-  .brand-mark svg{width:24px; height:24px;}
-  .brand h1{font-family:'Kanit',sans-serif; font-size:19px; font-weight:600; letter-spacing:.2px;}
-  .brand p{font-size:13px; color:var(--text-muted); margin-top:2px;}
-  .header-tag{
-    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--gold-400);
-    background:var(--glass-bg); border:1px solid var(--glass-border);
-    padding:6px 12px; border-radius:999px; letter-spacing:.5px;
-  }
-  .refresh-btn{
-    display:flex; align-items:center; gap:7px; font-family:'Sarabun',sans-serif; font-size:12.5px; font-weight:600;
-    color:var(--text-light); background:var(--glass-bg); border:1px solid var(--glass-border);
-    padding:7px 14px; border-radius:999px; cursor:pointer; transition:background .15s, border-color .15s, opacity .15s;
-  }
-  .refresh-btn:hover{background:var(--glass-bg-hover); border-color:rgba(232,196,104,.3);}
-  .refresh-btn:disabled{opacity:.55; cursor:default;}
-  .refresh-btn svg{width:14px; height:14px; stroke:var(--gold-400); flex-shrink:0;}
-  .refresh-btn.spinning svg{animation:spin .8s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-
-  /* stats */
-  .stats{
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px;
-    margin-bottom:28px;
-  }
-  .stat-card{
-    background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius);
-    padding:18px 20px; backdrop-filter:blur(12px);
-    opacity:0; transform:translateY(10px); animation:rise .5s ease forwards;
-  }
-  .stat-card .label{font-size:12.5px; color:var(--text-muted); margin-bottom:8px;}
-  .stat-card .value{font-family:'Kanit',sans-serif; font-size:30px; font-weight:600; color:var(--text-light);}
-  .stat-card .value span{font-size:15px; color:var(--text-dim); font-weight:500; margin-left:4px;}
-  .stat-card.gold .value{color:var(--gold-400);}
-  .stat-card.warn .value{color:var(--warning);}
-  .stat-card.danger .value{color:var(--danger);}
-
-  /* controls */
-  .controls{
-    display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:22px;
-  }
-  .search-box{
-    flex:1 1 260px; position:relative;
-  }
-  .search-box input{
-    width:100%; padding:12px 16px 12px 42px; border-radius:12px;
-    background:var(--glass-bg); border:1px solid var(--glass-border);
-    color:var(--text-light); font-family:'Sarabun',sans-serif; font-size:14.5px;
-    outline:none; transition:border-color .2s, background .2s;
-  }
-  .search-box input::placeholder{color:var(--text-dim);}
-  .search-box input:focus{border-color:var(--gold-400); background:var(--glass-bg-hover);}
-  .search-box svg{position:absolute; left:14px; top:50%; transform:translateY(-50%); width:16px; height:16px; stroke:var(--text-dim);}
-  .chips{display:flex; gap:8px; flex-wrap:wrap;}
-  .chip{
-    font-size:13px; padding:9px 15px; border-radius:999px; cursor:pointer;
-    background:var(--glass-bg); border:1px solid var(--glass-border); color:var(--text-muted);
-    transition:all .18s; white-space:nowrap;
-  }
-  .chip:hover{color:var(--text-light); border-color:rgba(232,196,104,.3);}
-  .chip:focus-visible, .search-box input:focus-visible, .vendor-card:focus-visible{
-    outline:2px solid var(--gold-400); outline-offset:2px;
-  }
-  .chip.active{
-    background:linear-gradient(135deg, var(--gold-300), var(--gold-600));
-    color:var(--navy-950); border-color:transparent; font-weight:600;
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 80px;
   }
 
-  /* vendor grid */
-  .grid{
-    display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:18px;
-    align-items:start;
+  /* Header */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky; top: 0; z-index: 100;
   }
-  .vendor-card{
-    background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius);
-    backdrop-filter:blur(12px); cursor:pointer; overflow:hidden;
-    transition:border-color .2s, background .2s, box-shadow .2s;
-    opacity:0; transform:translateY(14px); animation:rise .55s ease forwards;
+  .topbar-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
   }
-  .vendor-card:hover{background:var(--glass-bg-hover); border-color:rgba(232,196,104,.3);
-    box-shadow:0 12px 28px -14px rgba(0,0,0,.5);}
-  .vendor-head{display:flex; gap:14px; padding:20px 22px;}
-  .avatar{
-    width:48px; height:48px; border-radius:12px; flex-shrink:0;
-    background:linear-gradient(155deg, var(--navy-600), var(--navy-800));
-    border:1px solid var(--glass-border);
-    display:flex; align-items:center; justify-content:center;
-  }
-  .avatar span{font-family:'Kanit',sans-serif; font-weight:600; font-size:15px; color:var(--gold-400);}
-  .vendor-info{flex:1; min-width:0;}
-  .vendor-info h3{font-family:'Kanit',sans-serif; font-size:15.5px; font-weight:600; line-height:1.35;}
-  .vendor-info .cat{font-size:12.5px; color:var(--text-muted); margin-top:3px; display:flex; align-items:center; gap:5px;}
-  .vendor-meta{display:flex; gap:16px; margin-top:12px; font-size:12.5px; color:var(--text-dim);}
-  .vendor-meta b{color:var(--text-light); font-weight:600;}
-  .chevron{width:16px; height:16px; stroke:var(--text-dim); transition:transform .25s; flex-shrink:0; margin-top:4px;}
-  .vendor-card.open .chevron{transform:rotate(180deg); stroke:var(--gold-400);}
+  .topbar h1 { font-size: 16px; font-weight: 600; letter-spacing: 0.02em; }
+  .topbar span { font-size: 12px; color: var(--muted); margin-left: auto; font-family: 'IBM Plex Mono', monospace; }
 
-  .po-panel{max-height:0; overflow:hidden; transition:max-height .35s ease;}
-  .vendor-card.open .po-panel{max-height:2000px;}
-  .po-panel-inner{padding:0 22px 20px; border-top:1px solid var(--glass-border);}
-  .po-row{padding:16px 0; border-bottom:1px dashed rgba(232,196,104,.12);}
-  .po-row:last-child{border-bottom:none; padding-bottom:2px;}
-  .po-row-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;}
-  .po-num{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--gold-400); font-weight:500;}
-  .po-desc{font-size:13px; color:var(--text-light); margin-top:4px;}
-  .po-qty{font-size:12px; color:var(--text-dim); margin-top:3px; font-family:'IBM Plex Mono',monospace;}
-  .status-pill{
-    font-size:11.5px; padding:4px 10px; border-radius:999px; font-weight:600; white-space:nowrap;
-  }
-  .status-complete{background:var(--success-dim); color:var(--success);}
-  .status-partial{background:var(--warning-dim); color:var(--warning);}
-  .status-pending{background:var(--info-dim); color:var(--info);}
-  .status-late{background:var(--danger-dim); color:var(--danger);}
+  .container { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
 
-  /* progress bar + table detail */
-  .po-detail{margin-top:14px;}
-  .po-progress{width:100%; margin-bottom:14px;}
-  .po-progress-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:7px; gap:10px;}
-  .po-progress-total{font-family:'Kanit',sans-serif; font-weight:600; font-size:15.5px; color:var(--text-light); white-space:nowrap;}
-  .po-progress-total small{font-size:12px; color:var(--text-dim); font-weight:500; margin-left:3px;}
-  .po-progress-pct{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--gold-400); font-weight:600; white-space:nowrap;}
-  .po-progress-track{
-    width:100%; height:24px; border-radius:8px; background:rgba(255,255,255,.04);
-    border:1px solid var(--glass-border); overflow:hidden; display:flex;
+  /* Section cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
   }
-  .po-progress-seg{
-    height:100%; position:relative; min-width:3px;
-    transition:filter .15s;
+  .card-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
-  .po-progress-seg:hover{filter:brightness(1.15);}
-  .po-progress-seg:not(:last-child){box-shadow:inset -1px 0 0 rgba(6,15,28,.55);}
-  .po-progress-remaining{
-    background:repeating-linear-gradient(45deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 5px, transparent 5px, transparent 10px);
-  }
-  .po-progress-legend{
-    display:flex; flex-wrap:wrap; column-gap:14px; row-gap:5px; margin-top:9px;
-    font-size:11.5px; color:var(--text-dim); font-family:'IBM Plex Mono',monospace;
-  }
-  .po-progress-legend .dot{
-    display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:5px; flex-shrink:0;
-  }
-  .po-progress-legend b{color:var(--text-light); font-weight:600;}
-  .po-table-wrap{overflow-x:auto; border-radius:10px; border:1px solid var(--glass-border);}
-  table.po-table{width:100%; border-collapse:collapse; font-size:11.5px; min-width:380px;}
-  table.po-table thead th{
-    text-align:left; font-weight:600; color:var(--text-muted); padding:8px 10px;
-    background:rgba(255,255,255,.03); border-bottom:1px solid var(--glass-border); font-size:10.5px; white-space:nowrap;
-  }
-  table.po-table td{padding:7px 10px; border-bottom:1px solid rgba(232,196,104,.08); color:var(--text-light); white-space:nowrap;}
-  table.po-table tbody tr:last-child td{border-bottom:none;}
-  table.po-table td.date{font-family:'IBM Plex Mono',monospace; color:var(--text-muted);}
-  table.po-table td.num{font-family:'IBM Plex Mono',monospace; text-align:right;}
-  table.po-table tr.row-remaining td{color:var(--text-dim); font-style:italic;}
-  .po-empty{font-size:12px; color:var(--text-dim); padding:10px 2px;}
-
-  .empty{
-    text-align:center; padding:70px 20px; color:var(--text-muted);
-    grid-column:1/-1;
-  }
-  .empty svg{width:40px; height:40px; stroke:var(--text-dim); margin-bottom:14px;}
-
-  @keyframes rise{to{opacity:1; transform:translateY(0);}}
-
-  /* vendor detail modal */
-  .modal-overlay{
-    position:fixed; inset:0; background:rgba(4,10,18,.72); backdrop-filter:blur(3px);
-    display:none; align-items:flex-start; justify-content:center; z-index:50; padding:32px 16px; overflow-y:auto;
-  }
-  .modal-overlay.show{display:flex;}
-  .modal-panel{
-    width:100%; max-width:640px; background:var(--navy-900); border:1px solid var(--glass-border);
-    border-radius:20px; overflow:hidden; box-shadow:0 30px 80px -20px rgba(0,0,0,.6);
-    opacity:0; transform:translateY(16px) scale(.98); animation:modalIn .3s ease forwards;
-  }
-  @keyframes modalIn{to{opacity:1; transform:translateY(0) scale(1);}}
-  .modal-head{
-    position:relative; padding:24px 26px 20px;
-    background:linear-gradient(135deg, var(--navy-700), var(--navy-800));
-    border-bottom:1px solid var(--glass-border);
-  }
-  .modal-head .m-tag{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--gold-300); opacity:.85; letter-spacing:.4px;}
-  .modal-head h2{font-family:'Kanit',sans-serif; font-size:19px; font-weight:600; margin-top:6px; padding-right:34px; line-height:1.35;}
-  .modal-close{
-    position:absolute; top:18px; right:18px; width:32px; height:32px; border-radius:10px; border:none;
-    background:rgba(255,255,255,.08); color:var(--text-light); cursor:pointer; display:flex; align-items:center; justify-content:center;
-    transition:background .15s;
-  }
-  .modal-close:hover{background:rgba(255,255,255,.16);}
-  .modal-close svg{width:16px; height:16px;}
-  .status-badge{
-    display:inline-flex; align-items:center; gap:6px; margin-top:12px; font-size:12.5px; font-weight:600;
-    padding:6px 12px; border-radius:999px;
-  }
-  .status-badge.active{background:var(--success-dim); color:var(--success);}
-  .status-badge.inactive{background:rgba(255,255,255,.06); color:var(--text-dim);}
-  .status-badge .dot2{width:6px; height:6px; border-radius:50%; background:currentColor;}
-
-  .modal-body{padding:22px 26px 26px; max-height:74vh; overflow-y:auto;}
-  .m-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:22px;}
-  .m-stat{
-    background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:12px; padding:13px 14px; text-align:center;
-  }
-  .m-stat .m-label{font-size:11px; color:var(--text-muted); margin-bottom:6px;}
-  .m-stat .m-value{font-family:'Kanit',sans-serif; font-weight:600; font-size:17px; color:var(--gold-400);}
-
-  .m-charts{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; margin-bottom:22px;}
-  .m-panel{
-    background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:14px; padding:16px;
-    min-width:0;
-  }
-  .m-panel h4{font-size:12px; color:var(--text-muted); font-weight:600; margin-bottom:12px; overflow-wrap:break-word;}
-  .donut-legend{margin-top:10px; display:flex; flex-direction:column; gap:6px;}
-  .donut-legend div{display:flex; align-items:center; justify-content:space-between; font-size:11.5px; color:var(--text-muted); gap:8px;}
-  .donut-legend .dl-name{display:flex; align-items:center; gap:6px; color:var(--text-light); min-width:0;}
-  .donut-legend .dl-name span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  .donut-legend .dl-dot{width:8px; height:8px; border-radius:2px; flex-shrink:0;}
-  .donut-legend b{color:var(--gold-400); font-family:'IBM Plex Mono',monospace; flex-shrink:0;}
-
-  .m-tags{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;}
-  .m-tag-chip{
-    font-size:12px; padding:6px 12px; border-radius:999px; background:var(--glass-bg);
-    border:1px solid var(--glass-border); color:var(--text-muted);
+  .card-title::before {
+    content: '';
+    display: block;
+    width: 3px; height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
   }
 
-  .m-section-title{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
-  .m-section-title span{font-size:13px; font-weight:600; color:var(--text-light);}
-
-  .m-history{border:1px solid var(--glass-border); border-radius:14px; overflow:hidden;}
-  .m-history-row{border-bottom:1px solid rgba(232,196,104,.1);}
-  .m-history-row:last-child{border-bottom:none;}
-  .m-history-head{
-    display:flex; justify-content:space-between; align-items:center; gap:10px; padding:13px 16px; cursor:pointer;
-    transition:background .15s;
+  /* Form fields */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-row.full { grid-template-columns: 1fr; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .field input, .field select, .field textarea {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 14px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
   }
-  .m-history-head:hover{background:rgba(255,255,255,.03);}
-  .m-history-head .m-hnum{font-family:'IBM Plex Mono',monospace; color:var(--gold-400); font-size:13px;}
-  .m-history-head .m-hdate{font-size:11.5px; color:var(--text-dim); margin-top:2px;}
-  .m-history-head .m-hcount{font-size:12px; color:var(--text-muted); white-space:nowrap;}
-  .m-hchevron{width:14px; height:14px; stroke:var(--text-dim); transition:transform .2s; flex-shrink:0;}
-  .m-history-row.open .m-hchevron{transform:rotate(90deg); stroke:var(--gold-400);}
-  .m-history-body{max-height:0; overflow:hidden; transition:max-height .35s ease;}
-  .m-history-row.open .m-history-body{max-height:3000px;}
-  .m-history-body-inner{padding:4px 16px 16px; border-top:1px dashed rgba(232,196,104,.12);}
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--accent);
+  }
+  .field input::placeholder { color: var(--muted); }
 
-  @media (max-width:560px){
-    .m-charts{grid-template-columns:1fr;}
+  /* Status selector */
+  .status-toggle {
+    display: flex;
+    gap: 8px;
+  }
+  .status-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 14px;
+    transition: all 0.15s;
+  }
+  .status-btn:hover { border-color: var(--accent); color: var(--text); }
+  .status-btn .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.15s;
+  }
+  .status-btn.active[data-status="pending"] {
+    background: rgba(247,169,79,0.1);
+    border-color: var(--warn);
+    color: var(--warn);
+  }
+  .status-btn.active[data-status="pending"] .dot { background: var(--warn); }
+  .status-btn.active[data-status="received"] {
+    background: rgba(45,212,160,0.1);
+    border-color: var(--success);
+    color: var(--success);
+  }
+  .status-btn.active[data-status="received"] .dot { background: var(--success); }
+
+  /* Items table */
+  .items-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 8px;
+    padding: 0 8px 8px;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .item-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .item-row input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 13px;
+    padding: 8px 10px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  .item-row input:focus { border-color: var(--accent); }
+
+  .btn-remove {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 6px 10px;
+    font-size: 14px;
+    transition: all 0.2s;
+    line-height: 1;
+  }
+  .btn-remove:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+  .btn-add-item {
+    background: none;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 10px;
+    font-size: 13px;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    width: 100%;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+  .btn-add-item:hover { border-color: var(--accent); color: var(--accent); background: rgba(79,142,247,0.06); }
+
+  /* Buttons */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 28px;
+    transition: opacity 0.2s, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-secondary {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    cursor: pointer;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 18px;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-secondary:hover { background: var(--border); }
+
+  /* QR Result */
+  #qr-section { display: none; }
+  .qr-box {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+  .qr-info {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    word-break: break-all;
+    color: var(--muted);
+  }
+  .qr-info strong { color: var(--success); display: block; margin-bottom: 4px; }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 13px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    z-index: 999;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { opacity:0; transform: translateX(-50%) translateY(10px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+  .toast-show { display: flex !important; }
+
+  .doc-id-tag {
+    display: inline-block;
+    background: rgba(79,142,247,0.12);
+    border: 1px solid rgba(79,142,247,0.3);
+    color: var(--accent);
+    border-radius: 6px;
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    padding: 3px 8px;
+    margin-left: 8px;
   }
 
-  @media (max-width:640px){
-    header{padding:20px 0 18px;}
-    .wrap{padding:0 16px 48px;}
-    .grid{grid-template-columns:1fr;}
-    .vendor-meta{flex-wrap:wrap; gap:10px;}
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+
+  /* PDF upload */
+  .pdf-drop {
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  .pdf-drop:hover { border-color: var(--accent); background: rgba(79,142,247,0.05); }
+  .pdf-drop input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .pdf-drop-icon {
+    width: 38px; height: 38px; flex: none;
+    background: rgba(79,142,247,0.12);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .pdf-drop-text { font-size: 13px; }
+  .pdf-drop-text .main { font-weight: 500; color: var(--text); }
+  .pdf-drop-text .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  #pdf-status {
+    font-size: 12px;
+    margin-top: 8px;
+    display: none;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    line-height: 1.5;
+  }
+  #pdf-status.ok { display: flex; background: rgba(45,212,160,0.08); color: var(--success); }
+  #pdf-status.err { display: flex; background: rgba(247,95,95,0.08); color: var(--danger); }
+  #pdf-status.loading { display: flex; background: var(--surface2); color: var(--muted); }
+
+  @media (max-width: 520px) {
+    .form-row { grid-template-columns: 1fr; }
+    .items-header { grid-template-columns: 2fr 1fr auto; }
+    .item-row { grid-template-columns: 2fr 1fr auto; }
+    .item-row .unit-col { display: none; }
+    .items-header .unit-header { display: none; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <header>
-    <div class="brand">
-      <div class="brand-mark">
-        <img src="./svg/logo-default.svg" alt="Logo" style="width:50px; height:50px; object-fit:contain;">
+<div class="topbar">
+  <div class="topbar-icon">📦</div>
+  <h1>Warehouse — Create Panel</h1>
+  <span id="today-date"></span>
+</div>
+
+<div class="container">
+
+  <!-- Delivery Info -->
+  <div class="card">
+    <div class="card-title">ข้อมูลการส่งสินค้า</div>
+
+    <div class="form-row full">
+      <div class="field">
+        <label>แนบไฟล์ PDF ใบสั่งซื้อ (ถ้ามี) — ระบบจะดึงผู้ส่งและเลขที่ใบสั่งซื้อให้อัตโนมัติ</label>
+        <div class="pdf-drop" id="pdf-drop">
+          <input type="file" id="pdf-upload" accept="application/pdf">
+          <div class="pdf-drop-icon">📄</div>
+          <div class="pdf-drop-text">
+            <div class="main" id="pdf-drop-label">แตะเพื่อเลือกไฟล์ PDF</div>
+            <div class="sub">ดึงข้อมูล ผู้ส่ง, เลขที่ใบสั่งซื้อ และรายการสินค้า (ชื่อสินค้า) — จำนวนกรอกเอง</div>
+          </div>
+        </div>
+        <div id="pdf-status"></div>
       </div>
-      <div>
-        <h1>GUNKUL Warehouse</h1>
-        <p>รายการผู้ขาย (Ven/Supplier)</p>
+    </div>
+
+    <div class="form-row">
+      <div class="field">
+        <label>วันที่รับสินค้า</label>
+        <input type="date" id="delivery-date">
+      </div>
+      <div class="field">
+        <label>ผู้ส่ง / บริษัทผู้ส่ง</label>
+        <input type="text" id="sender" placeholder="เช่น บริษัท ABC จำกัด">
       </div>
     </div>
-    <div style="display:flex; align-items:center; gap:10px;">
-      <div class="header-tag" id="connTag">กำลังเชื่อมต่อ...</div>
-      <button class="refresh-btn" id="refreshBtn" type="button" title="ดึงข้อมูลล่าสุด">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 4v5h-5"/></svg>
-        รีเฟรช
-      </button>
+    <div class="form-row">
+      <div class="field">
+        <label>เลขที่ใบส่งสินค้า (Invoice/PO)</label>
+        <input type="text" id="invoice" placeholder="เช่น INV-2025-001">
+      </div>
+      <div class="field">
+        <label>คลังสินค้า / สถานที่รับ</label>
+        <input type="text" id="warehouse" placeholder="เช่น คลัง A อาคาร 3">
+      </div>
     </div>
-  </header>
-
-  <div class="stats" id="stats"></div>
-
-  <div class="controls">
-    <div class="search-box">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="searchInput" type="text" placeholder="ค้นหาบริษัท, เลขที่ PO หรือรายการสินค้า...">
+    <div class="form-row">
+      <div class="field">
+        <label>บริษัทผู้รับ</label>
+        <input type="text" id="recipient" placeholder="เช่น บริษัท ABC จำกัด">
+      </div>
+      <div class="field">
+        <label>หมายเหตุ</label>
+        <input type="text" id="note" placeholder="ข้อมูลเพิ่มเติม (ถ้ามี)">
+      </div>
     </div>
-    <div class="chips" id="statusChips"></div>
+    <div class="form-row full">
+      <div class="field">
+        <label>สถานะ</label>
+        <div class="status-toggle" id="status-toggle">
+          <button type="button" class="status-btn" data-status="pending" onclick="setStatus('pending')">
+            <span class="dot"></span> ยังไม่รับ
+          </button>
+          <button type="button" class="status-btn" data-status="received" onclick="setStatus('received')">
+            <span class="dot"></span> รับแล้ว
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="grid" id="vendorGrid"></div>
+  <!-- Items -->
+  <div class="card">
+    <div class="card-title">รายการสินค้า</div>
+    <div class="items-header">
+      <span>ชื่อสินค้า</span>
+      <span>จำนวน</span>
+      <span class="unit-header">หน่วย</span>
+      <span></span>
+    </div>
+    <div id="items-container"></div>
+    <button class="btn-add-item" onclick="addItem()">+ เพิ่มรายการสินค้า</button>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn-primary" id="save-btn" onclick="saveAndGenQR()">
+      <span>⚡</span> สร้าง QR Code
+    </button>
+    <button class="btn-secondary" onclick="resetForm()">
+      ล้างข้อมูล
+    </button>
+  </div>
+
+  <!-- QR Result -->
+  <div class="card" id="qr-section" style="margin-top:16px;">
+    <div class="card-title">QR Code สำเร็จ <span id="doc-id-tag" class="doc-id-tag"></span></div>
+    <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start;">
+      <div>
+        <div class="qr-box" id="qr-display"></div>
+        <div style="text-align:center; font-size:11px; color:var(--muted); margin-top:4px;">สแกนด้วยกล้องมือถือ</div>
+      </div>
+      <div style="flex:1; min-width:200px;">
+        <div class="qr-info">
+          <strong>✅ บันทึกสำเร็จ</strong>
+          <span id="qr-url-display"></span>
+        </div>
+        <div class="actions">
+          <button class="btn-secondary" onclick="copyLink()">📋 คัดลอกลิงก์</button>
+          <button class="btn-secondary" onclick="printQR()">🖨️ พิมพ์ QR</button>
+          <button class="btn-secondary" onclick="newDelivery()">+ ใบใหม่</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </div>
 
-<div class="modal-overlay" id="vendorModalOverlay">
-  <div class="modal-panel" id="vendorModalPanel"></div>
+<div id="toast">
+  <span id="toast-icon">✅</span>
+  <span id="toast-msg">สำเร็จ</span>
 </div>
-
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// same config as src/js/firebase.js
 const firebaseConfig = {
   apiKey: "AIzaSyAkPFzgT7hLAxPVI129F-vRzA65MIx2VIs",
   authDomain: "gunkul-my-task-system.firebaseapp.com",
@@ -377,598 +490,330 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const STATUS = {
-  complete: {label:'ทำรับสมบูรณ์', cls:'status-complete', dot:'#34d399'},
-  partial:  {label:'ส่งบางส่วน', cls:'status-partial', dot:'#fbbf24'},
-  pending:  {label:'รอดำเนินการ', cls:'status-pending', dot:'#60a5fa'},
-  late:     {label:'ล่าช้า', cls:'status-late', dot:'#f87171'}
+window._db = db;
+window._addDoc = addDoc;
+window._collection = collection;
+
+// Set today
+const today = new Date();
+document.getElementById('delivery-date').value = today.toISOString().split('T')[0];
+document.getElementById('today-date').textContent = today.toLocaleDateString('th-TH', { weekday:'short', year:'numeric', month:'long', day:'numeric' });
+
+// Status state
+window.selectedStatus = 'pending';
+window.setStatus = function(status) {
+  window.selectedStatus = status;
+  document.querySelectorAll('.status-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.status === status);
+  });
+};
+setStatus('pending');
+
+// Init items
+window.itemCount = 0;
+window.addItem = function() {
+  itemCount++;
+  const c = document.getElementById('items-container');
+  const row = document.createElement('div');
+  row.className = 'item-row';
+  row.id = 'item-' + itemCount;
+  row.innerHTML = `
+    <input type="text" placeholder="ชื่อสินค้า / รายการ" class="item-name">
+    <input type="number" placeholder="0" min="0" class="item-qty" style="text-align:center;">
+    <input type="text" placeholder="ชิ้น / กล่อง" class="item-unit unit-col">
+    <button class="btn-remove" onclick="removeItem('item-${itemCount}')">✕</button>
+  `;
+  c.appendChild(row);
+  row.querySelector('.item-name').focus();
 };
 
-const CATEGORY_ICON = {
-  solar:'M12 4V2M12 22v-2M4.9 4.9 3.5 3.5M20.5 20.5l-1.4-1.4M4.9 19.1l-1.4 1.4M20.5 3.5l-1.4 1.4M2 12H4M20 12h2M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z',
-  cable:'M4 12h3l2-5 3 10 2-5h6',
-  inverter:'M4 5h16v10H4z M8 19h8 M9 8h2v4H9z M13 9h2v3h-2z',
-  steel:'M3 20 12 4l9 16H3Z M8 20l4-8 4 8',
-  battery:'M7 8h9a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z M18 11v2 M4 8h1v8H4z',
-  electric:'M13 2 4 14h7l-1 8 9-12h-7l1-8Z'
+window.removeItem = function(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
 };
 
-let vendors = [];
+// Add 3 default rows
+addItem(); addItem(); addItem();
 
-// --- helpers: map a raw warehouse_deliveries doc into the vendor/PO shape the UI expects ---
-const CATEGORY_LABEL = {
-  solar:'แผงโซล่าเซลล์/อุปกรณ์', cable:'สายไฟและเคเบิล', inverter:'อินเวอร์เตอร์',
-  steel:'โครงสร้างเหล็ก', battery:'แบตเตอรี่กักเก็บพลังงาน', electric:'อุปกรณ์ไฟฟ้าทั่วไป'
-};
-function guessIcon(text){
-  const t = text.toLowerCase();
-  if(/panel|โซล่า|solar/.test(t)) return 'solar';
-  if(/cable|สายไฟ|wire/.test(t)) return 'cable';
-  if(/inverter|อินเวอร์เตอร์/.test(t)) return 'inverter';
-  if(/steel|เหล็ก|structure|mounting|tracker/.test(t)) return 'steel';
-  if(/battery|แบตเตอรี่|bess/.test(t)) return 'battery';
-  return 'electric';
+// ---------- PDF auto-fill ----------
+if (window.pdfjsLib) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
-function makeInitials(name){
-  let n = (name||'').replace(/บริษัท|บจก\.?|ห้างหุ้นส่วนจำกัด|หจก\.?|จำกัด\s*\(มหาชน\)|จำกัด/g,'').trim();
-  if(!n) n = name || '?';
-  return n.slice(0,2) || '?';
+
+function setPdfStatus(kind, html) {
+  const el = document.getElementById('pdf-status');
+  el.className = kind; // '', 'ok', 'err', 'loading'
+  el.innerHTML = html;
 }
 
-// Turns the flat list of warehouse_deliveries documents into vendors -> PO -> deliveries
-function buildVendorsFromDocs(docsData){
-  const vendorMap = new Map(); // sender -> Map(poKey -> po)
-
-  docsData.forEach(d=>{
-    const sender = d.sender || 'ไม่ระบุผู้ขาย/ผู้ส่ง';
-    if(!vendorMap.has(sender)) vendorMap.set(sender, new Map());
-    const poMap = vendorMap.get(sender);
-    const invoice = d.invoice || d.note || '(ไม่มีเลขที่)';
-
-    (d.items || []).forEach(item=>{
-      const key = invoice + '||' + item.name + '||' + (item.unit || '');
-      if(!poMap.has(key)){
-        poMap.set(key, {
-          poNumber: invoice,
-          itemDesc: item.name || '-',
-          unit: item.unit || '-',
-          qtyTotal: 0,
-          orderDate: d.date,
-          status: 'complete', // this dataset only records goods already received
-          deliveries: []
-        });
+// Read the PDF and reconstruct it into lines of text. Text fragments are
+// kept in their original PDF content-stream order (re-sorting by x/y can
+// scramble Thai combining vowels/tone-marks), a new line starts on a big
+// vertical jump, and a space is inserted only where there is a visible
+// horizontal gap between two consecutive fragments.
+async function extractPdfLines(file) {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const lines = [];
+  for (let p = 1; p <= pdf.numPages; p++) {
+    const page = await pdf.getPage(p);
+    const content = await page.getTextContent();
+    let cur = '';
+    let lastY = null, lastEndX = null;
+    content.items.forEach(item => {
+      const y = item.transform[5];
+      const x = item.transform[4];
+      const w = item.width || 0;
+      const h = Math.abs(item.transform[3]) || 10;
+      const newLine = lastY !== null && Math.abs(y - lastY) > Math.max(3, h * 0.5);
+      if (newLine) {
+        if (cur.trim()) lines.push(cur.trim());
+        cur = '';
+        lastEndX = null;
       }
-      const po = poMap.get(key);
-      const qty = Number(item.qty) || 0;
-      po.qtyTotal += qty;
-      if(d.date && d.date < po.orderDate) po.orderDate = d.date;
-      po.deliveries.push({
-        date: d.date,
-        qty,
-        receiver: d.receivedBy || '-',
-        note: d.note || ''
-      });
+      if (lastEndX !== null && (x - lastEndX) > h * 0.3) cur += ' ';
+      cur += item.str;
+      lastY = y;
+      lastEndX = x + w;
     });
-  });
-
-  const built = [];
-  let idx = 0;
-  for(const [sender, poMap] of vendorMap.entries()){
-    idx++;
-    const pos = Array.from(poMap.values()).map(po=>{
-      po.deliveries.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-      return po;
-    }).sort((a,b)=>(b.orderDate||'').localeCompare(a.orderDate||''));
-    const allText = pos.map(p=>p.itemDesc).join(' ');
-    const icon = guessIcon(allText);
-    built.push({
-      id: 'v'+idx,
-      name: sender,
-      category: CATEGORY_LABEL[icon],
-      icon,
-      initials: makeInitials(sender),
-      pos
-    });
+    if (cur.trim()) lines.push(cur.trim());
   }
-  built.sort((a,b)=>a.name.localeCompare(b.name,'th'));
-  return built;
+  return lines;
 }
 
-const fmtDate = iso => new Date(iso + 'T00:00:00').toLocaleDateString('th-TH', {day:'numeric', month:'short', year:'numeric'});
-const fmtShort = iso => new Date(iso + 'T00:00:00').toLocaleDateString('th-TH', {day:'numeric', month:'short'});
-const fmtNum = n => n.toLocaleString('th-TH');
+// Pull the fields we care about out of the reconstructed lines.
+// Some Thai labels in this document's PDF font are missing a tone-mark
+// glyph (a known font-encoding quirk), so matching is anchored on the
+// more reliable surrounding data (vendor code, document number format)
+// rather than the label text itself.
+function parsePdfFields(lines) {
+  // ผู้ส่ง / บริษัทผู้ส่ง  <-  เจ้าหนี้ (บนบรรทัดเดียวกันคือ รหัสเจ้าหนี้ V###### : ชื่อบริษัท)
+  // ทำทีละบรรทัด เพราะบรรทัดนี้จบด้วยชื่อบริษัทพอดี ไม่ต้องเดาคำหยุด
+  let sender = '';
+  for (const line of lines) {
+    const m = line.match(/V\d{5,7}\s*:\s*(.+)/);
+    if (m) { sender = m[1].trim(); break; }
+  }
 
-// groups a vendor's item-level po entries (one per invoice+item) into invoice-level rows
-function getInvoiceGroups(vendor){
-  const map = new Map();
-  vendor.pos.forEach(po=>{
-    if(!map.has(po.poNumber)) map.set(po.poNumber, { invoice: po.poNumber, items: [], date: po.orderDate });
-    const g = map.get(po.poNumber);
-    g.items.push(po);
-    if(po.orderDate && po.orderDate < g.date) g.date = po.orderDate;
-  });
-  return Array.from(map.values()).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-}
-
-let statusFilter = 'all';
-let searchQuery = '';
-
-function computeStats(){
-  const ym = new Date().toISOString().slice(0,7);
-  let totalPO = 0, deliveriesThisMonth = 0, pendingPO = 0;
-  vendors.forEach(v => {
-    totalPO += getInvoiceGroups(v).length;
-    v.pos.forEach(po => {
-      if(po.status !== 'complete') pendingPO++;
-      po.deliveries.forEach(d => { if((d.date||'').startsWith(ym)) deliveriesThisMonth++; });
-    });
-  });
-  return { totalVendors: vendors.length, totalPO, deliveriesThisMonth, pendingPO };
-}
-
-function renderStats(){
-  const s = computeStats();
-  const cards = [
-    {label:'ผู้ขายทั้งหมด', value:s.totalVendors, unit:'บริษัท', cls:''},
-    {label:'PO ทั้งหมด', value:s.totalPO, unit:'รายการ', cls:'gold'},
-    {label:'ส่งของเดือนนี้', value:s.deliveriesThisMonth, unit:'ครั้ง', cls:''},
-    {label:'รอดำเนินการ / ค้างส่ง', value:s.pendingPO, unit:'PO', cls:'warn'}
-  ];
-  document.getElementById('stats').innerHTML = cards.map((c,i)=>`
-    <div class="stat-card ${c.cls}" style="animation-delay:${i*70}ms">
-      <div class="label">${c.label}</div>
-      <div class="value" data-target="${c.value}">0<span>${c.unit}</span></div>
-    </div>`).join('');
-  document.querySelectorAll('.stat-card .value').forEach(el=>{
-    const target = +el.dataset.target;
-    const unitHTML = el.querySelector('span').outerHTML;
-    let start = null;
-    const dur = 700;
-    function step(ts){
-      if(!start) start = ts;
-      const p = Math.min((ts-start)/dur, 1);
-      const eased = 1 - Math.pow(1-p, 3);
-      el.innerHTML = Math.round(eased*target) + unitHTML;
-      if(p<1) requestAnimationFrame(step);
+  // เลขที่ใบส่งสินค้า (Invoice/PO)  <-  เลขที่ใบสั่งซื้อ (มีคำว่า "สั่ง"; ต่างจากเลขที่ใบขอซื้อ/PR ที่ไม่มี)
+  let invoice = '';
+  for (const line of lines) {
+    if (/สั่ง/.test(line) && /เลขท/.test(line)) {
+      const m = line.match(/[A-Z]{2,10}\d{0,3}-\d{4,8}/);
+      if (m) { invoice = m[0]; break; }
     }
-    requestAnimationFrame(step);
-  });
-}
-
-function renderChips(){
-  const options = [['all','ทั้งหมด'], ['complete','ทำรับสมบูรณ์'], ['partial','ส่งบางส่วน'], ['pending','รอดำเนินการ'], ['late','ล่าช้า']];
-  document.getElementById('statusChips').innerHTML = options.map(([key,label])=>
-    `<button class="chip ${statusFilter===key?'active':''}" data-key="${key}">${label}</button>`
-  ).join('');
-  document.querySelectorAll('.chip').forEach(el=>{
-    el.addEventListener('click', ()=>{ statusFilter = el.dataset.key; renderGrid(); renderChips(); });
-  });
-}
-
-// shades of gold used to tell consecutive deliveries apart inside one bar
-const SEG_COLORS = ['#f0d896','#e8c468','#d4ac4e','#c89b3c','#b3872f','#9c7526'];
-function segColor(i){ return SEG_COLORS[i % SEG_COLORS.length]; }
-
-function progressBarHTML(po){
-  const delivered = po.deliveries.reduce((a,d)=>a+d.qty,0);
-  const total = Math.max(po.qtyTotal || delivered, delivered, 1);
-  const remaining = Math.max(total - delivered, 0);
-  const pct = Math.min(Math.round((delivered/total)*100), 100);
-
-  const segs = po.deliveries.map((d,i)=>{
-    const w = Math.max((d.qty/total)*100, 0.6);
-    return `<div class="po-progress-seg" style="width:${w.toFixed(2)}%;background:${segColor(i)}" title="${fmtShort(d.date)} · ${fmtNum(d.qty)} ${po.unit}"></div>`;
-  }).join('');
-  const remSeg = remaining > 0
-    ? `<div class="po-progress-seg po-progress-remaining" style="width:${((remaining/total)*100).toFixed(2)}%" title="คงเหลือ ${fmtNum(remaining)} ${po.unit}"></div>`
-    : '';
-
-  const legendItems = po.deliveries.map((d,i)=>
-    `<span><i class="dot" style="background:${segColor(i)}"></i>${fmtShort(d.date)} · <b>${fmtNum(d.qty)}</b> ${po.unit}</span>`
-  ).join('');
-  const remLegend = remaining > 0
-    ? `<span><i class="dot" style="background:rgba(255,255,255,.18)"></i>คงเหลือ <b>${fmtNum(remaining)}</b> ${po.unit}</span>`
-    : '';
-
-  return `
-    <div class="po-progress">
-      <div class="po-progress-head">
-        <span class="po-progress-total">${fmtNum(delivered)}<small> / ${fmtNum(total)} ${po.unit}</small></span>
-        <span class="po-progress-pct">${pct}%</span>
-      </div>
-      <div class="po-progress-track">${segs}${remSeg}</div>
-      <div class="po-progress-legend">${legendItems}${remLegend}</div>
-    </div>`;
-}
-
-function tableHTML(po){
-  const rows = po.deliveries.map((d,i)=>`
-    <tr>
-      <td>${i+1}</td>
-      <td class="date">${fmtDate(d.date)}</td>
-      <td class="num">${fmtNum(d.qty)} ${po.unit}</td>
-      <td>${d.receiver}</td>
-      <td>${d.note || '-'}</td>
-    </tr>`).join('');
-  const delivered = po.deliveries.reduce((a,d)=>a+d.qty,0);
-  const remaining = Math.max(po.qtyTotal - delivered, 0);
-  const remainingRow = (po.status !== 'complete' && remaining > 0)
-    ? `<tr class="row-remaining"><td>—</td><td class="date">—</td><td class="num">${fmtNum(remaining)} ${po.unit}</td><td colspan="2">คงเหลือรอส่ง${po.eta ? ' · ' + po.eta : ''}</td></tr>`
-    : '';
-  if(!rows && !remainingRow){
-    return `<div class="po-empty">ยังไม่มีข้อมูลการส่งของ</div>`;
   }
-  return `
-    <div class="po-table-wrap">
-      <table class="po-table">
-        <thead><tr><th>#</th><th>วันที่ส่ง</th><th>จำนวน</th><th>ผู้รับของ</th><th>หมายเหตุ</th></tr></thead>
-        <tbody>${rows}${remainingRow}</tbody>
-      </table>
-    </div>`;
-}
-
-function poRowHTML(po){
-  const s = STATUS[po.status];
-  const delivered = po.deliveries.reduce((a,d)=>a+d.qty,0);
-  return `
-    <div class="po-row">
-      <div class="po-row-top">
-        <div>
-          <div class="po-num">${po.poNumber}</div>
-          <div class="po-desc">${po.itemDesc}</div>
-          <div class="po-qty">รับแล้ว ${fmtNum(delivered)} / ${fmtNum(po.qtyTotal)} ${po.unit} · สั่งเมื่อ ${fmtDate(po.orderDate)}${po.eta ? ' · ' + po.eta : ''}</div>
-        </div>
-        <span class="status-pill ${s.cls}">${s.label}</span>
-      </div>
-      <div class="po-detail">
-        ${progressBarHTML(po)}
-        ${tableHTML(po)}
-      </div>
-    </div>`;
-}
-
-function iconSVG(key){
-  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="${CATEGORY_ICON[key]||CATEGORY_ICON.electric}"/></svg>`;
-}
-
-// --- vendor detail modal: donut of item mix, monthly delivery-count trend, tags ---
-function donutSVG(segments){
-  const total = segments.reduce((a,s)=>a+s.value,0) || 1;
-  const size=140, r=48, cx=size/2, cy=size/2, circ = 2*Math.PI*r;
-  let offset=0;
-  const rings = segments.map(s=>{
-    const frac = s.value/total;
-    const dash = frac*circ;
-    const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="18"
-      stroke-dasharray="${dash.toFixed(2)} ${(circ-dash).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;
-    offset += dash;
-    return el;
-  }).join('');
-  return `<svg viewBox="0 0 ${size} ${size}" width="100%" style="max-width:150px; display:block; margin:0 auto;">
-    ${rings}
-    <circle cx="${cx}" cy="${cy}" r="${r-11}" fill="#0a1929"/>
-  </svg>`;
-}
-
-function vendorItemBreakdown(vendor){
-  const map = new Map();
-  vendor.pos.forEach(po=>{
-    map.set(po.itemDesc, (map.get(po.itemDesc)||0) + po.deliveries.length);
-  });
-  const entries = Array.from(map.entries()).sort((a,b)=>b[1]-a[1]);
-  const top = entries.slice(0,4);
-  const rest = entries.slice(4);
-  if(rest.length){
-    top.push(['อื่นๆ (' + rest.length + ' รายการ)', rest.reduce((a,[,v])=>a+v,0)]);
+  // สำรอง: ถ้าไม่เจอ ให้หารหัสเอกสารตัวแรกที่ไม่ใช่เลขที่ใบขอซื้อ(PR)
+  if (!invoice) {
+    const codes = [];
+    lines.forEach(l => { const m = l.match(/[A-Z]{2,10}\d{0,3}-\d{4,8}/); if (m) codes.push(m[0]); });
+    invoice = codes.find(c => !/PR/i.test(c)) || codes[0] || '';
   }
-  return top.map(([label,value],i)=>({label, value, color: segColor(i)}));
+
+  return { sender, invoice };
 }
 
-function vendorMonthlyCounts(vendor, monthsBack=13){
-  const counts = new Map();
-  vendor.pos.forEach(po=>po.deliveries.forEach(d=>{
-    const ym = (d.date||'').slice(0,7);
-    if(!ym) return;
-    counts.set(ym, (counts.get(ym)||0)+1);
-  }));
-  // always show a continuous window of recent months (zero-filled) so trends
-  // are visible even when a vendor only has one or two delivery records
-  const now = new Date();
-  const months = [];
-  for(let i=monthsBack-1; i>=0; i--){
-    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
-    const ym = d.toISOString().slice(0,7);
-    months.push({month: ym, count: counts.get(ym) || 0});
+// Pull the item rows (ลำดับ + ชื่อสินค้า only — not condition/inspection/
+// signature/reference/note columns) out of the reconstructed lines.
+function parsePdfItems(lines) {
+  const rowRe = /^(\d{1,4})\s+\S+\s+\S+\s+[\d,.]+\s+\d+\/\d+\s*$/;
+  const stopRe = /(เงื่อนไข|^\d+\.\s|^หมายเหตุ\s*:)/;
+  const items = [];
+  for (let i = 0; i < lines.length; i++) {
+    if (!rowRe.test(lines[i])) continue;
+    const nameParts = [];
+    let j = i + 1;
+    while (j < lines.length && !rowRe.test(lines[j])) {
+      const l = lines[j].trim();
+      if (!l) { j++; continue; }
+      if (stopRe.test(l)) break;
+      if (/^ผู้ขอซื้อ/.test(l) || /ขอซื้อ\s*:/.test(l)) { j++; continue; }
+      nameParts.push(l);
+      j++;
+    }
+    const name = nameParts.join(' ').replace(/\s+/g, ' ').trim();
+    if (name) items.push({ name });
   }
-  return months;
+  return items;
 }
 
-// Catmull-Rom -> cubic Bezier smoothing so the trend line reads as a soft
-// curve instead of jagged straight segments.
-function smoothLinePath(points){
-  if(points.length < 2) return `M${points[0].x},${points[0].y}`;
-  let d = `M${points[0].x.toFixed(1)},${points[0].y.toFixed(1)}`;
-  for(let i=0;i<points.length-1;i++){
-    const p0 = points[i-1] || points[i];
-    const p1 = points[i];
-    const p2 = points[i+1];
-    const p3 = points[i+2] || p2;
-    const cp1x = p1.x + (p2.x-p0.x)/6;
-    const cp1y = p1.y + (p2.y-p0.y)/6;
-    const cp2x = p2.x - (p3.x-p1.x)/6;
-    const cp2y = p2.y - (p3.y-p1.y)/6;
-    d += ` C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+async function handlePdfUpload(file) {
+  if (!file) return;
+  document.getElementById('pdf-drop-label').textContent = file.name;
+  setPdfStatus('loading', '⏳ กำลังอ่านไฟล์ PDF...');
+  try {
+    const lines = await extractPdfLines(file);
+    const { sender, invoice } = parsePdfFields(lines);
+    const items = parsePdfItems(lines);
+
+    if (sender) document.getElementById('sender').value = sender;
+    if (invoice) document.getElementById('invoice').value = invoice;
+
+    if (items.length) {
+      document.getElementById('items-container').innerHTML = '';
+      window.itemCount = 0;
+      items.forEach(it => {
+        addItem();
+        const row = document.getElementById('item-' + window.itemCount);
+        row.querySelector('.item-name').value = it.name;
+      });
+    }
+
+    const bits = [];
+    bits.push(sender ? `ผู้ส่ง: <strong>${sender}</strong>` : 'ไม่พบชื่อผู้ส่ง — กรุณากรอกเอง');
+    bits.push(invoice ? `เลขที่ใบสั่งซื้อ: <strong>${invoice}</strong>` : 'ไม่พบเลขที่ใบสั่งซื้อ — กรุณากรอกเอง');
+    bits.push(items.length ? `พบสินค้า ${items.length} รายการ (กรุณากรอกจำนวนเอง)` : 'ไม่พบรายการสินค้าในไฟล์ — กรุณาเพิ่มเอง');
+
+    if (sender || invoice || items.length) {
+      setPdfStatus('ok', '✅ ดึงข้อมูลจาก PDF แล้ว โปรดตรวจสอบความถูกต้องก่อนบันทึก<br>' + bits.join(' · '));
+      showToast('✅ ดึงข้อมูลจาก PDF สำเร็จ');
+    } else {
+      setPdfStatus('err', '⚠️ อ่านไฟล์ได้ แต่ไม่พบข้อมูลที่ต้องการ กรุณากรอกด้วยตนเอง');
+    }
+  } catch (e) {
+    console.error(e);
+    setPdfStatus('err', '❌ ไม่สามารถอ่านไฟล์ PDF ได้: ' + e.message);
   }
-  return d;
 }
 
-function niceCeil(x){
-  if(x<=0) return 1;
-  const magnitude = Math.pow(10, Math.floor(Math.log10(x)));
-  const norm = x/magnitude;
-  let n;
-  if(norm<=1) n=1; else if(norm<=2) n=2; else if(norm<=5) n=5; else n=10;
-  return n*magnitude;
-}
-
-// smooth filled line/area chart with gridlines + sparse month labels,
-// styled after the reference "ยอดซื้อรายเดือน" chart
-function monthlyAreaSVG(data){
-  if(!data.length) return `<div class="po-empty" style="text-align:center;">ยังไม่มีข้อมูล</div>`;
-  const w=280, h=150;
-  const padL=30, padR=8, padT=14, padB=22;
-  const innerW = w-padL-padR, innerH = h-padT-padB;
-  const rawMax = Math.max(...data.map(d=>d.count), 0);
-  const niceMax = niceCeil(rawMax || 1);
-  const n = data.length;
-  const stepX = n>1 ? innerW/(n-1) : innerW;
-  const baseY = padT+innerH;
-
-  const points = data.map((d,i)=>({
-    x: padL + i*stepX,
-    y: padT + innerH - (d.count/niceMax)*innerH,
-    ...d
-  }));
-
-  const lineD = smoothLinePath(points);
-  const areaD = `${lineD} L${points[points.length-1].x.toFixed(1)},${baseY} L${points[0].x.toFixed(1)},${baseY} Z`;
-
-  // 4 horizontal gridlines (0%, 33%, 66%, 100%) with value labels on the left
-  const gridCount = 3;
-  const grid = Array.from({length: gridCount+1}, (_, gi) => {
-    const frac = gi/gridCount;
-    const y = padT + innerH*(1-frac);
-    const val = Math.round(niceMax*frac);
-    return `
-      <line x1="${padL}" y1="${y.toFixed(1)}" x2="${w-padR}" y2="${y.toFixed(1)}" stroke="rgba(232,196,104,.10)" stroke-width="1"/>
-      <text x="${(padL-6).toFixed(1)}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="8" fill="#5f7590" font-family="IBM Plex Mono, monospace">${val}</text>`;
-  }).join('');
-
-  // sparse x-axis labels (about 5 across the range), always including the last month
-  const maxLabels = 5;
-  const labelEvery = Math.max(1, Math.ceil(n/maxLabels));
-  const xLabels = points.map((p,i)=>{
-    const show = i%labelEvery===0 || i===points.length-1;
-    if(!show) return '';
-    const label = new Date(p.month+'-01').toLocaleDateString('th-TH',{month:'short', year:'2-digit'});
-    return `<text x="${p.x.toFixed(1)}" y="${h-6}" text-anchor="middle" font-size="8.5" fill="#8fa3b8" font-family="IBM Plex Mono, monospace">${label}</text>`;
-  }).join('');
-
-  // dot + value callout on the peak month so the spike still reads clearly
-  const peak = points.reduce((a,b)=> b.count>a.count ? b : a, points[0]);
-  const peakDot = peak.count>0
-    ? `<circle cx="${peak.x.toFixed(1)}" cy="${peak.y.toFixed(1)}" r="3" fill="#60a5fa" stroke="#0a1929" stroke-width="1.5"/>
-       <text x="${peak.x.toFixed(1)}" y="${(peak.y-8).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="600" fill="#eaf1f8" font-family="IBM Plex Mono, monospace">${peak.count}</text>`
-    : '';
-
-  return `<svg viewBox="0 0 ${w} ${h}" width="100%" style="display:block;">
-    <defs>
-      <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.35"/>
-        <stop offset="100%" stop-color="#60a5fa" stop-opacity="0"/>
-      </linearGradient>
-    </defs>
-    ${grid}
-    <path d="${areaD}" fill="url(#areaFill)"/>
-    <path d="${lineD}" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    ${peakDot}
-    ${xLabels}
-  </svg>`;
-}
-
-function vendorTags(vendor){
-  const cats = new Set();
-  vendor.pos.forEach(po=> cats.add(CATEGORY_LABEL[guessIcon(po.itemDesc)]));
-  return Array.from(cats);
-}
-
-function openVendorModal(id){
-  const v = vendors.find(x=>x.id===id);
-  if(!v) return;
-  const groups = getInvoiceGroups(v);
-  const allDeliveries = v.pos.flatMap(po=>po.deliveries);
-  const lastDate = allDeliveries.length ? allDeliveries.map(d=>d.date).sort().slice(-1)[0] : null;
-  const daysSince = lastDate ? Math.floor((Date.now() - new Date(lastDate+'T00:00:00').getTime())/86400000) : null;
-  const isActive = daysSince !== null && daysSince <= 90;
-  const breakdown = vendorItemBreakdown(v);
-  const monthly = vendorMonthlyCounts(v);
-  const tags = vendorTags(v);
-
-  const panel = document.getElementById('vendorModalPanel');
-  panel.innerHTML = `
-    <div class="modal-head">
-      <button class="modal-close" id="modalCloseBtn" aria-label="ปิด">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
-      <div class="m-tag">${v.id.toUpperCase()} · ${v.category}</div>
-      <h2>${v.name}</h2>
-      <div class="status-badge ${isActive?'active':'inactive'}">
-        <span class="dot2"></span> ${isActive ? 'Active' : (lastDate ? 'ไม่มีการส่งของช่วงหลัง' : 'ยังไม่มีประวัติ')}
-      </div>
-    </div>
-    <div class="modal-body">
-      <div class="m-stats">
-        <div class="m-stat"><div class="m-label">จำนวน PO</div><div class="m-value">${groups.length}</div></div>
-        <div class="m-stat"><div class="m-label">รายการสินค้า</div><div class="m-value">${v.pos.length}</div></div>
-        <div class="m-stat"><div class="m-label">รับล่าสุด</div><div class="m-value" style="font-size:13.5px;">${lastDate ? fmtShort(lastDate) : '—'}</div></div>
-      </div>
-
-      <div class="m-charts">
-        <div class="m-panel">
-          <h4>สัดส่วนรายการสินค้าที่รับ</h4>
-          ${donutSVG(breakdown)}
-          <div class="donut-legend">
-            ${breakdown.map(b=>`<div><span class="dl-name"><i class="dl-dot" style="background:${b.color}"></i><span>${b.label}</span></span><b>${b.value}</b></div>`).join('')}
-          </div>
-        </div>
-        <div class="m-panel">
-          <h4>จำนวนครั้งที่ส่งของรายเดือน</h4>
-          ${monthlyAreaSVG(monthly)}
-        </div>
-      </div>
-
-      <div class="m-tags">${tags.map(t=>`<span class="m-tag-chip">${t}</span>`).join('')}</div>
-
-      <div class="m-section-title"><span>ประวัติการรับของ (${groups.length} PO)</span></div>
-      <div class="m-history">
-        ${groups.map((g,i)=>`
-          <div class="m-history-row" data-idx="${i}">
-            <div class="m-history-head">
-              <div>
-                <div class="m-hnum">${g.invoice}</div>
-                <div class="m-hdate">${fmtDate(g.date)}</div>
-              </div>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span class="m-hcount">${g.items.length} รายการ</span>
-                <svg class="m-hchevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>
-              </div>
-            </div>
-            <div class="m-history-body"><div class="m-history-body-inner">
-              ${g.items.map(poRowHTML).join('')}
-            </div></div>
-          </div>`).join('')}
-      </div>
-    </div>`;
-
-  panel.querySelector('#modalCloseBtn').addEventListener('click', closeVendorModal);
-  panel.querySelectorAll('.m-history-head').forEach(head=>{
-    head.addEventListener('click', ()=> head.closest('.m-history-row').classList.toggle('open'));
-  });
-
-  document.getElementById('vendorModalOverlay').classList.add('show');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeVendorModal(){
-  document.getElementById('vendorModalOverlay').classList.remove('show');
-  document.body.style.overflow = '';
-}
-
-document.getElementById('vendorModalOverlay').addEventListener('click', e=>{
-  if(e.target.id === 'vendorModalOverlay') closeVendorModal();
+document.getElementById('pdf-upload').addEventListener('change', (e) => {
+  const file = e.target.files && e.target.files[0];
+  handlePdfUpload(file);
 });
-document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeVendorModal(); });
+// ---------- end PDF auto-fill ----------
 
-function vendorCardHTML(v, idx){
-  const totalPO = getInvoiceGroups(v).length;
-  const allDeliveries = v.pos.flatMap(po=>po.deliveries);
-  const lastDate = allDeliveries.length ? allDeliveries.map(d=>d.date).sort().slice(-1)[0] : null;
-  return `
-    <div class="vendor-card" data-id="${v.id}" style="animation-delay:${idx*55}ms" tabindex="0">
-      <div class="vendor-head">
-        <div class="avatar"><span>${v.initials}</span></div>
-        <div class="vendor-info">
-          <h3>${v.name}</h3>
-          <div class="cat">${iconSVG(v.icon)} ${v.category}</div>
-          <div class="vendor-meta">
-            <span><b>${totalPO}</b> PO</span>
-            <span>ส่งล่าสุด <b>${lastDate ? fmtShort(lastDate) : '—'}</b></span>
-          </div>
-        </div>
-        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>
-      </div>
-    </div>`;
-}
+window.saveAndGenQR = async function() {
+  const btn = document.getElementById('save-btn');
+  const date = document.getElementById('delivery-date').value;
+  const sender = document.getElementById('sender').value.trim();
+  const invoice = document.getElementById('invoice').value.trim();
+  const warehouse = document.getElementById('warehouse').value.trim();
+  const recipient = document.getElementById('recipient').value.trim();
+  const note = document.getElementById('note').value.trim();
+  const status = window.selectedStatus || 'pending';
 
-function getFiltered(){
-  const q = searchQuery.trim().toLowerCase();
-  return vendors.map(v=>{
-    const pos = v.pos.filter(po=>{
-      const statusOk = statusFilter==='all' || po.status===statusFilter;
-      const searchOk = !q || v.name.toLowerCase().includes(q) || po.poNumber.toLowerCase().includes(q) || po.itemDesc.toLowerCase().includes(q);
-      return statusOk && searchOk;
-    });
-    return {...v, pos};
-  }).filter(v=>v.pos.length>0);
-}
-
-function renderGrid(){
-  const filtered = getFiltered();
-  const grid = document.getElementById('vendorGrid');
-  if(!filtered.length){
-    grid.innerHTML = `<div class="empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <div>ไม่พบผู้ขายหรือ PO ที่ตรงกับเงื่อนไข</div>
-    </div>`;
+  if (!date || !sender) {
+    showToast('⚠️ กรุณากรอกวันที่และผู้ส่งสินค้า', true);
     return;
   }
-  grid.innerHTML = filtered.map((v,i)=>vendorCardHTML(v,i)).join('');
-  grid.querySelectorAll('.vendor-card').forEach(card=>{
-    card.addEventListener('click', ()=> openVendorModal(card.dataset.id));
-    card.addEventListener('keydown', e=>{
-      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openVendorModal(card.dataset.id); }
-    });
+
+  const rows = document.querySelectorAll('.item-row');
+  const items = [];
+  rows.forEach(r => {
+    const name = r.querySelector('.item-name').value.trim();
+    const qty = r.querySelector('.item-qty').value;
+    const unit = r.querySelector('.item-unit') ? r.querySelector('.item-unit').value.trim() : '';
+    if (name) items.push({ name, qty: Number(qty) || 0, unit: unit || 'ชิ้น', checked: status === 'received' });
   });
-}
 
-document.getElementById('searchInput').addEventListener('input', e=>{
-  searchQuery = e.target.value;
-  renderGrid();
-});
-
-// initial loading state
-document.getElementById('vendorGrid').innerHTML = `<div class="empty">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-  <div>กำลังโหลดข้อมูล...</div>
-</div>`;
-renderChips();
-
-const deliveriesRef = collection(db, 'warehouse_deliveries');
-const connTag = document.getElementById('connTag');
-const refreshBtn = document.getElementById('refreshBtn');
-
-function fmtTime(d){
-  return d.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
-}
-
-// one-time fetch — replaces the old onSnapshot real-time listener so the page
-// only reads from Firestore when it first loads or when the user explicitly
-// clicks "รีเฟรช", instead of on every keystroke/re-render/remote write.
-async function fetchData(){
-  refreshBtn.disabled = true;
-  refreshBtn.classList.add('spinning');
-  try{
-    const snapshot = await getDocs(deliveriesRef);
-    const docsData = snapshot.docs.map(doc => doc.data());
-    vendors = buildVendorsFromDocs(docsData);
-    connTag.textContent = `อัปเดตล่าสุด ${fmtTime(new Date())} · ${docsData.length} รายการรับของ`;
-    renderStats();
-    renderGrid();
-  }catch(err){
-    console.error('Firestore error:', err);
-    connTag.textContent = 'เชื่อมต่อ Firestore ไม่สำเร็จ';
-    document.getElementById('vendorGrid').innerHTML = `<div class="empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <div>ไม่สามารถโหลดข้อมูลได้: ${err.message}<br>ตรวจสอบ Firestore Security Rules และการเชื่อมต่อเครือข่าย</div>
-    </div>`;
-  }finally{
-    refreshBtn.disabled = false;
-    refreshBtn.classList.remove('spinning');
+  if (items.length === 0) {
+    showToast('⚠️ กรุณาเพิ่มรายการสินค้าอย่างน้อย 1 รายการ', true);
+    return;
   }
-}
 
-refreshBtn.addEventListener('click', fetchData);
-fetchData();
+  btn.disabled = true;
+  btn.innerHTML = '<span>⏳</span> กำลังบันทึก...';
+
+  try {
+    const docRef = await window._addDoc(window._collection(window._db, 'warehouse_deliveries'), {
+      date,
+      sender,
+      invoice: invoice || '',
+      warehouse: warehouse || '',
+      recipient: recipient || '',
+      note: note || '',
+      items,
+      status,
+      createdAt: new Date().toISOString(),
+      signatureData: null,
+      receivedAt: status === 'received' ? new Date().toISOString() : null,
+      receivedBy: null,
+    });
+
+    const docId = docRef.id;
+    const base = window.location.href.replace('admin.html', 'receiver.html');
+    const receiverURL = `${base}?id=${docId}`;
+
+    // QR
+    document.getElementById('qr-section').style.display = 'block';
+    document.getElementById('doc-id-tag').textContent = docId.slice(0,8) + '...';
+    document.getElementById('qr-display').innerHTML = '';
+    new QRCode(document.getElementById('qr-display'), {
+      text: receiverURL,
+      width: 200, height: 200,
+      colorDark: '#000', colorLight: '#fff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+    document.getElementById('qr-url-display').textContent = receiverURL;
+    window._currentURL = receiverURL;
+    showToast('✅ บันทึกสำเร็จ สร้าง QR Code แล้ว');
+    document.getElementById('qr-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    console.error(e);
+    showToast('❌ เกิดข้อผิดพลาด: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>⚡</span> สร้าง QR Code';
+  }
+};
+
+window.copyLink = function() {
+  navigator.clipboard.writeText(window._currentURL || '').then(() => showToast('📋 คัดลอกลิงก์แล้ว'));
+};
+
+window.printQR = function() {
+  const url = window._currentURL || '';
+  const sender = document.getElementById('sender').value.trim();
+  const invoice = document.getElementById('invoice').value.trim();
+  const recipient = document.getElementById('recipient').value.trim();
+  const win = window.open('', '_blank', 'width=420,height=560');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>QR รับสินค้า</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+  <style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'IBM Plex Sans Thai',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f5f5f5;padding:24px;}.card{background:#fff;border:2px solid #000;border-radius:14px;padding:28px 24px;text-align:center;width:100%;max-width:340px;box-shadow:0 4px 20px rgba(0,0,0,0.1);}.icon{font-size:32px;margin-bottom:8px;}h2{font-size:18px;font-weight:600;margin-bottom:4px;}.sub{font-size:13px;color:#666;margin-bottom:4px;}.divider{border:none;border-top:1px dashed #ccc;margin:16px 0;}#qr{display:flex;justify-content:center;margin-bottom:16px;}.footer{font-size:11px;color:#999;margin-top:8px;word-break:break-all;}.scan-label{font-size:13px;color:#333;font-weight:600;background:#f0f0f0;border-radius:6px;padding:6px 12px;display:inline-block;margin-bottom:12px;}@media print{body{background:#fff;padding:0;}.card{box-shadow:none;}}</style>
+  </head><body><div class="card"><div class="icon">📦</div><h2>ใบรับสินค้า</h2>
+  ${sender ? `<div class="sub">ผู้ส่ง: <strong>${sender}</strong></div>` : ''}
+  ${recipient ? `<div class="sub">ผู้รับ: <strong>${recipient}</strong></div>` : ''}
+  ${invoice ? `<div class="sub">Invoice/po: <strong>${invoice}</strong></div>` : ''}
+  <hr class="divider"><div class="scan-label">📱 สแกนเพื่อยืนยันรับสินค้า</div>
+  <div id="qr"></div><div class="footer">${url}</div></div>
+  <script>new QRCode(document.getElementById('qr'),{text:'${url}',width:200,height:200,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});setTimeout(()=>window.print(),900);<\/script></body></html>`);
+  win.document.close();
+};
+
+window.resetForm = function() {
+  document.getElementById('sender').value = '';
+  document.getElementById('invoice').value = '';
+  document.getElementById('warehouse').value = '';
+  document.getElementById('recipient').value = '';
+  document.getElementById('note').value = '';
+  document.getElementById('items-container').innerHTML = '';
+  document.getElementById('qr-section').style.display = 'none';
+  window.itemCount = 0;
+  setStatus('pending');
+  addItem(); addItem(); addItem();
+  document.getElementById('pdf-upload').value = '';
+  document.getElementById('pdf-drop-label').textContent = 'แตะเพื่อเลือกไฟล์ PDF';
+  const pdfStatus = document.getElementById('pdf-status');
+  pdfStatus.className = '';
+  pdfStatus.innerHTML = '';
+};
+
+window.newDelivery = function() {
+  resetForm();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  const m = document.getElementById('toast-msg');
+  m.textContent = msg;
+  t.style.borderColor = isError ? 'rgba(247,95,95,0.4)' : 'var(--border)';
+  t.classList.add('toast-show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('toast-show'), 3000);
+}
+window.showToast = showToast;
 </script>
 </body>
 </html>
